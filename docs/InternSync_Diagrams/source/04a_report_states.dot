@@ -1,0 +1,22 @@
+digraph R {
+  graph [rankdir=LR, fontname="Liberation Sans", nodesep=0.5, ranksep=0.7, bgcolor="white", pad=0.2];
+  node  [fontname="Liberation Sans", fontsize=13, shape=box, style="rounded,filled", fillcolor="#EAF0FA", color="#1F3864", penwidth=1.2, margin="0.18,0.08"];
+  edge  [fontname="Liberation Sans", fontsize=11, color="#44546A", fontcolor="#333333", arrowsize=0.7];
+  start [shape=circle, label="", width=0.18, style=filled, fillcolor="#1F3864"];
+  endA  [shape=doublecircle, label="", width=0.14, style=filled, fillcolor="#1F3864"];
+  endM  [shape=doublecircle, label="", width=0.14, style=filled, fillcolor="#1F3864"];
+  D  [label="Draft"];
+  S  [label="Submitted"];
+  RR [label="Revision\nRequested"];
+  A  [label="Accepted", fillcolor="#E2F0D9", color="#38761D"];
+  M  [label="Closed as\nMissing", fillcolor="#FBE5D6", color="#C55A11"];
+  start -> D [label=" slot created\n (placement confirmed)"];
+  D -> S  [label=" ST: submit\n (Late flag if after\n deadline)"];
+  S -> A  [label=" AS: accept"];
+  S -> RR [label=" AS: request revision\n (comment required)"];
+  RR -> S [label=" ST: resubmit\n (new version kept)"];
+  D -> M  [label=" AS: close slot\n (no submission)"];
+  A -> endA;
+  M -> endM;
+  { rank=same; S; M; }
+}

@@ -1,0 +1,38 @@
+sequenceDiagram
+  autonumber
+  actor ST as Student
+  participant PWA as React PWA
+  participant API as FastAPI
+  participant AI as AI services
+  participant DB as PostgreSQL + pgvector
+  participant FS as File storage
+
+  ST->>PWA: Upload CV (PDF / DOCX)
+  PWA->>API: POST /students/me/cv<br/>(JWT bearer)
+  API->>API: Check role,<br/>size ≤ 5 MB, type
+  API->>FS: Store file (private)
+  API->>AI: Extract text and<br/>candidate skills
+  alt Text found
+    AI-->>API: Skills normalised<br/>with the vocabulary
+  else Image-only file
+    AI-->>API: No text
+    Note over API: FR-PRF-05: ask for<br/>manual skill entry
+  end
+  API->>DB: Save CV version<br/>and candidate skills
+  API-->>PWA: 201 Created +<br/>candidate skills
+  ST->>PWA: Confirm or edit skills
+  PWA->>API: PUT /students/me/skills
+  API->>AI: Embed CV text +<br/>confirmed skills
+  AI->>DB: Store embedding
+
+  ST->>PWA: Open "Recommended<br/>vacancies"
+  PWA->>API: GET /vacancies/ranked
+  API->>DB: Eligible open vacancies<br/>(cycle, major, GPA)
+  alt Embedding model available
+    API->>AI: Hybrid score: cosine similarity<br/>+ required-skill overlap + rules
+    AI-->>API: Fit scores, matched<br/>and missing skills
+  else Model unavailable (FR-MAT-04)
+    API->>API: Rule-based score only,<br/>label "Basic matching"
+  end
+  API-->>PWA: Ranked list (advisory)<br/>with explanation
+  PWA-->>ST: Fit score, matched<br/>and missing skills

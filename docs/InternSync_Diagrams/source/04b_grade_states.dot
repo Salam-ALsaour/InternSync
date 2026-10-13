@@ -1,0 +1,14 @@
+digraph Gd {
+  graph [rankdir=LR, fontname="Liberation Sans", nodesep=0.6, ranksep=0.8, bgcolor="white", pad=0.2];
+  node  [fontname="Liberation Sans", fontsize=13, shape=box, style="rounded,filled", fillcolor="#EAF0FA", color="#1F3864", penwidth=1.2, margin="0.2,0.1"];
+  edge  [fontname="Liberation Sans", fontsize=11, color="#44546A", fontcolor="#333333", arrowsize=0.7];
+  start [shape=circle, label="", width=0.18, style=filled, fillcolor="#1F3864"];
+  D [label="Draft\n(AS enters\nscores)"];
+  S [label="Submitted"];
+  F [label="Final\n(locked)", fillcolor="#E2F0D9", color="#38761D"];
+  start -> D [label=" placement\n confirmed"];
+  D -> S [label=" AS: submit\n [all inputs complete,\n see FR-WFL-03]"];
+  S -> F [label=" CO: approve"];
+  S -> D [label=" CO: return\n (comment required)", constraint=false];
+  F -> D [label=" CO: reopen (reason required;\n ST and AS notified)", constraint=false];
+}

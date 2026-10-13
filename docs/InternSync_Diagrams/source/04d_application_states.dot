@@ -1,0 +1,21 @@
+digraph A {
+  graph [rankdir=LR, fontname="Liberation Sans", nodesep=0.45, ranksep=0.8, bgcolor="white", pad=0.2];
+  node  [fontname="Liberation Sans", fontsize=13, shape=box, style="rounded,filled", fillcolor="#EAF0FA", color="#1F3864", penwidth=1.2, margin="0.18,0.08"];
+  edge  [fontname="Liberation Sans", fontsize=11, color="#44546A", fontcolor="#333333", arrowsize=0.7];
+  start [shape=circle, label="", width=0.18, style=filled, fillcolor="#1F3864"];
+  S  [label="Submitted\n(active)"];
+  AC [label="Accepted\n(active)"];
+  PL [label="Placed", fillcolor="#E2F0D9", color="#38761D"];
+  DE [label="Declined", fillcolor="#F2F2F2", color="#7F7F7F"];
+  W  [label="Withdrawn", fillcolor="#F2F2F2", color="#7F7F7F"];
+  CA [label="Placement\nCancelled", fillcolor="#FBE5D6", color="#C55A11"];
+  start -> S [label=" ST: apply\n [eligible, before deadline,\n < 5 active applications]"];
+  S -> AC [label=" CS: accept"];
+  S -> DE [label=" CS: decline"];
+  S -> W  [label=" ST: withdraw\n (before decision)"];
+  AC -> PL [label=" CO: confirm placement\n (assign academic supervisor)"];
+  AC -> W [label=" auto: another placement\n confirmed for the student", style=dashed];
+  S -> W  [label=" auto: another placement\n confirmed", style=dashed, constraint=false];
+  PL -> CA [label=" CO: cancel\n (reason required)"];
+  { rank=same; AC; DE; }
+}
