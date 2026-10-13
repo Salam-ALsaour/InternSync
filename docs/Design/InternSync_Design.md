@@ -1,11 +1,12 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Task T2 (System design) · Milestone M2 · Version 1.0 · October 13, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.1 · October 13, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
 | 1.0 | Oct 13, 2026 | First version for Milestone M2: architecture, zero-cost deployment, data model (ERD and data dictionary), behaviour design, security design. The API specification is a separate document. | Salam Alsaour |
+| 1.1 | Oct 13, 2026 | Section 8: wireframes (task T3), their mapping to SRS Table 6.1, and the design system. | Salam Alsaour |
 
 **Related documents**
 
@@ -1065,7 +1066,48 @@ Each route declares its allowed roles. Record access then follows these scope ru
 
 ## 8. User Interface Design
 
-The wireframes and the design system come from task T3 (Claude Design + Figma Make) and will be added here when approved. The design fixes these points now:
+### 8.1 Wireframes (task T3)
+
+The wireframes are a clickable prototype made in Claude Design: [InternSync Wireframes](https://claude.ai/artifact/GUCAYYDPvkkBiwntVfJWJA) (private until shared from the canvas's Share menu). Their sources are copied in [`wireframes/`](wireframes/). The screens are in Arabic (RTL) by default; one screen repeats the student dashboard in English (LTR) to show the mirroring. In Play mode, the sidebar links move between screens. Some screens have tweaks that switch between the states a test must cover.
+
+**Table 8.1 – Wireframes against SRS Table 6.1**
+
+| **SRS screen** | **Artboards** | **States shown (tweaks)** | **Requirements** |
+|:---|:---|:---|:---|
+| Login, activation, password reset | `Login`, `Consent` | wrong password, account locked | FR-AUT-02 – 04, NFR-SEC-03, NFR-PRV-01 |
+| Dashboard | `Main` (student), `ST_Dashboard_Mobile`, `ST_Dashboard_EN`, `CS_Dashboard`, `AS_Dashboard`, `CO_Dashboard` | offline banner (student) | FR-DSH-01, FR-DSH-02, FR-LOC-01, FR-PWA-03, NFR-USA-03 |
+| Profile and CV | `ST_Profile` | CV without readable text | FR-PRF-02 – 05 |
+| Vacancies (browse and ranked) | `ST_Vacancies` | semantic or basic matching | FR-VAC-03 – 05, FR-MAT-01 – 07 |
+| Vacancy editor and applicants | `CS_VacancyEditor`, `CS_Applicants` | vacancy returned by the coordinator | FR-VAC-01, FR-VAC-02, FR-VAC-06 |
+| Placements | `CO_Placements` | – | FR-VAC-07, FR-VAC-08 |
+| Report form and history | `ST_Report`, `AS_ReportReview` | similarity flagged or not | FR-REP-01 – 07, FR-SIM-02, FR-SIM-03 |
+| Attendance | `CS_Attendance` | – | FR-ATT-01 – 04 |
+| Evaluation form | `CS_Evaluation` | incomplete form with errors | FR-EVL-01 – 03 |
+| Grades | `AS_Grade`, `CO_Grades` | preconditions met or not | FR-WFL-02 – 07 |
+| Cycle settings | `CO_CycleSettings` | weights not totalling 100 | FR-CYC-01 – 03, NFR-MNT-03 |
+| Users and import | `CO_Import` | – | FR-AUT-02, FR-AUT-06, FR-PRF-01 |
+| Exports and certificates | `CO_Exports` | – | FR-EXP-01 – 03, FR-CER-01, FR-CER-03 |
+| Audit log | `CO_Audit` | – | FR-AUD-02 |
+| Certificate verification | `Verify_Mobile` | valid, revoked, not found | FR-CER-02 |
+
+Not yet drawn: the student's evaluation of the company and the outcome survey (FR-EVL-05, FR-DSH-03, both Could), and the notification list.
+
+### 8.2 Design System
+
+| **Token** | **Value** | **Use** |
+|:---|:---|:---|
+| Typeface | IBM Plex Sans Arabic (400, 500, 600, 700), one family for Arabic and Latin | All text |
+| Primary | `#1F3864` (navy, as in the diagram pack); active item `#2E4D84` | Sidebar, primary buttons, headings of key figures |
+| Ground / surface / border | `#F4F6F9` / `#FFFFFF` / `#DCE2EA` | Page, cards, dividers |
+| Text / muted text | `#1A2233` / `#566173` | Body, secondary text (6:1 contrast on white) |
+| Advisory (AI) | text `#9A4410` on `#FFF4E8` | Every AI result, labelled "استرشادي" (Advisory) |
+| Status chips | Draft `#4A5363`/`#EEF1F5`; Submitted `#1F4E9A`/`#E6EEFB`; Accepted, Final `#1E6B34`/`#E3F3E7`; Late `#8A4B00`/`#FFF1D6`; Missing, error `#A61B1B`/`#FCE8E8`; Revision requested `#6B3FA0`/`#F1EAFB` | Status text always shown with its colour |
+| Shape | Cards 12 px radius; inputs and buttons 8 px; chips fully rounded | – |
+| Touch targets | 44 px minimum (48 px for main actions) | NFR-USA-04 |
+| Layout | Sidebar plus content in one wrapping row; the sidebar stacks above the content on phones | NFR-USA-03 |
+| Dates | `DD/MM/YYYY HH:mm`, Western digits | NFR-L10N-02 |
+
+### 8.3 Rules for the Frontend
 
 - **Routes by role**, after login:
   - ST: `/student` (dashboard), `/student/profile`, `/student/vacancies`, `/student/applications`, `/student/reports`.
@@ -1104,7 +1146,7 @@ The wireframes and the design system come from task T3 (Claude Design + Figma Ma
 
 | **Issue** | **Needed by** | **Plan** |
 |:---|:---|:---|
-| Wireframes and design system (T3) not yet produced | M2 (Oct 15) | Produce the screens of SRS Table 6.1 in Claude Design / Figma Make and add them to Section 8. |
+| Wireframes: user walkthrough not yet done | Before Increment 1 ends | Walk through the clickable wireframes (Section 8.1) with at least one student and one faculty member (SRS 10.2, prototyping) and record the changes. Add the three screens listed as not yet drawn. |
 | Example grade components, weights, and rubric criteria for the demo cycle | Increment 1 | Seed example values (for example: company final evaluation 40%, weekly reports 30%, final report 30%) and confirm them with the course supervisor (SRS 10.5). |
 | Skill vocabulary content (English and Arabic names, synonyms, resources) | Increment 1 | Seed about 150 skills common in computing majors; extend while labelling the 20 CVs. |
 | Labelled AI evaluation sets (20 CVs and profiles, 10 copied and 10 original reports) | Increment 2 | Generate synthetic data now; a second person must label independently (SRS 10.2). |

@@ -88,7 +88,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | **Milestone** | **Deliverable** | **Target date** | **Status** |
 |:---|:---|:--:|:--:|
 | M1: Requirements baseline | SRS approved by the team and requirements frozen | Oct 3 | Done (SRS v1.0 on Oct 10) |
-| M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | In progress (design document and API specification drafted Oct 13) |
+| M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | In progress: design document, API specification, and clickable wireframes drafted Oct 13; review pending |
 | M3: Increment 1 delivered | Demo of F1, F2, F3, F5, F10 foundation; automated tests pass | Nov 1 | Planned |
 | M4: Increment 2 delivered (all Must functions) | Demo of F4, F6, F7, F8, F9; every Must function passes its tests | Nov 15 | Planned |
 | M5: Increment 3 delivered | Demo of F11–F15; Should functions pass their tests | Nov 25 | Planned |

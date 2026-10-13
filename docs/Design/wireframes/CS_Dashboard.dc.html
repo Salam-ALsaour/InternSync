@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>لوحة تحكم مشرف جهة التدريب</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1F4E9A}a:hover{color:#172B4D}
+</style>
+</helmet>
+<div dir="rtl" lang="ar" style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F4F6F9; color: #1A2233; font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif; font-size: 15px">
+  <nav aria-label="القائمة الرئيسية" style="flex: 1 1 240px; background: #1F3864; color: #FFFFFF; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 12px">
+      <div dir="ltr" style="font-size: 22px; font-weight: 700; text-align: right">InternSync</div>
+      <div style="font-size: 13px; color: #C9D4E8">بوابة جهة التدريب</div>
+    </div>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+      <li><a href="CS_Dashboard.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; background: #2E4D84; color: #FFFFFF; font-weight: 600; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>الرئيسية</a></li>
+      <li><a href="CS_VacancyEditor.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>فرصي التدريبية</a></li>
+      <li><a href="CS_Applicants.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>المتقدمون</a></li>
+      <li><a href="CS_Attendance.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>الحضور</a></li>
+      <li><a href="CS_Evaluation.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>التقييمات</a></li>
+      <li><a href="#notifications" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>الإشعارات</a></li>
+    </ul>
+    <a href="Login.dc.html" style="margin-top: auto; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>تسجيل الخروج</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 24px 32px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h1 style="margin: 0; font-size: 26px; font-weight: 700">مرحباً أ. ريم</h1>
+        <p style="margin: 0; font-size: 14px; color: #566173">شركة الريادة للحلول الرقمية · التدريب التعاوني — خريف 2026 · الأسبوع 6</p>
+      </div>
+      <a href="CS_VacancyEditor.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #1F3864; color: #FFFFFF; text-decoration: none; font-weight: 600"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>فرصة جديدة</a>
+    </header>
+
+    <section aria-label="ما يحتاج إلى إجراء" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+      <a href="CS_Applicants.dc.html" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 6px; color: #1A2233; text-decoration: none">
+        <span style="font-size: 14px; color: #566173">متقدمون بانتظار قرارك</span>
+        <span style="font-size: 30px; font-weight: 700">4</span>
+        <span style="font-size: 14px; font-weight: 600; color: #1F4E9A">مراجعة المتقدمين</span>
+      </a>
+      <a href="CS_Attendance.dc.html" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 6px; color: #1A2233; text-decoration: none">
+        <span style="font-size: 14px; color: #566173">أسابيع حضور لم تُسجَّل</span>
+        <span style="display: flex; align-items: center; gap: 10px"><span style="font-size: 30px; font-weight: 700">2</span><span style="padding: 2px 10px; border-radius: 999px; background: #FFF1D6; color: #8A4B00; font-size: 13px; font-weight: 600">1 متأخر</span></span>
+        <span style="font-size: 14px; font-weight: 600; color: #1F4E9A">تسجيل الحضور</span>
+      </a>
+      <a href="CS_Evaluation.dc.html" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 6px; color: #1A2233; text-decoration: none">
+        <span style="font-size: 14px; color: #566173">تقييمات مستحقة</span>
+        <span style="font-size: 30px; font-weight: 700">2</span>
+        <span style="font-size: 13px; color: #566173">التقييم الدوري · يُغلق 15/10/2026</span>
+        <span style="font-size: 14px; font-weight: 600; color: #1F4E9A">ابدأ التقييم</span>
+      </a>
+    </section>
+
+    <section aria-labelledby="traineesTitle" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+      <h2 id="traineesTitle" style="margin: 0; font-size: 18px; font-weight: 700">متدربوك (3)</h2>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+          <thead>
+            <tr>
+              <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">المتدرب</th>
+              <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">الحضور</th>
+              <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">حضور الأسبوع 5</th>
+              <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">التقييم الدوري</th>
+              <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">آخر تقرير</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><strong>سارة أحمد</strong><br><span style="font-size: 13px; color: #566173">محلل بيانات متدرب</span></td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5">96%</td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="padding: 2px 10px; border-radius: 999px; background: #E3F3E7; color: #1E6B34; font-size: 13px; font-weight: 600">مسجّل</span></td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="padding: 2px 10px; border-radius: 999px; background: #E6EEFB; color: #1F4E9A; font-size: 13px; font-weight: 600">قُدِّم</span></td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="#report">الأسبوع 5 · قراءة</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><strong>محمد العنزي</strong><br><span style="font-size: 13px; color: #566173">محلل بيانات متدرب</span></td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5">90%</td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="padding: 2px 10px; border-radius: 999px; background: #FFF1D6; color: #8A4B00; font-size: 13px; font-weight: 600">غير مسجّل — متأخر</span></td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="CS_Evaluation.dc.html" style="font-weight: 600">ابدأ التقييم</a></td>
+              <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="#report">الأسبوع 5 · قراءة</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 12px"><strong>لمى الزهراني</strong><br><span style="font-size: 13px; color: #566173">متدرب ذكاء أعمال</span></td>
+              <td style="padding: 12px">100%</td>
+              <td style="padding: 12px"><span style="padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #4A5363; font-size: 13px; font-weight: 600">غير مسجّل</span></td>
+              <td style="padding: 12px"><a href="CS_Evaluation.dc.html" style="font-weight: 600">ابدأ التقييم</a></td>
+              <td style="padding: 12px"><a href="#report">الأسبوع 5 · قراءة</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="vacTitle" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="vacTitle" style="margin: 0; font-size: 18px; font-weight: 700">فرصي التدريبية</h2>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EEF1F5">
+        <span><strong>محلل بيانات متدرب</strong> · 3 مقاعد (2 مشغولة) · 7 متقدمين</span>
+        <span style="display: flex; align-items: center; gap: 12px"><span style="padding: 2px 10px; border-radius: 999px; background: #E3F3E7; color: #1E6B34; font-size: 13px; font-weight: 600">منشورة</span><a href="CS_Applicants.dc.html">المتقدمون</a></span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EEF1F5">
+        <span><strong>متدرب ذكاء أعمال</strong> · مقعد واحد (مشغول)</span>
+        <span style="display: flex; align-items: center; gap: 12px"><span style="padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #4A5363; font-size: 13px; font-weight: 600">مغلقة — اكتملت المقاعد</span></span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0">
+        <span><strong>مطوّر تطبيقات ويب متدرب</strong> · مقعدان</span>
+        <span style="display: flex; align-items: center; gap: 12px"><span style="padding: 2px 10px; border-radius: 999px; background: #E6EEFB; color: #1F4E9A; font-size: 13px; font-weight: 600">بانتظار مراجعة المنسق</span><a href="CS_VacancyEditor.dc.html">عرض</a></span>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

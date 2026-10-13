@@ -10,7 +10,8 @@ CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Group 3
 | Project Proposal | – (frozen) | [InternSync_Project_Proposal-1.pdf](Project%20Proposal%20%20Process%20&%20Feasibility/InternSync_Project_Proposal-1.pdf) | Oct 2, 2026 |
 | Software Project Management Plan | [InternSync_SPMP.md](Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md) | InternSync_SPMP-1.pdf (v1.0) | 1.1 |
 | Software Requirements Specification | [InternSync_SRS.md](RSR/InternSync_SRS.md) | InternSync_SRS.docx / .pdf (v1.0) | 1.1 |
-| System Design Document | [InternSync_Design.md](Design/InternSync_Design.md) | – | 1.0 |
+| System Design Document | [InternSync_Design.md](Design/InternSync_Design.md) | – | 1.1 |
+| Wireframes (clickable prototype) | [Claude Design canvas](https://claude.ai/artifact/GUCAYYDPvkkBiwntVfJWJA); sources in [Design/wireframes](Design/wireframes/) | – | 1.0 |
 | API Specification | [InternSync_API_Spec.md](Design/InternSync_API_Spec.md) | – | 1.0 |
 | Diagram pack | [InternSync_Diagrams/README.md](InternSync_Diagrams/README.md) and its sources | InternSync_Diagrams.pdf (v1.1), InternSync_Diagrams_v1.0.pdf | 1.1 |
 | Change requests | [Change_Requests.md](Change_Requests.md) | – | – |

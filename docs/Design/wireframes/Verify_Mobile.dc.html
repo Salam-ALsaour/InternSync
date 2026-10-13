@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>التحقق من شهادة</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1F4E9A}a:hover{color:#172B4D}
+</style>
+</helmet>
+<div dir="rtl" lang="ar" style="width: 390px; height: 844px; overflow: hidden; background: #F4F6F9; color: #1A2233; font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif; font-size: 15px; display: flex; flex-direction: column">
+  <header style="background: #1F3864; color: #FFFFFF; padding: 20px; display: flex; flex-direction: column; gap: 4px">
+    <span dir="ltr" style="font-size: 20px; font-weight: 700; text-align: right">InternSync</span>
+    <span style="font-size: 14px; color: #D5DEEE">التحقق من شهادة إتمام التدريب</span>
+  </header>
+  <main style="padding: 20px; display: flex; flex-direction: column; gap: 16px">
+    <sc-if value="{{ isValid }}" hint-placeholder-val="{{ true }}">
+      <div style="background: #E3F3E7; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 14px; color: #1E6B34">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <strong style="font-size: 20px">شهادة صالحة</strong>
+          <span style="font-size: 14px">أصدرتها وحدة التدريب التعاوني عبر المنصة.</span>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isRevoked }}" hint-placeholder-val="{{ false }}">
+      <div style="background: #FCE8E8; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 14px; color: #A61B1B">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <strong style="font-size: 20px">شهادة ملغاة</strong>
+          <span style="font-size: 14px">ألغت وحدة التدريب التعاوني هذه الشهادة في 02/12/2026.</span>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isFound }}" hint-placeholder-val="{{ true }}">
+      <dl style="margin: 0; background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <div><dt style="font-size: 13px; color: #566173">اسم المتدرب</dt><dd style="margin: 0; font-weight: 600">سارة أحمد · <span lang="en" dir="ltr">Sara Ahmed</span></dd></div>
+        <div><dt style="font-size: 13px; color: #566173">الدورة</dt><dd style="margin: 0">التدريب التعاوني — خريف 2026</dd></div>
+        <div><dt style="font-size: 13px; color: #566173">جهة التدريب</dt><dd style="margin: 0">شركة الريادة للحلول الرقمية</dd></div>
+        <div><dt style="font-size: 13px; color: #566173">مدة التدريب</dt><dd style="margin: 0">06/09/2026 – 28/11/2026</dd></div>
+        <div><dt style="font-size: 13px; color: #566173">رمز الشهادة</dt><dd dir="ltr" style="margin: 0; text-align: right; font-family: 'IBM Plex Mono', Consolas, monospace; font-size: 14px">7K2M9QX4…F3RA</dd></div>
+      </dl>
+      <p style="margin: 0; font-size: 13px; color: #566173; line-height: 1.7">لا تعرض هذه الصفحة أي درجة أو بيانات أخرى عن المتدرب.</p>
+    </sc-if>
+    <sc-if value="{{ isNotFound }}" hint-placeholder-val="{{ false }}">
+      <div style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+        <svg aria-hidden="true" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#566173" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <strong style="font-size: 20px">لم نعثر على الشهادة</strong>
+        <span style="font-size: 14px; color: #566173; line-height: 1.7">قد يكون الرمز غير صحيح أو معدّلاً. امسح رمز QR من الشهادة مرة أخرى.</span>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"status":{"editor":"enum","options":["valid","revoked","not_found"],"default":"valid"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = this.props.status ?? 'valid';
+return { isValid: s === 'valid', isRevoked: s === 'revoked', isFound: s !== 'not_found', isNotFound: s === 'not_found' };
+}
+}
+</script>
+</body>
+</html>
