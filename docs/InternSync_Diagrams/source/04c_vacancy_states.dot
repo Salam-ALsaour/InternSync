@@ -1,20 +1,17 @@
 digraph V {
-  graph [rankdir=LR, fontname="Liberation Sans", nodesep=0.55, ranksep=0.75, bgcolor="white", pad=0.2];
+  graph [rankdir=LR, fontname="Liberation Sans", nodesep=0.55, ranksep=0.95, bgcolor="white", pad=0.2];
   node  [fontname="Liberation Sans", fontsize=13, shape=box, style="rounded,filled", fillcolor="#EAF0FA", color="#1F3864", penwidth=1.2, margin="0.18,0.08"];
   edge  [fontname="Liberation Sans", fontsize=11, color="#44546A", fontcolor="#333333", arrowsize=0.7];
   start [shape=circle, label="", width=0.18, style=filled, fillcolor="#1F3864"];
   start2 [shape=circle, label="", width=0.18, style=filled, fillcolor="#1F3864"];
   endC  [shape=doublecircle, label="", width=0.14, style=filled, fillcolor="#1F3864"];
   D  [label="Draft"];
-  PR [label="Pending\nReview"];
   P  [label="Published", fillcolor="#E2F0D9", color="#38761D"];
   C  [label="Closed"];
   start -> D [label=" CS: create"];
-  D -> PR [label=" CS: submit"];
-  PR -> D [label=" CO: return\n (comment required)"];
-  PR -> P [label=" CO: publish"];
-  start2 -> P [label=" CO: create\n (published directly)"];
-  P -> C [label=" last seat filled (auto)\n or CO: close"];
+  D -> P [label=" CS: publish\n (no coordinator review)"];
+  start2 -> P [label=" CS: create\n and publish"];
+  P -> C [label=" CS: close, or (auto)\n last seat filled or\n company suspended"];
   C -> endC;
-  { rank=same; start2; PR; }
+  { rank=same; start2; D; }
 }

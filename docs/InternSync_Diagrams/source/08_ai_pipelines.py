@@ -18,7 +18,7 @@ for a, b in (("cv", "ext"), ("ext", "conf"), ("conf", "emb")):
 
 y2 = 1.62
 c.box("vac", 0.3, y2, bw, bh, "Published vacancies\n(embedded when\npublished)", kind="white")
-c.box("elig", 2.05, y2, bw, bh, "Eligibility filter\ncycle, open, major,\nmin GPA (FR-MAT-03)")
+c.box("elig", 2.05, y2, bw, bh, "Eligibility filter\ncycle, open, university,\nmajor, min GPA\n(FR-MAT-03)")
 c.box("score", 3.8, y2, 3.3, bh, "", kind="ai")
 c.ax.text(3.8 + 1.65, y2 + 0.17, "fit = 100 × (0.5·semantic + 0.4·required + 0.1·preferred)", ha="center",
           va="center", fontsize=7.4, fontweight="bold", color="#1A1A1A", zorder=3)
@@ -50,7 +50,7 @@ y4 = 4.35
 c.box("sub", 0.3, y4, 1.2, bh, "Report\nsubmitted", kind="white")
 c.box("chunk", 1.68, y4, 1.2, bh, "Split into\npassages\n(~2–3 sentences)", kind="ai")
 c.box("emb2", 3.06, y4, 1.2, bh, "Embed each\npassage", kind="ai")
-c.box("knn", 4.44, y4, 1.2, bh, "Nearest passages\nin other reports\n(pgvector)", kind="ai")
+c.box("knn", 4.44, y4, 1.2, bh, "Nearest passages,\nsame university\n(pgvector)", kind="ai")
 c.box("conf2", 5.82, y4, 1.28, bh, "Confirm overlap:\ncosine ≥ 0.90 and\nword 5-gram match", kind="ai")
 for a, b in (("sub", "chunk"), ("chunk", "emb2"), ("emb2", "knn"), ("knn", "conf2")):
     c.arrow([c.at(a, "right"), c.at(b, "left")], color=AI_EDGE)
@@ -64,7 +64,7 @@ c.arrow([cf, (cf[0], 5.2), (c.at("pct", "top", 0.5)[0], 5.2), c.at("pct", "top",
 c.arrow([c.at("pct", "right"), c.at("flag", "left")], color=AI_EDGE)
 fl = c.at("flag", "bottom")
 c.arrow([fl, (fl[0], 6.12), (c.at("human", "bottom")[0], 6.12), c.at("human", "bottom")], color=NAVY)
-c.text(3.0, 6.25, "Excludes the student's own earlier versions; compares across all cycles (FR-SIM-01).",
+c.text(3.0, 6.25, "Excludes the student's own earlier versions; compares all cycles of the same university only (FR-SIM-01).",
        fontsize=6.6, va="center", ha="center", color="#595959")
 
 c.save("../png/08_ai_pipelines")

@@ -4,7 +4,7 @@
 CSC 305 – Semester 1 – 2026/2027
 
 **Project title:** InternSync – Cooperative Training Coordination and Tracking System  
-Version 1.1 · October 2026
+Version 1.2 · October 2026
 
 > This Markdown file is the maintained version of the SPMP. `InternSync_SPMP-1.pdf` in this folder is version 1.0 as submitted on Oct 3, 2026. Changes after 1.0 are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
 
@@ -25,6 +25,7 @@ Version 1.1 · October 2026
 |:--:|:--:|:---|:--:|
 | 1.0 | Oct 3, 2026 | First version submitted. | Group 3 |
 | 1.1 | Oct 13, 2026 | CR-01: zero-cost hosting in the resource plan and a new free-tier risk. Milestone status updated (M1 done, M2 in progress). | Salam Alsaour |
+| 1.2 | Oct 20, 2026 | CR-05: one platform for many universities and companies. Registration with verification and the Platform Admin added to Increment 1 (T4); CSV import and coordinator review of vacancies removed. M2 status updated; new risk for the larger Increment 1; the permission risk now covers organizations. | Salam Alsaour |
 
 ## 1. Project Organization
 
@@ -76,7 +77,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | T1 | Plan project and collect requirements (SRS) | Sep 25 | Oct 3 | 9 days | – | Salam, Abdullah |
 | T2 | System design (architecture, ERD, API specification) | Oct 4 | Oct 15 | 12 days | T1 | Khalid, Ahmed, Salam |
 | T3 | UI/UX design (Claude Design + Figma Make wireframes) | Oct 4 | Oct 15 | 12 days | T1 | Rakan, Ali |
-| T4 | Increment 1: authentication, profiles and CV upload, vacancies, weekly reports, bilingual interface foundation | Oct 16 | Nov 1 | 17 days | T2, T3 | All developers |
+| T4 | Increment 1: registration and verification (universities, colleges, companies, Platform Admin), authentication, profiles and CV upload, vacancies, weekly reports, bilingual interface foundation | Oct 16 | Nov 1 | 17 days | T2, T3 | All developers |
 | T5 | Increment 2: matching, attendance, evaluations, approval workflow, dashboards (all Must functions) | Nov 2 | Nov 15 | 14 days | T4 | All developers |
 | T6 | Increment 3: explanation and skill gaps, similarity detection, notifications, exports, PWA (Should functions) | Nov 16 | Nov 25 | 10 days | T5 | All developers |
 | T7 | Testing and bug fixing (unit, integration, user acceptance); Could functions if time allows | Nov 26 | Dec 10 | 15 days | T6 | Abdullah, all |
@@ -88,7 +89,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | **Milestone** | **Deliverable** | **Target date** | **Status** |
 |:---|:---|:--:|:--:|
 | M1: Requirements baseline | SRS approved by the team and requirements frozen | Oct 3 | Done (SRS v1.0 on Oct 10) |
-| M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | In progress: design document, API specification, and clickable wireframes drafted Oct 13; review pending |
+| M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | Late: drafted Oct 13, then redone for CR-05 on Oct 20 (design document 1.2, API specification 1.1, ERD in four parts, 32 wireframes); approval pending |
 | M3: Increment 1 delivered | Demo of F1, F2, F3, F5, F10 foundation; automated tests pass | Nov 1 | Planned |
 | M4: Increment 2 delivered (all Must functions) | Demo of F4, F6, F7, F8, F9; every Must function passes its tests | Nov 15 | Planned |
 | M5: Increment 3 delivered | Demo of F11–F15; Should functions pass their tests | Nov 25 | Planned |
@@ -123,7 +124,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 
 - **Development:** team laptops running the whole system with Docker Compose.
 - **Hosting (zero cost, CR-01):** Vercel Hobby for the PWA; Hugging Face Spaces free CPU Basic (2 vCPU, 16 GB RAM) for the API container with the embedding model and scheduler; Supabase Free for PostgreSQL with pgvector and private file storage; Gmail SMTP for email. No paid plan or credit card is needed. Details are in the design document (Section 3).
-- **Data:** sample and synthetic data: CVs, vacancies, and reports, including a labelled test set of at least 20 student profiles for matching and 10 seeded copied reports for similarity detection.
+- **Data:** sample and synthetic data: two universities with two colleges each and several companies (so that permission tests cross organizations), CVs, vacancies, and reports, including a labelled test set of at least 20 student profiles for matching and 10 seeded copied reports for similarity detection.
 - **Effort:** about 8 hours per member per week over 10 weeks (6 × 8 × 10 ≈ 480 person-hours).
 
 ## 7. Risk Identification and Management
@@ -132,11 +133,12 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 |:---|:--:|:--:|:---|
 | Schedule slips because of team availability | High | High | MoSCoW priorities; weekly tracking; drop Could functions first, then Should functions. |
 | Late requirement changes and scope creep | Medium | High | Freeze requirements after the SRS; change control; changes accepted only if they fit the schedule. |
+| Increment 1 grows after CR-05 (registration, verification, Platform Admin) and starts 5 days late | High | High | One verification-request flow serves students, coordinators, and companies; CSV import and vacancy review are removed; universities, colleges, and skills are seeded by script so the Platform Admin screens can follow; if Increment 1 slips, FR-ORG-07 and FR-ORG-09 (Should) move to Increment 3. |
 | Team members unfamiliar with FastAPI, React, or pgvector | Medium | Medium | Short learning tasks during the design phase; tasks assigned by skill; code reviews and pair work. |
 | Matching or similarity results are unreliable or hard to explain | Medium | High | Rule-based fallback; show matched and missing skills; advisory use only; test on a labelled sample. |
 | Extracting skills from CVs in different formats | Medium | Medium | Start with PDF and DOCX text; let the student review and edit extracted skills. |
 | Arabic (RTL) text in PDF exports | Medium | Medium | Test export early in Increment 1 with bundled Arabic fonts. |
-| Permission errors expose another user's data | Low | High | Central role-based access control with automated permission tests. |
+| Permission errors expose another user's or another organization's data | Low | High | Central role-based access control; every query scoped by college or company in one place; automated permission tests with two colleges and two companies (FR-AUT-05). |
 | Inconsistent deadline, reminder, or approval states | Medium | Medium | Model approvals as an explicit state machine and test every transition. |
 | Integration problems between frontend, backend, and AI services | Medium | Medium | Agree the API specification first; generate the TypeScript client from the OpenAPI schema; integrate every week. |
 | Free hosting tiers sleep, pause, or hit their limits (Spaces sleeps after 48 h idle; Supabase pauses after 7 days of low activity, 500 MB database, 1 GB files; email sending quotas) | Medium | Medium | Scheduled keep-alive check and nightly backup through GitHub Actions; keep demo data small; monitor sizes on the dashboard; fall back to Docker Compose on a laptop for UAT and the demo. |

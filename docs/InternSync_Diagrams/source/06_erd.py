@@ -1,7 +1,7 @@
-"""Generate three crow's-foot ERDs (Graphviz) from one data model.
+"""Generate four crow's-foot ERDs (Graphviz) from one data model.
 
 The model must match Section 4.3 of docs/Design/InternSync_Design.md (the data dictionary is authoritative).
-Writes 06a/06b/06c .dot files and renders PNG and SVG with Graphviz `dot` when it is installed.
+Writes 06a/06b/06c/06d .dot files and renders PNG and SVG with Graphviz `dot` when it is installed.
 """
 import shutil
 import subprocess
@@ -10,25 +10,41 @@ NAVY, HEAD_TXT, FILL, REF_FILL, REF_EDGE, AI = "#1F3864", "#FFFFFF", "#F5F8FC", 
 
 # entity: list of (column, type, key)  key in {"PK","FK","PK, FK","UQ","FK, UQ",""}
 E = {
-    # ---------------------------------------------------------------- accounts and access
-    "companies": [("id", "uuid", "PK"), ("name", "text", "UQ"), ("city", "text", ""), ("created_at", "ts", "")],
+    # ---------------------------------------------------------------- organizations and accounts
+    "universities": [("id", "uuid", "PK"), ("name_en", "text", "UQ"), ("name_ar", "text", ""),
+                     ("email_domains", "text[]", ""), ("gpa_scale", "numeric", ""), ("is_active", "bool", "")],
+    "colleges": [("id", "uuid", "PK"), ("university_id", "uuid", "FK"), ("name_en, name_ar", "text", ""),
+                 ("is_active", "bool", ""), ("(university_id, name_en)", "", "UQ")],
+    "companies": [("id", "uuid", "PK"), ("name", "text", ""), ("commercial_reg_no", "text", "UQ"),
+                  ("city, website", "text", ""), ("status", "pending … suspended", ""), ("verified_at", "ts", "")],
     "users": [("id", "uuid", "PK"), ("email", "text", "UQ"), ("password_hash", "text", ""),
-              ("role", "ST | CS | AS | CO", ""), ("name_en, name_ar", "text", ""), ("language", "ar | en", ""),
-              ("company_id", "uuid", "FK"), ("staff_id", "text", "UQ"), ("department", "text", ""),
-              ("is_active, activated_at", "bool, ts", ""), ("failed_logins, locked_until", "int, ts", ""),
+              ("role", "ST | CS | AS | CO | PA", ""), ("name_en, name_ar", "text", ""), ("language", "ar | en", ""),
+              ("college_id", "uuid", "FK"), ("company_id", "uuid", "FK"), ("is_company_admin", "bool", ""),
+              ("email_confirmed_at", "ts", ""), ("verification_status", "pending … not_required", ""),
+              ("is_active", "bool", ""), ("failed_logins, locked_until", "int, ts", ""),
               ("consent_at, last_login_at", "ts", "")],
-    "account_tokens": [("id", "uuid", "PK"), ("user_id", "uuid", "FK"), ("purpose", "activation | reset", ""),
-                       ("token_hash", "text", "UQ"), ("expires_at, used_at, revoked_at", "ts", "")],
+    "account_tokens": [("id", "uuid", "PK"), ("user_id", "uuid", "FK"),
+                       ("purpose", "confirmation | invitation | reset", ""), ("token_hash", "text", "UQ"),
+                       ("expires_at, used_at, revoked_at", "ts", "")],
     "user_sessions": [("id (sid)", "uuid", "PK"), ("user_id", "uuid", "FK"),
                       ("created_at, last_seen_at, expires_at", "ts", ""), ("revoked_at, revoke_reason", "ts, text", "")],
     "push_subscriptions": [("id", "uuid", "PK"), ("user_id", "uuid", "FK"), ("endpoint", "text", "UQ"),
                            ("p256dh, auth", "text", "")],
+    "verification_requests": [("id", "uuid", "PK"), ("user_id", "uuid", "FK"),
+                              ("kind", "coordinator | company | student", ""), ("college_id", "uuid", "FK"),
+                              ("company_id", "uuid", "FK"), ("submitted_data", "jsonb", ""),
+                              ("status", "pending | approved | rejected", ""), ("reviewer_id", "uuid", "FK"),
+                              ("decided_at, reason", "ts, text", ""), ("cycle_id", "uuid", "FK")],
+    "verification_documents": [("id", "uuid", "PK"), ("request_id", "uuid", "FK"),
+                               ("kind", "appointment … course_registration", ""), ("file_id", "uuid", "FK"),
+                               ("purged_at", "ts", "")],
     # ---------------------------------------------------------------- cycles and configuration
-    "training_cycles": [("id", "uuid", "PK"), ("name", "text", "UQ"), ("type", "coop | summer", ""),
-                        ("start_date, end_date, weeks", "date, int", ""), ("working_days", "smallint[]", ""),
-                        ("report_weekday, report_time", "int, time", ""), ("eval / final due dates", "ts", ""),
-                        ("status", "open | closed", ""), ("rubric_locked_at, closed_at", "ts", ""),
-                        ("created_by", "uuid", "FK")],
+    "training_cycles": [("id", "uuid", "PK"), ("college_id", "uuid", "FK"), ("name", "text", ""),
+                        ("type", "coop | summer", ""), ("start_date, end_date, weeks", "date, int", ""),
+                        ("working_days", "smallint[]", ""), ("report_weekday, report_time", "int, time", ""),
+                        ("eval / final due dates", "ts", ""), ("status", "open | closed", ""),
+                        ("rubric_locked_at, closed_at", "ts", ""), ("created_by", "uuid", "FK"),
+                        ("(college_id, name)", "", "UQ")],
     "cycle_weeks": [("cycle_id", "uuid", "PK, FK"), ("week_no", "int", "PK"), ("starts_on, ends_on", "date", ""),
                     ("report_due_at", "ts", ""), ("scheduled_days", "int", "")],
     "grade_components": [("id", "uuid", "PK"), ("cycle_id", "uuid", "FK"), ("name_en, name_ar", "text", ""),
@@ -43,26 +59,27 @@ E = {
     "system_settings": [("key", "text", "PK"), ("value", "jsonb", ""), ("updated_by", "uuid", "FK"),
                         ("updated_at", "ts", "")],
     # ---------------------------------------------------------------- students
-    "student_profiles": [("user_id", "uuid", "PK, FK"), ("university_id", "char(10)", "UQ"), ("major_id", "uuid", "FK"),
+    "student_profiles": [("user_id", "uuid", "PK, FK"), ("student_number", "text", ""), ("major_id", "uuid", "FK"),
                          ("gpa", "numeric(3,2)", ""), ("level", "int", ""), ("languages, interests", "text[]", ""),
                          ("skills_confirmed_at", "ts", ""), ("embedding", "halfvec(384)", ""),
                          ("embedding_model, embedded_at", "text, ts", "")],
-    "enrollments": [("cycle_id", "uuid", "PK, FK"), ("student_id", "uuid", "PK, FK"), ("course_code", "text", ""),
-                    ("import_batch_id", "uuid", "FK")],
+    "enrollments": [("cycle_id", "uuid", "PK, FK"), ("student_id", "uuid", "PK, FK"),
+                    ("verification_request_id", "uuid", "FK"), ("created_by", "uuid", "FK")],
     "cvs": [("id", "uuid", "PK"), ("student_id", "uuid", "FK"), ("version_no", "int", ""), ("file_id", "uuid", "FK"),
             ("extracted_text", "text", ""), ("text_status, language", "text", ""), ("uploaded_at", "ts", "")],
     "cv_extracted_skills": [("cv_id", "uuid", "PK, FK"), ("skill_id", "uuid", "PK, FK"), ("evidence", "text", "")],
     "student_skills": [("student_id", "uuid", "PK, FK"), ("skill_id", "uuid", "PK, FK"),
                        ("source", "extracted | manual", ""), ("confirmed_at", "ts", "")],
     # ---------------------------------------------------------------- vacancies and matching
-    "vacancies": [("id", "uuid", "PK"), ("cycle_id", "uuid", "FK"), ("company_id", "uuid", "FK"),
-                  ("company_supervisor_id", "uuid", "FK"), ("created_by", "uuid", "FK"),
-                  ("title, city, description", "text", ""), ("min_gpa, seats", "numeric, int", ""),
-                  ("application_deadline", "ts", ""), ("status", "draft … closed", ""), ("return_comment", "text", ""),
+    "vacancies": [("id", "uuid", "PK"), ("company_id", "uuid", "FK"), ("company_supervisor_id", "uuid", "FK"),
+                  ("created_by", "uuid", "FK"), ("title, city, description", "text", ""),
+                  ("training_type, start, end", "text, date", ""), ("min_gpa, seats", "numeric, int", ""),
+                  ("application_deadline", "ts", ""), ("status", "draft | published | closed", ""),
                   ("embedding", "halfvec(384)", ""), ("embedding_model", "text", "")],
     "vacancy_skills": [("vacancy_id", "uuid", "PK, FK"), ("skill_id", "uuid", "PK, FK"),
                        ("kind", "required | preferred", "")],
     "vacancy_majors": [("vacancy_id", "uuid", "PK, FK"), ("major_id", "uuid", "PK, FK")],
+    "vacancy_universities": [("vacancy_id", "uuid", "PK, FK"), ("university_id", "uuid", "PK, FK")],
     "applications": [("id", "uuid", "PK"), ("vacancy_id", "uuid", "FK"), ("student_id", "uuid", "FK"),
                      ("status", "submitted … placed", ""), ("withdraw_reason", "text", ""),
                      ("fit_score, match_mode, model_version", "numeric, text", ""), ("decided_by", "uuid", "FK"),
@@ -88,8 +105,9 @@ E = {
                        ("decision", "accepted | revision", ""), ("comment", "text", ""), ("created_at", "ts", "")],
     "report_comments": [("id", "uuid", "PK"), ("slot_id", "uuid", "FK"), ("author_id", "uuid", "FK"),
                         ("body", "text", ""), ("created_at", "ts", "")],
-    "report_passages": [("id", "bigint", "PK"), ("version_id", "uuid", "FK"), ("idx, char_start, char_end", "int", ""),
-                        ("text", "text", ""), ("embedding", "halfvec(384)", "")],
+    "report_passages": [("id", "bigint", "PK"), ("version_id", "uuid", "FK"), ("university_id", "uuid", "FK"),
+                        ("idx, char_start, char_end", "int", ""), ("text", "text", ""),
+                        ("embedding", "halfvec(384)", "")],
     "similarity_checks": [("id", "uuid", "PK"), ("version_id", "uuid", "FK, UQ"), ("status", "pending | done | failed", ""),
                           ("max_score, is_flagged, threshold", "numeric, bool", ""), ("model_version", "text", ""),
                           ("decision, decision_comment", "no_issue | confirmed", ""), ("decided_by", "uuid", "FK")],
@@ -120,17 +138,15 @@ E = {
                      ("revoke_reason", "text", "")],
     # ---------------------------------------------------------------- platform
     "files": [("id", "uuid", "PK"), ("storage_key", "text", "UQ"), ("original_name, mime_type", "text", ""),
-              ("size_bytes, sha256", "int, char(64)", ""), ("purpose", "cv | report | export | cert", ""),
+              ("size_bytes, sha256", "int, char(64)", ""), ("purpose", "cv … verification … cert", ""),
               ("uploaded_by", "uuid", "FK")],
     "notifications": [("id", "uuid", "PK"), ("user_id", "uuid", "FK"), ("event, params, link", "text, jsonb", ""),
                       ("idempotency_key", "text", "UQ"), ("read_at", "ts", ""),
                       ("email_status, push_status", "pending … failed", "")],
     "audit_log": [("id", "bigint", "PK"), ("at", "ts", ""), ("user_id", "uuid", "FK"), ("role, action", "text", ""),
-                  ("entity_type, entity_id", "text", ""), ("student_id, cycle_id", "uuid", ""),
-                  ("old_value, new_value", "jsonb", ""), ("reason", "text", "")],
-    "import_batches": [("id", "uuid", "PK"), ("kind", "students | staff", ""), ("cycle_id", "uuid", "FK"),
-                       ("total_rows, created_count", "int", ""), ("rejected", "jsonb", ""),
-                       ("new_majors", "text[]", ""), ("uploaded_by", "uuid", "FK")],
+                  ("entity_type, entity_id", "text", ""), ("student_id", "uuid", ""),
+                  ("college_id, company_id, cycle_id", "uuid", ""), ("old_value, new_value", "jsonb", ""),
+                  ("reason", "text", "")],
     "job_runs": [("id", "bigint", "PK"), ("job_name", "text", ""), ("started_at, finished_at", "ts", ""),
                  ("status, items, error", "text, int", "")],
 }
@@ -172,14 +188,17 @@ def build(name, entities, refs, rels, rankdir="LR", extra=""):
     return "\n".join(lines)
 
 
-# Part 1 -- accounts, configuration, profiles, vacancies, matching
+# Part 1 -- organizations, accounts, cycles, student profiles
 part1 = build(
     "ERD1",
-    ["companies", "users", "student_profiles", "majors", "enrollments", "cvs", "cv_extracted_skills", "student_skills",
-     "skills", "skill_resources", "training_cycles", "cycle_weeks", "grade_components", "rubric_criteria",
-     "vacancies", "vacancy_skills", "vacancy_majors", "applications", "placements", "match_scores"],
-    ["files"],
-    [("companies", "users", ZERO_ONE, MANY, "employs (CS)"),
+    ["universities", "colleges", "companies", "users", "student_profiles", "majors", "enrollments", "cvs",
+     "cv_extracted_skills", "student_skills", "skills", "skill_resources", "training_cycles", "cycle_weeks",
+     "grade_components", "rubric_criteria"],
+    ["files", "verification_requests"],
+    [("universities", "colleges", ONE, ONE_MANY, "has"),
+     ("colleges", "users", ZERO_ONE, MANY, "members (ST, AS, CO)"),
+     ("companies", "users", ZERO_ONE, MANY, "employs (CS)"),
+     ("colleges", "training_cycles", ONE, MANY, "runs"),
      ("users", "student_profiles", ONE, ZERO_ONE_HEAD, ""),
      ("majors", "student_profiles", ONE, MANY, ""),
      ("student_profiles", "cvs", ONE, MANY, ""),
@@ -189,35 +208,46 @@ part1 = build(
      ("student_profiles", "student_skills", ONE, MANY, "confirms"),
      ("skills", "student_skills", ONE, MANY, ""),
      ("skills", "skill_resources", ONE, MANY, ""),
-     ("skills", "vacancy_skills", ONE, MANY, ""),
      ("student_profiles", "enrollments", ONE, MANY, ""),
      ("training_cycles", "enrollments", ONE, MANY, ""),
+     ("verification_requests", "enrollments", ZERO_ONE, ZERO_ONE_HEAD, "creates"),
      ("training_cycles", "cycle_weeks", ONE, ONE_MANY, ""),
      ("training_cycles", "grade_components", ONE, ONE_MANY, ""),
      ("training_cycles", "rubric_criteria", ONE, ONE_MANY, ""),
-     ("training_cycles", "vacancies", ONE, MANY, ""),
-     ("companies", "vacancies", ONE, MANY, "offers"),
-     ("users", "vacancies", ONE, MANY, "supervises (CS)"),
-     ("vacancies", "vacancy_skills", ONE, MANY, ""),
-     ("vacancies", "vacancy_majors", ONE, ONE_MANY, ""),
-     ("majors", "vacancy_majors", ONE, MANY, ""),
-     ("vacancies", "applications", ONE, MANY, ""),
-     ("student_profiles", "applications", ONE, MANY, "applies"),
-     ("applications", "placements", ONE, ZERO_ONE_HEAD, "becomes"),
-     ("users", "placements", ONE, MANY, "supervises (CS, AS)"),
-     ("student_profiles", "match_scores", ONE, MANY, ""),
-     ("vacancies", "match_scores", ONE, MANY, ""),
      ],
     extra='  { rank=same; skills; training_cycles; }')
 
-# Part 2 -- reports, similarity, attendance, evaluations, grades, certificates
+# Part 2 -- vacancies, matching, applications, placements
 part2 = build(
     "ERD2",
+    ["vacancies", "vacancy_skills", "vacancy_majors", "vacancy_universities", "applications", "placements",
+     "match_scores"],
+    ["companies", "users", "skills", "majors", "universities", "student_profiles", "training_cycles"],
+    [("companies", "vacancies", ONE, MANY, "offers"),
+     ("users", "vacancies", ONE, MANY, "responsible (CS)"),
+     ("vacancies", "vacancy_skills", ONE, MANY, ""),
+     ("skills", "vacancy_skills", ONE, MANY, ""),
+     ("vacancies", "vacancy_majors", ONE, ONE_MANY, ""),
+     ("majors", "vacancy_majors", ONE, MANY, ""),
+     ("vacancies", "vacancy_universities", ONE, MANY, "targets (none = all)"),
+     ("universities", "vacancy_universities", ONE, MANY, ""),
+     ("vacancies", "applications", ONE, MANY, ""),
+     ("student_profiles", "applications", ONE, MANY, "applies"),
+     ("applications", "placements", ONE, ZERO_ONE_HEAD, "becomes"),
+     ("training_cycles", "placements", ONE, MANY, "in cycle"),
+     ("users", "placements", ONE, MANY, "supervises (CS, AS)"),
+     ("student_profiles", "match_scores", ONE, MANY, ""),
+     ("vacancies", "match_scores", ONE, MANY, ""),
+     ])
+
+# Part 3 -- reports, similarity, attendance, evaluations, grades, certificates
+part3 = build(
+    "ERD3",
     ["placements", "report_slots", "report_versions", "report_attachments", "report_reviews", "report_comments",
      "report_passages", "similarity_checks", "similarity_matches", "attendance_weeks", "evaluations",
      "evaluation_scores", "company_evaluations", "outcome_surveys", "grades", "grade_component_scores",
      "certificates"],
-    ["users", "rubric_criteria", "grade_components", "files"],
+    ["users", "rubric_criteria", "grade_components", "files", "universities"],
     [("placements", "report_slots", ONE, ONE_MANY, "weekly + final"),
      ("report_slots", "report_versions", ONE, MANY, ""),
      ("report_versions", "report_attachments", ONE, MANY, ""),
@@ -226,6 +256,7 @@ part2 = build(
      ("report_slots", "report_comments", ONE, MANY, ""),
      ("users", "report_comments", ONE, MANY, "writes"),
      ("report_versions", "report_passages", ONE, MANY, ""),
+     ("universities", "report_passages", ONE, MANY, "search scope"),
      ("report_versions", "similarity_checks", ONE, ZERO_ONE_HEAD, "checked"),
      ("similarity_checks", "similarity_matches", ONE, MANY, ""),
      ("report_versions", "similarity_matches", ONE, MANY, "source"),
@@ -243,26 +274,31 @@ part2 = build(
      ],
     extra='  { rank=same; rubric_criteria; grade_components; }')
 
-# Part 3 -- platform services
-part3 = build(
-    "ERD3",
-    ["users", "account_tokens", "user_sessions", "push_subscriptions", "notifications", "audit_log", "files",
-     "import_batches", "system_settings", "job_runs"],
-    ["training_cycles", "enrollments"],
-    [("users", "account_tokens", ONE, MANY, ""),
+# Part 4 -- verification and platform services
+part4 = build(
+    "ERD4",
+    ["users", "verification_requests", "verification_documents", "account_tokens", "user_sessions",
+     "push_subscriptions", "notifications", "audit_log", "files", "system_settings", "job_runs"],
+    ["colleges", "companies", "training_cycles"],
+    [("users", "verification_requests", ONE, MANY, "applies"),
+     ("users", "verification_requests", ZERO_ONE, MANY, "reviews"),
+     ("colleges", "verification_requests", ZERO_ONE, MANY, ""),
+     ("companies", "verification_requests", ZERO_ONE, MANY, ""),
+     ("training_cycles", "verification_requests", ZERO_ONE, MANY, "enrols in"),
+     ("verification_requests", "verification_documents", ONE, ONE_MANY, ""),
+     ("files", "verification_documents", ZERO_ONE, ZERO_ONE_HEAD, ""),
+     ("users", "account_tokens", ONE, MANY, ""),
      ("users", "user_sessions", ONE, MANY, ""),
      ("users", "push_subscriptions", ONE, MANY, ""),
      ("users", "notifications", ONE, MANY, ""),
      ("users", "audit_log", ZERO_ONE, MANY, "acts"),
      ("users", "files", ZERO_ONE, MANY, "uploads"),
-     ("users", "import_batches", ONE, MANY, ""),
-     ("users", "system_settings", ZERO_ONE, MANY, "updates"),
-     ("training_cycles", "import_batches", ZERO_ONE, MANY, ""),
-     ("import_batches", "enrollments", ZERO_ONE, MANY, "creates"),
+     ("users", "system_settings", ZERO_ONE, MANY, "updates (PA)"),
      ],
     extra='  { rank=same; job_runs; system_settings; }')
 
-PARTS = (("06a_erd_accounts_matching", part1), ("06b_erd_training_grading", part2), ("06c_erd_platform", part3))
+PARTS = (("06a_erd_organizations_profiles", part1), ("06b_erd_vacancies_placement", part2),
+         ("06c_erd_training_grading", part3), ("06d_erd_platform", part4))
 
 if __name__ == "__main__":
     for fname, src in PARTS:

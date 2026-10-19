@@ -3,15 +3,16 @@ import html
 
 import pymupdf
 
-VERSION = "v1.1"
+VERSION = "v1.2"
 NAVY, GREY = "#1F3864", "#595959"
 
 # (number, title, what it shows, where to use it, [png files])
 FIGURES = [
-    ("1", "Use case diagram", "Actors, use cases UC-01 to UC-15, include / extend relations",
+    ("1", "Use case diagram", "Five roles and the public verifier, use cases UC-01 to UC-20, include / extend relations",
      "SRS 3.3 (Table 3.1)", ["01_use_case"]),
     ("2", "Context diagram", "System boundary, users and external services", "SRS 3.1 (Figure 3.1)", ["02_context"]),
-    ("3a", "Activity diagram — setup and placement", "Swimlanes from opening a cycle to a confirmed placement",
+    ("3a", "Activity diagram — registration, setup, and placement",
+     "Swimlanes from registration and verification to a confirmed placement",
      "SRS 3.2, design document", ["03a_activity_setup_placement"]),
     ("3b", "Activity diagram — training and grading", "Weekly loop, final evaluation, grade approval",
      "SRS 3.2, design document", ["03b_activity_training_grading"]),
@@ -21,12 +22,15 @@ FIGURES = [
      "SRS 4.4; design 5.1", ["04c_vacancy_states", "04d_application_states"]),
     ("5", "System architecture", "Layers, API modules, AI services, scheduler, data", "Design 2.1, presentation",
      ["05_architecture"]),
-    ("6a", "ERD — accounts, configuration, profiles, vacancies, matching", "Tables, keys and cardinalities (crow's foot)",
-     "Design 4.2", ["06a_erd_accounts_matching"]),
-    ("6b", "ERD — reports, similarity, attendance, evaluations, grades", "Tables, keys and cardinalities (crow's foot)",
-     "Design 4.2", ["06b_erd_training_grading"]),
-    ("6c", "ERD — platform services", "Sessions, tokens, files, notifications, audit, imports, settings, jobs",
-     "Design 4.2", ["06c_erd_platform"]),
+    ("6a", "ERD — organizations, accounts, cycles, student profiles", "Tables, keys and cardinalities (crow's foot)",
+     "Design 4.2", ["06a_erd_organizations_profiles"]),
+    ("6b", "ERD — vacancies, matching, applications, placements", "Tables, keys and cardinalities (crow's foot)",
+     "Design 4.2", ["06b_erd_vacancies_placement"]),
+    ("6c", "ERD — reports, similarity, attendance, evaluations, grades, certificates",
+     "Tables, keys and cardinalities (crow's foot)", "Design 4.2", ["06c_erd_training_grading"]),
+    ("6d", "ERD — verification and platform services",
+     "Verification requests, tokens, sessions, files, notifications, audit, settings, jobs", "Design 4.2",
+     ["06d_erd_platform"]),
     ("7a", "Sequence — CV upload and matching", "Skill extraction, confirmation, ranking with fallback", "Design 6",
      ["07a_seq_cv_matching"]),
     ("7b", "Sequence — weekly report and review", "Submission, Late flag, similarity check, accept / revision",
@@ -41,7 +45,7 @@ FIGURES = [
      ["09_deployment"]),
     ("10", "Schedule (Gantt)", "Activities T1–T9, milestones M1–M7, dependencies", "SPMP 4, progress presentations",
      ["10_gantt_schedule"]),
-    ("11", "Requirements by area and priority", "116 requirements by area: Must / Should / Could", "SRS 9.2",
+    ("11", "Requirements by area and priority", "125 requirements by area: Must / Should / Could", "SRS 9.2",
      ["11_requirements_priority"]),
 ]
 
@@ -76,11 +80,14 @@ def main():
                     f"<td>{html.escape(where)}</td></tr>")
         pno += 1
     body = (f"<h1>InternSync — Diagram pack</h1><div class='sub'>Requirements and design diagrams · {VERSION} · "
-            "consistent with SRS v1.1, the SPMP v1.1 and the design document v1.0</div>"
+            "consistent with SRS v1.2, the SPMP v1.2 and the design document v1.2</div>"
             "<table><tr><th>No.</th><th>Diagram</th><th>What it shows</th><th>Where to use it</th></tr>"
             + "".join(rows) + "</table>"
             "<div class='note'>Colour key: blue = system behaviour or people; orange = AI-supported (advisory) behaviour; "
             "green = an approved / final state or the chosen option; grey dashed = external service.<br/>"
+            "v1.2 (Oct 20, 2026, CR-05): one platform for many universities and companies; Platform Admin role; "
+            "registration with verification (UC-16 to UC-20); companies publish vacancies without review; CSV import "
+            "removed; the ERD is redrawn in four parts (49 tables).<br/>"
             "v1.1 (Oct 13, 2026): the ERD is redrawn in three parts to match the data dictionary of the design document "
             "(45 tables); the deployment is decided (zero cost, CR-01); UC-15 is now in SRS Table 3.1. Diagram 8 values "
             "are configurable defaults tuned on the labelled test sets. Editable sources (Python, Graphviz, Mermaid) are in "

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حالة التوثيق</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1F4E9A}a:hover{color:#172B4D}
+</style>
+</helmet>
+<div dir="rtl" lang="ar" style="min-height: 100vh; display: flex; flex-direction: column; background: #F4F6F9; color: #1A2233; font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif; font-size: 15px">
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 32px; background: #1F3864; color: #FFFFFF">
+    <span dir="ltr" style="font-size: 22px; font-weight: 700">InternSync</span>
+    <nav aria-label="حسابي" style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px">
+      <a href="ST_Profile.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none">ملفي</a>
+      <a href="ST_Vacancies.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none">تصفح الفرص</a>
+      <a href="Login.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none">تسجيل الخروج</a>
+    </nav>
+  </header>
+
+  <main style="width: 100%; max-width: 880px; margin: 0 auto; padding: 32px 24px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 700">حالة توثيق حسابك</h1>
+      <p style="margin: 0; font-size: 14px; color: #566173">جود الحربي · طالب · كلية الحاسب — جامعة الشرق</p>
+    </div>
+
+    <sc-if value="{{ isPending }}" hint-placeholder-val="{{ true }}">
+      <div role="status" style="padding: 16px 18px; border-radius: 12px; background: #E6EEFB; color: #173A73; display: flex; gap: 12px; align-items: flex-start; line-height: 1.7">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 3px"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <strong>طلبك بانتظار مراجعة منسق كليتك</strong>
+          <span>أُرسل في 18/10/2026 10:42. حتى يُقبل يمكنك إكمال ملفك وتصفح الفرص، لكن لا يمكنك التقديم.</span>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isRejected }}" hint-placeholder-val="{{ false }}">
+      <div role="alert" style="padding: 16px 18px; border-radius: 12px; background: #FCE8E8; color: #7A1414; display: flex; gap: 12px; align-items: flex-start; line-height: 1.7">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 3px"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <strong>رُفض الطلب — يمكنك التصحيح وإعادة الإرسال</strong>
+          <span>سبب المنسق: «الملف المرفوع لا يظهر فيه مقرر التدريب التعاوني. يُرجى رفع الجدول الدراسي للفصل الحالي.»</span>
+          <span style="font-size: 13px">أ. نورة السبيعي · 19/10/2026 09:15</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <section aria-labelledby="stepsTitle" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <h2 id="stepsTitle" style="margin: 0; font-size: 18px; font-weight: 700">المراحل</h2>
+      <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px">
+        <li style="display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 999px; background: #E3F3E7; color: #1E6B34; display: inline-flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span><span><strong>إنشاء الحساب</strong> · 18/10/2026 10:42</span></li>
+        <li style="display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 999px; background: #E3F3E7; color: #1E6B34; display: inline-flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span><span><strong>تأكيد البريد الإلكتروني</strong> · 18/10/2026 10:47</span></li>
+        <li style="display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 999px; background: {{ stepBg }}; color: {{ stepColor }}; display: inline-flex; align-items: center; justify-content: center; font-weight: 700">3</span><span><strong>مراجعة منسق كلية الحاسب</strong> · {{ stepText }}</span></li>
+        <li style="display: flex; align-items: center; gap: 12px; color: #566173"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 999px; background: #EEF1F5; color: #4A5363; display: inline-flex; align-items: center; justify-content: center; font-weight: 700">4</span><span>التسجيل في دورة التدريب التعاوني، ثم يمكنك التقديم على الفرص</span></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="dataTitle" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <h2 id="dataTitle" style="margin: 0; font-size: 18px; font-weight: 700">البيانات المرسلة</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; font-size: 14px">
+        <div><div style="color: #566173; font-size: 13px">الرقم الجامعي</div><div dir="ltr" style="font-weight: 600; text-align: right">2210456</div></div>
+        <div><div style="color: #566173; font-size: 13px">التخصص</div><div style="font-weight: 600">نظم المعلومات</div></div>
+        <div><div style="color: #566173; font-size: 13px">المعدل</div><div style="font-weight: 600">4.21 من 5.00</div></div>
+        <div><div style="color: #566173; font-size: 13px">المستوى</div><div style="font-weight: 600">المستوى 8</div></div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border: 1px solid #EEF1F5; border-radius: 8px">
+        <span style="display: inline-flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg><span dir="ltr">schedule.pdf</span> · إثبات التسجيل في المقرر</span>
+        <a href="#doc" style="font-size: 14px">عرض</a>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #566173">يطّلع على المستند منسق كليتك فقط، ويُحذف بعد 30 يوماً من القرار. يبقى القرار وسببه في سجل الطلب.</p>
+    </section>
+
+    <sc-if value="{{ isRejected }}" hint-placeholder-val="{{ false }}">
+      <form style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700">طلب جديد</h2>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <label for="newDoc" style="font-size: 14px; font-weight: 600">إثبات التسجيل في المقرر (ملف جديد)</label>
+          <input id="newDoc" type="file" accept=".pdf,image/*" style="min-height: 44px; padding: 8px; border: 1px dashed #B9C3D2; border-radius: 8px; font-family: inherit; font-size: 14px">
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #566173">يمكنك أيضاً تصحيح الرقم الجامعي أو التخصص أو المعدل قبل الإرسال. يرى المنسق طلبك الجديد مع القرار السابق.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end">
+          <button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #B9C3D2; border-radius: 8px; background: #FFFFFF; color: #1F3864; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer">تعديل البيانات</button>
+          <button type="submit" style="min-height: 44px; padding: 0 20px; border: none; border-radius: 8px; background: #1F3864; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer">إرسال طلب جديد</button>
+        </div>
+      </form>
+    </sc-if>
+
+    <sc-if value="{{ isPending }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <a href="ST_Profile.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #1F3864; color: #FFFFFF; text-decoration: none; font-weight: 600">أكمل ملفك وسيرتك الذاتية</a>
+        <a href="ST_Vacancies.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid #B9C3D2; border-radius: 8px; background: #FFFFFF; color: #1F3864; text-decoration: none; font-weight: 600">تصفح الفرص</a>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["pending","rejected"],"default":"pending"},"$preview":{"width":1280,"height":980}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = this.props.state ?? 'pending';
+const rejected = s === 'rejected';
+return {
+isPending: !rejected,
+isRejected: rejected,
+stepBg: rejected ? '#FCE8E8' : '#E6EEFB',
+stepColor: rejected ? '#A61B1B' : '#1F4E9A',
+stepText: rejected ? 'رُفض في 19/10/2026' : 'قيد المراجعة منذ يومين'
+};
+}
+}
+</script>
+</body>
+</html>

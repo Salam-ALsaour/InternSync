@@ -9,7 +9,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, Polygon, Patch, Rectangle
 
-plt.rcParams["font.family"] = "Liberation Sans"
+plt.rcParams["font.family"] = ["Liberation Sans", "Arial", "DejaVu Sans"]  # first one installed wins
 INK, INK2, MUTED, GRID, SURF = "#0b0b0b", "#52514e", "#8a8984", "#e6e5e0", "#ffffff"
 S1, S2, S3, GREY = "#2a78d6", "#eb6834", "#1baf7a", "#a3a29c"
 
@@ -90,10 +90,11 @@ fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False, fontsize=
 save(fig, "10_gantt_schedule")
 
 # =================================================================== requirements by area
-reqs = json.load(open("reqs.json"))
+reqs = json.load(open("reqs.json", encoding="utf-8"))
 labels = {
-    "FR-AUT": "Accounts and access (FR-AUT)", "FR-CYC": "Cycles and configuration (FR-CYC)",
-    "FR-PRF": "Profile, CV, import (FR-PRF)", "FR-VAC": "Vacancies and placement (FR-VAC)",
+    "FR-AUT": "Accounts and access (FR-AUT)",
+    "FR-ORG": "Organizations and verification (FR-ORG)", "FR-CYC": "Cycles and configuration (FR-CYC)",
+    "FR-PRF": "Student profile and CV (FR-PRF)", "FR-VAC": "Vacancies and placement (FR-VAC)",
     "FR-MAT": "Matching and explanation (FR-MAT)", "FR-REP": "Weekly and final reports (FR-REP)",
     "FR-ATT": "Attendance (FR-ATT)", "FR-EVL": "Evaluations (FR-EVL)", "FR-WFL": "Approval workflow (FR-WFL)",
     "FR-SIM": "Similarity detection (FR-SIM)", "FR-NOT": "Notifications (FR-NOT)",
@@ -112,7 +113,7 @@ for rid, p in reqs:
 groups = list(cnt.keys())
 pcol = {"Must": "#184f95", "Should": "#3987e5", "Could": "#86b6ef"}
 
-fig = plt.figure(figsize=(7.3, 6.6))
+fig = plt.figure(figsize=(7.3, 6.8))
 ax = fig.add_axes([0.36, 0.09, 0.6, 0.8])
 gap_rows = 1.0  # space between FR and NFR blocks
 y = 0
@@ -137,7 +138,7 @@ for g in groups:
 ax.set_yticks([maxy - 1 - ys[g] for g in groups])
 ax.set_yticklabels([labels[g] for g in groups], fontsize=7.2, color=INK)
 ax.tick_params(axis="y", length=0, pad=6)
-ax.set_xlim(0, 8.5)
+ax.set_xlim(0, max(sum(c.values()) for c in cnt.values()) + 1.5)
 ax.set_ylim(-0.7, maxy - 0.3)
 ax.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
 ax.tick_params(axis="x", labelsize=6.8, colors=INK2, length=0)
@@ -148,12 +149,12 @@ ax.set_xlabel("Number of requirements", fontsize=7.4, color=INK2)
 # block captions
 nfr_top = maxy - 1 - ys["NFR-PER"]
 fr_top = maxy - 1 - ys["FR-AUT"]
-ax.text(-0.02, fr_top + 0.75, "FUNCTIONAL (81)", transform=ax.get_yaxis_transform(), ha="right", fontsize=7,
+ax.text(-0.02, fr_top + 0.75, f"FUNCTIONAL ({sum(1 for r, _ in reqs if r.startswith('FR-'))})", transform=ax.get_yaxis_transform(), ha="right", fontsize=7,
         fontweight="bold", color=INK2)
-ax.text(-0.02, nfr_top + 0.75, "NON-FUNCTIONAL (35)", transform=ax.get_yaxis_transform(), ha="right", fontsize=7,
+ax.text(-0.02, nfr_top + 0.75, f"NON-FUNCTIONAL ({sum(1 for r, _ in reqs if r.startswith('NFR-'))})", transform=ax.get_yaxis_transform(), ha="right", fontsize=7,
         fontweight="bold", color=INK2)
 tot = collections.Counter(p for _, p in reqs)
-fig.text(0.02, 0.975, "Requirements by area and priority (SRS v1.0)", fontsize=10, fontweight="bold", color=INK,
+fig.text(0.02, 0.975, "Requirements by area and priority (SRS v1.2)", fontsize=10, fontweight="bold", color=INK,
          va="top")
 fig.text(0.02, 0.945, f"{len(reqs)} requirements: {tot['Must']} Must · {tot['Should']} Should · {tot['Could']} Could"
          " — Must is built in Increments 1–2, Should in Increment 3, Could only if time allows",

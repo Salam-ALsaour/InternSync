@@ -14,9 +14,9 @@ EDGE = "#44546A"
 TXT = "#1A1A1A"
 AI_FILL = "#FFF4E5"
 AI_EDGE = "#C55A11"
-plt.rcParams["font.family"] = "Liberation Sans"
+plt.rcParams["font.family"] = ["Liberation Sans", "Arial", "DejaVu Sans"]  # first one installed wins
 
-W, H = 8.35, 8.8
+W, H = 8.95, 9.4
 fig = plt.figure(figsize=(W, H))
 ax = fig.add_axes([0, 0, 1, 1])
 ax.set_xlim(0, W)
@@ -28,43 +28,51 @@ AW, AH = 1.42, 0.42  # AI sub-use-case size
 
 # ---------------------------------------------------------------- model
 actors = {
-    "USER": (3.8, 8.30, "User"),
-    "ST": (0.60, 6.15, "Student"),
-    "CS": (0.27, 3.85, "Company\nSupervisor"),
-    "AS": (7.00, 6.15, "Academic\nSupervisor"),
-    "CO": (7.45, 4.00, "Coordinator"),
-    "PV": (7.00, 1.45, "Public\nVerifier"),
-    "SCH": (0.27, 1.05, "Scheduler\n«system»"),
+    "USER": (3.8, 9.00, "User"),
+    "ST": (0.60, 6.75, "Student"),
+    "CS": (0.27, 4.30, "Company\nSupervisor"),
+    "AS": (6.95, 7.55, "Academic\nSupervisor"),
+    "CO": (7.45, 5.00, "Coordinator"),
+    "PV": (6.95, 2.75, "Public\nVerifier"),
+    "PA": (8.45, 1.62, "Platform\nAdmin"),
+    "SCH": (0.27, 1.20, "Scheduler\n«system»"),
 }
 cL, cM, cR = 1.93, 3.82, 5.70
 cA = 4.02
 ucs = {
-    "UC02": (cM, 7.35, "UC-02 Activate account,\nlog in, reset password", False),
-    "UC03": (cL, 7.05, "UC-03 Build profile and\nconfirm CV skills", False),
-    "UC05": (cL, 6.40, "UC-05 View ranked\nvacancies and apply", False),
-    "UC07": (cL, 5.75, "UC-07 Submit weekly\nor final report", False),
-    "UC14": (cL, 5.10, "UC-14 Evaluate training\nentity, answer survey", False),
-    "RANK": (cA, 6.78, "Rank vacancies\n(AI matching)", True),
-    "PLAN": (cA, 6.12, "View skill gaps and\ndevelopment plan", True),
-    "SIM": (cA, 5.40, "Detect similarity\n(AI)", True),
-    "UC08": (cR, 6.60, "UC-08 Review a report\nand check similarity", False),
-    "UC11": (cR, 5.25, "UC-11 Enter, submit and\napprove a grade", False),
-    "UC01": (cR, 4.62, "UC-01 Open training cycle\nand import users", False),
-    "UC04": (cM, 4.25, "UC-04 Submit and\npublish a vacancy", False),
-    "UC06": (cM, 3.55, "UC-06 Review applicants\nand confirm placement", False),
-    "UC09": (cL, 3.00, "UC-09 Record weekly\nattendance", False),
-    "UC10": (cL, 2.35, "UC-10 Submit periodic\nor final evaluation", False),
-    "UC12": (cR, 2.60, "UC-12 Export grade\nsheets and summaries", False),
-    "UC13": (cR, 1.75, "UC-13 Issue and verify\na certificate", False),
-    "UC15": (cL, 1.05, "UC-15 Send reminders,\nlate flags, escalations", False),
+    "UC02": (cM, 8.05, "UC-02 Register, confirm,\nlog in, reset password", False),
+    "UC03": (cL, 7.75, "UC-03 Build profile and\nconfirm CV skills", False),
+    "UC05": (cL, 7.10, "UC-05 View ranked\nvacancies and apply", False),
+    "UC07": (cL, 6.45, "UC-07 Submit weekly\nor final report", False),
+    "UC14": (cL, 5.80, "UC-14 Evaluate training\nentity, answer survey", False),
+    "RANK": (cA, 7.48, "Rank vacancies\n(AI matching)", True),
+    "PLAN": (cA, 6.82, "View skill gaps and\ndevelopment plan", True),
+    "SIM": (cA, 6.10, "Detect similarity\n(AI)", True),
+    "UC04": (cM, 5.20, "UC-04 Publish\na vacancy", False),
+    "UC06": (cM, 4.55, "UC-06 Review applicants\nand confirm placement", False),
+    "UC19": (cL, 3.95, "UC-19 Invite and manage\ncompany supervisors", False),
+    "UC09": (cL, 3.30, "UC-09 Record weekly\nattendance", False),
+    "UC10": (cL, 2.65, "UC-10 Submit periodic\nor final evaluation", False),
+    "UC15": (cL, 1.20, "UC-15 Send reminders,\nlate flags, escalations", False),
+    "UC08": (cR, 8.00, "UC-08 Review a report\nand check similarity", False),
+    "UC11": (cR, 7.38, "UC-11 Enter, submit and\napprove a grade", False),
+    "UC01": (cR, 6.62, "UC-01 Open a\ntraining cycle", False),
+    "UC17": (cR, 6.00, "UC-17 Verify a student\nand enrol in a cycle", False),
+    "UC18": (cR, 5.38, "UC-18 Invite and manage\nacademic supervisors", False),
+    "UC12": (cR, 4.05, "UC-12 Export grade\nsheets and summaries", False),
+    "UC13": (cR, 3.43, "UC-13 Issue and verify\na certificate", False),
+    "UC16": (cR, 1.95, "UC-16 Verify a\ncoordinator or company", False),
+    "UC20": (cR, 1.33, "UC-20 Manage institutions\nand skill vocabulary", False),
 }
 assoc = [
     ("USER", "UC02"),
     ("ST", "UC03"), ("ST", "UC05"), ("ST", "UC07"), ("ST", "UC14"),
-    ("CS", "UC04"), ("CS", "UC06"), ("CS", "UC09"), ("CS", "UC10"),
+    ("CS", "UC04"), ("CS", "UC06"), ("CS", "UC19"), ("CS", "UC09"), ("CS", "UC10"),
     ("AS", "UC08"), ("AS", "UC11"),
-    ("CO", "UC01"), ("CO", "UC04"), ("CO", "UC06"), ("CO", "UC11"), ("CO", "UC12"), ("CO", "UC13"),
+    ("CO", "UC01"), ("CO", "UC17"), ("CO", "UC18"), ("CO", "UC06"), ("CO", "UC11"), ("CO", "UC12"),
+    ("CO", "UC13"),
     ("PV", "UC13"),
+    ("PA", "UC16"), ("PA", "UC20"),
     ("SCH", "UC15"),
 ]
 rels = [("UC05", "RANK", "«include»"), ("PLAN", "UC05", "«extend»"), ("UC07", "SIM", "«include»")]
@@ -104,8 +112,8 @@ def draw_actor(x, y, label, side=False):
 
 
 # ---------------------------------------------------------------- system boundary
-ax.add_patch(Rectangle((1.00, 0.25), 5.60, 7.60, fill=True, fc="white", ec=NAVY, lw=1.6, zorder=0))
-ax.text(1.12, 7.72, "InternSync", ha="left", va="top", fontsize=11, fontweight="bold", color=NAVY)
+ax.add_patch(Rectangle((1.00, 0.25), 5.60, 8.30, fill=True, fc="white", ec=NAVY, lw=1.6, zorder=0))
+ax.text(1.12, 8.42, "InternSync", ha="left", va="top", fontsize=11, fontweight="bold", color=NAVY)
 
 # ---------------------------------------------------------------- generalization bus to "User"
 ux, uy = actors["USER"][0], actors["USER"][1]
@@ -114,10 +122,10 @@ line = dict(color=EDGE, lw=1.0, zorder=1)
 for key in ("ST", "CS"):
     x, y, _ = actors[key]
     ax.plot([x, x], [y + 0.27, BUS], **line)
-for key in ("AS", "CO"):
+for key in ("AS", "CO", "PA"):
     x, y, _ = actors[key]
     ax.plot([x, x], [y + 0.27, BUS], **line)
-for x0, sgn in ((actors["CS"][0], -1), (actors["CO"][0], 1)):
+for x0, sgn in ((actors["CS"][0], -1), (actors["PA"][0], 1)):
     tip = ux + sgn * 0.19
     start = ux + sgn * 0.36
     ax.plot([x0, start], [BUS, BUS], **line)

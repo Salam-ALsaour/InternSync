@@ -4,9 +4,9 @@
 CSC 305 – Software Engineering \| Semester 1 – 2026/2027 \| Section 5MA1 \| Group 3
 
 **InternSync – Cooperative Training Coordination and Tracking System**  
-Project 4 · Version 1.1 · October 2026
+Project 4 · Version 1.2 · October 2026
 
-> This Markdown file is the maintained version of the SRS. `InternSync_SRS.docx` and `InternSync_SRS.pdf` in this folder are the v1.0 baseline as submitted. Changes after v1.0 are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
+> This Markdown file is the maintained version of the SRS. `InternSync_SRS.docx` and `InternSync_SRS.pdf` in this folder are the earlier v1.0 draft. Changes after v1.0 are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
 
 ### Team Information
 
@@ -25,6 +25,7 @@ Project 4 · Version 1.1 · October 2026
 |:--:|:--:|:---|:--:|
 | 1.0 | Oct 10, 2026 | First baseline submitted as Project 4 (SRS). | Group 3 |
 | 1.1 | Oct 13, 2026 | CR-01: zero-cost reference deployment (3.4, 5, NFR-PER-01, 6.2, 6.3, C-04, C-10, D-05). CR-02: UC-15 added to Table 3.1. CR-03: weekly working days added to FR-CYC-01. CR-04: change requests logged in the repository (10.6). | Salam Alsaour |
+| 1.2 | Oct 20, 2026 | CR-05: one platform for many universities and companies. Five roles with a Platform Admin; self-registration with verification of coordinators, companies, and students (new Section 4.17, FR-ORG-01 – 09); one coordinator per college; companies publish vacancies directly (FR-VAC-01 – 03 rewritten); CSV import removed (FR-PRF-01 deleted, Section 6.3.1 removed); FR-DSH-05 added; Table 2.3 rewritten. | Salam Alsaour |
 
 ## Table of Contents
 
@@ -48,7 +49,7 @@ Project 4 · Version 1.1 · October 2026
 - [4. Functional Requirements](#4-functional-requirements)
   - [4.1 Accounts, Authentication, and Access Control](#41-accounts-authentication-and-access-control)
   - [4.2 Training Cycles and Configuration](#42-training-cycles-and-configuration)
-  - [4.3 Student Profile, CV, and Data Import](#43-student-profile-cv-and-data-import)
+  - [4.3 Student Profile and CV](#43-student-profile-and-cv)
   - [4.4 Vacancies and Placement](#44-vacancies-and-placement)
   - [4.5 Matching and Explanation](#45-matching-and-explanation)
   - [4.6 Weekly and Final Reports](#46-weekly-and-final-reports)
@@ -62,6 +63,7 @@ Project 4 · Version 1.1 · October 2026
   - [4.14 Completion Certificates](#414-completion-certificates)
   - [4.15 Language and PWA Features](#415-language-and-pwa-features)
   - [4.16 Audit Trail](#416-audit-trail)
+  - [4.17 Organizations, Registration, and Verification](#417-organizations-registration-and-verification)
 - [5. Non-Functional Requirements](#5-non-functional-requirements)
   - [5.1 Performance](#51-performance)
   - [5.2 Security](#52-security)
@@ -75,7 +77,6 @@ Project 4 · Version 1.1 · October 2026
   - [6.1 User Interfaces](#61-user-interfaces)
   - [6.2 Hardware Interfaces](#62-hardware-interfaces)
   - [6.3 Software Interfaces](#63-software-interfaces)
-    - [6.3.1 CSV Import Formats](#631-csv-import-formats)
   - [6.4 Communication Interfaces](#64-communication-interfaces)
 - [7. Constraints](#7-constraints)
 - [8. Assumptions and Dependencies](#8-assumptions-and-dependencies)
@@ -99,7 +100,7 @@ Project 4 · Version 1.1 · October 2026
 
 ### 1.1 Purpose of this Document
 
-This Software Requirements Specification (SRS) defines what InternSync must do and the qualities it must have. It turns the functions (F1–F19) and objectives (O1–O10) approved in the Project Proposal into numbered, testable requirements. Once approved, it is the baseline for design, implementation, and testing, and the reference for the change control described in the Software Project Management Plan (SPMP).
+This Software Requirements Specification (SRS) defines what InternSync must do and the qualities it must have. It turns the functions (F1–F19) and objectives (O1–O10) approved in the Project Proposal into numbered, testable requirements. Once approved, it is the baseline for design, implementation, and testing, and the reference for the change control described in the Software Project Management Plan (SPMP). Version 1.2 widens the Proposal's scope from the co-op unit of one college to one platform that serves many universities, their colleges, and companies (CR-05).
 
 The intended readers are the course supervisor, who evaluates the specification; the development team, who design and build from it; the QA lead, who derives test cases from it; and the stakeholder representatives who take part in validating it (Section 10).
 
@@ -107,7 +108,7 @@ The intended readers are the course supervisor, who evaluates the specification;
 
 Cooperative training (Co-op) and summer internships are coordinated today through email, spreadsheets, and paper or PDF forms. Vacancies are circulated informally, weekly reports arrive as attachments, company evaluations are filled in once at the end, and grade sheets are compiled by hand (problems P1–P6 in the Proposal). The result is no single, reliable record of what happened during a training cycle.
 
-InternSync is a role-based web platform, delivered as a responsive Progressive Web App (PWA) in Arabic and English, that manages the whole co-op life cycle in one place: publishing vacancies and matching students to them, weekly follow-up, standard evaluation, multi-stage grade approval, and official exports. Its purpose is to replace scattered manual work with one auditable record from which the official outputs are generated directly. The AI features (matching, skill gaps, similarity detection) support decisions; people make every final decision.
+InternSync is a role-based web platform, delivered as a responsive Progressive Web App (PWA) in Arabic and English and run by a platform provider. It connects universities (through the co-op unit of each college), companies, and students, and manages the whole co-op life cycle in one place: publishing vacancies and matching students to them, weekly follow-up, standard evaluation, multi-stage grade approval, and official exports. Its purpose is to replace scattered manual work with one auditable record from which the official outputs are generated directly. The AI features (matching, skill gaps, similarity detection) support decisions; people make every final decision.
 
 ### 1.3 Scope
 
@@ -117,9 +118,9 @@ This release covers functions F1–F19 of the Proposal. Table 1.1 lists them wit
 
 | **ID** | **Function** | **Priority** | **SRS section** |
 |:--:|:---|:--:|:--:|
-| F1 | Role-based accounts, authentication, and authorization for four roles | Must | 4.1 |
-| F2 | Student profile and CV upload with skill extraction; CSV import of student, course, and staff data | Must | 4.3 |
-| F3 | Vacancy catalogue, applications, and placement confirmation | Must | 4.4 |
+| F1 | Role-based accounts for five roles with self-registration and verification across universities, colleges, and companies; authentication and authorization | Must | 4.1, 4.17 |
+| F2 | Student profile and CV upload with skill extraction | Must | 4.3 |
+| F3 | Vacancy catalogue published by verified companies, applications, and placement confirmation by the student's coordinator | Must | 4.4 |
 | F4 | Matching engine that ranks vacancies against the student profile | Must | 4.5 |
 | F5 | Weekly and final report submission with deadlines and revision requests | Must | 4.6 |
 | F6 | Weekly attendance confirmation by the company supervisor | Must | 4.7 |
@@ -141,7 +142,9 @@ Supporting requirements that serve several functions — training-cycle configur
 
 **Out of scope** for this release (the “Won’t” category in Section 9):
 
-- Live integration with the university student information system; student and staff data are imported from CSV files.
+- Live integration with university student information systems or government registries; users enter their data at registration and people verify it (FR-ORG-03 – 05).
+
+- Payments, subscriptions, or any billing for using the platform.
 
 - Writing grades into the university system; grades leave InternSync as exported files only.
 
@@ -168,7 +171,11 @@ Supporting requirements that serve several functions — training-cycle configur
 | Placement | Confirmed assignment of a student to a vacancy, a company supervisor, and an academic supervisor. |
 | Company supervisor (CS) | Company employee who supervises the student during training. |
 | Academic supervisor (AS) | Faculty member who follows the student’s progress and proposes the grade. |
-| Coordinator (CO) | Staff member of the college co-op unit; also performs system administration in this release. |
+| Coordinator (CO) | Head of the co-op unit of one college; each college has exactly one. |
+| Platform Admin (PA) | Staff member of the platform provider who manages universities and colleges and verifies coordinators and companies. Has no access to academic records. |
+| Company Admin | The Company Supervisor who registered the company and was verified with it; can invite other Company Supervisors and sees all of the company's vacancies and trainees. |
+| University, college | A university on the platform and its colleges. Students, academic supervisors, and coordinators belong to one college. |
+| Verification | Review of a registration and its documents by the responsible person (FR-ORG-03 – 05) before the account can act in its role. |
 | Student (ST) | Student enrolled in a training cycle. |
 | Rubric | Fixed set of evaluation criteria, each rated on a 1–5 scale with a description for every level. |
 | Skill vocabulary | List of normalized skills with English and Arabic names and synonyms, maintained by the coordinator. |
@@ -192,7 +199,7 @@ Supporting requirements that serve several functions — training-cycle configur
 
 2.  InternSync – Software Project Management Plan (SPMP), CSC 305 Group 3, Oct 3, 2026.
 
-3.  InternSync – Project Idea Form, CSC 305 Group 3, Sep 5, 2026 (superseded by the Proposal where they differ, e.g., four roles instead of five).
+3.  InternSync – Project Idea Form, CSC 305 Group 3, Sep 5, 2026 (superseded by the Proposal and by this SRS where they differ).
 
 4.  ISO/IEC/IEEE 29148:2018, Systems and software engineering — Life cycle processes — Requirements engineering.
 
@@ -210,7 +217,7 @@ Supporting requirements that serve several functions — training-cycle configur
 
 - Each group of requirements names its source function (F) and objective (O) from the Proposal; Appendix A gives the full traceability.
 
-- Role abbreviations: ST student, CS company supervisor, AS academic supervisor, CO coordinator.
+- Role abbreviations: ST student, CS company supervisor, AS academic supervisor, CO coordinator, PA platform admin. In a requirement, “the Coordinator” means the coordinator of the college of the student concerned, and “the Company Admin” the admin of the company concerned.
 
 ## 2. Stakeholders and User Classes
 
@@ -223,17 +230,18 @@ Table 2.1 lists the people and groups affected by InternSync, what they need, an
 | **Stakeholder** | **Type** | **Needs and interests** | **Interaction with the system** | **Effect on requirements** |
 |:---|:---|:---|:---|:---|
 | Student | Primary user | Find suitable vacancies and know which skills are missing; submit reports easily; get feedback during training; see grade and certificate. | Profile and CV, applications, weekly and final reports, evaluation of the company, dashboard. | Mobile-friendly, simple flows (NFR-USA); advisory, explained matching. |
-| Company training supervisor | Primary user (external, occasional) | Spend little time: confirm attendance and evaluate quickly; reach qualified students. | Vacancies, applicant review, weekly attendance, periodic and final evaluation. | One-action attendance (FR-ATT-01); email reminders; nothing to install. |
+| Company training supervisor and Company Admin | Primary user (external, occasional) | Register the company once; publish vacancies without waiting; confirm attendance and evaluate quickly; reach qualified students from many universities. | Company registration and team, vacancies, applicant review, weekly attendance, periodic and final evaluation. | Company verification (FR-ORG-04); one-action attendance (FR-ATT-01); email reminders; nothing to install. |
 | Academic supervisor | Primary user (faculty) | Review reports efficiently, notice copied work, propose grades with a clear record. | Report review, revision requests, similarity flags, grade entry. | Approval workflow (4.9); similarity is advisory (FR-SIM-03). |
-| Co-op coordinator (co-op unit) | Primary user; system administrator in this release | Run cycles without manual work; control deadlines; produce official outputs; handle escalations. | Accounts and CSV import, cycles, rubric, vacancies, placements, grade approval, exports, audit log. | Configuration (4.2), exports (4.13), audit trail (4.16). |
-| College administration | Indirect | Accurate program statistics and placement outcomes. | Receives term summaries exported by the coordinator; no account in this release. | FR-EXP-02, FR-DSH-03. |
+| Co-op coordinator (one per college) | Primary user | Run the college's cycles without manual work; know that registered students are real and eligible; control deadlines; produce official outputs; handle escalations. | Student verification, academic supervisors, cycles, rubric, placements, grade approval, exports, college audit log. | Verification (4.17), configuration (4.2), exports (4.13), audit trail (4.16). |
+| Platform provider and Platform Admin | Operator; primary user | Trust in every organization on the platform; little administration effort; no handling of academic records. | Universities and colleges, verification of coordinators and companies, skill vocabulary, platform settings. | Verification (4.17), platform dashboard (FR-DSH-05), privacy (5.3). |
+| University and college administration | Indirect | Accurate program statistics and placement outcomes. | Receive term summaries exported by the coordinator; no account in this release. | FR-EXP-02, FR-DSH-03. |
 | Partner companies and employers | Indirect | A reliable channel to students; verify that a student completed training. | Through company supervisor accounts; public certificate verification. | FR-CER-01 – 03. |
 | CSC 305 course supervisor | Project stakeholder | A complete, testable SRS and delivery on schedule. | Reviews deliverables at each milestone. | Constraints (7) and prioritization (9). |
 | Development team (Group 3) | Project stakeholder | A scope that fits about 480 person-hours. | Designs, builds, and tests the system. | Constraints (7) and descoping order (9.4). |
 
 ### 2.2 User Classes and Characteristics
 
-The expected numbers describe one training cycle in the demonstration environment and are used as the sizing basis for the performance requirements (Section 5.1).
+The expected numbers describe one training cycle of one college in the demonstration environment, which holds 2 universities and 4 colleges, and are used as the sizing basis for the performance requirements (Section 5.1).
 
 **Table 2.2 – User classes**
 
@@ -242,45 +250,51 @@ The expected numbers describe one training cycle in the demonstration environmen
 | Student | Up to 300 | Daily while searching; weekly during training | Medium to high | Phone and laptop |
 | Company supervisor | Up to 100 | Weekly, a few minutes | Varies; may be non-technical | Laptop; phone through email links |
 | Academic supervisor | Up to 30 | Weekly | Medium | Laptop |
-| Coordinator | 1 to 3 | Daily during setup and grading | Medium | Laptop |
+| Coordinator | 1 per college | Daily during setup, verification, and grading | Medium | Laptop |
+| Platform Admin | 1 to 2 for the platform | Daily (verification queue) | High | Laptop |
 | Public verifier | Not known | Rare | Any | Phone (QR scan) |
 
 ### 2.3 Access Rights by Role
 
-Table 2.3 defines which role may perform each action. “Own” means the user’s own records; “Assigned” means the records of students placed under that supervisor. FR-AUT-05 requires the server to enforce this table.
+Table 2.3 defines which role may perform each action. “Own” means the user’s own records; “Assigned” means the records of students placed under that supervisor. “College” means the records of the coordinator's college, and “Company” the records of the Company Admin's company. FR-AUT-05 requires the server to enforce this table.
 
 **Table 2.3 – Permission matrix**
 
-| **Action** | **ST** | **CS** | **AS** | **CO** | **Public** |
-|:---|:--:|:--:|:--:|:--:|:--:|
-| Manage accounts; import CSV files | — | — | — | All | — |
-| Configure cycles, rubric, grade weights, skill vocabulary | — | — | — | All | — |
-| Edit profile, upload CV, confirm skills | Own | — | — | — | — |
-| Create a vacancy | — | Own company | — | All | — |
-| Publish, return, or close a vacancy | — | — | — | All | — |
-| View ranked vacancies and apply | Own | — | — | — | — |
-| Review applicants of a vacancy | — | Own vacancies | — | All | — |
-| Confirm or cancel a placement | — | — | — | All | — |
-| Submit weekly and final reports | Own | — | — | — | — |
-| View reports | Own | Assigned (read) | Assigned | All | — |
-| Accept a report or request revision | — | — | Assigned | — | — |
-| Record attendance | — | Assigned | — | Unlock only | — |
-| Submit periodic and final evaluations | — | Assigned | — | Reopen only | — |
-| View similarity flags and record a decision | — | — | Assigned | View all | — |
-| Enter and submit a grade | — | — | Assigned | — | — |
-| Approve, return, or reopen a grade | — | — | — | All | — |
-| View a final grade | Own | — | Assigned | All | — |
-| Evaluate the training entity | Own | — | — | View all | — |
-| Export grade sheets and reports | — | — | Assigned (records) | All | — |
-| Issue or revoke a certificate | — | — | — | All | — |
-| Verify a certificate | — | — | — | — | Yes |
-| View the audit log | — | — | — | All | — |
+| **Action** | **ST** | **CS** | **AS** | **CO** | **PA** | **Public** |
+|:---|:--:|:--:|:--:|:--:|:--:|:--:|
+| Register as a student, a coordinator, or a company | — | — | — | — | — | Yes |
+| Manage universities, colleges, majors, skill vocabulary, and platform settings | — | — | — | — | All | — |
+| Verify coordinators and companies; transfer the Coordinator or Company Admin role | — | — | — | — | All | — |
+| Verify students and enrol them in a cycle | — | — | — | College | — | — |
+| Invite academic supervisors | — | — | — | College | — | — |
+| Invite company supervisors | — | Company Admin | — | — | — | — |
+| Deactivate or reactivate accounts | — | Company Admin (company supervisors) | — | College (academic supervisors, students) | All | — |
+| Configure cycles, rubric, and grade weights | — | — | — | College | — | — |
+| Edit profile, upload CV, confirm skills | Own | — | — | — | — | — |
+| Create, publish, or close a vacancy | — | Own (Company Admin: Company) | — | — | — | — |
+| View ranked vacancies and apply | Own (verified) | — | — | — | — | — |
+| Review applicants of a vacancy | — | Own vacancies (Company Admin: Company) | — | — | — | — |
+| Confirm or cancel a placement | — | — | — | College | — | — |
+| Submit weekly and final reports | Own | — | — | — | — | — |
+| View reports | Own | Assigned (read) | Assigned | College | — | — |
+| Accept a report or request revision | — | — | Assigned | — | — | — |
+| Record attendance | — | Assigned | — | Unlock only | — | — |
+| Submit periodic and final evaluations | — | Assigned | — | Reopen only | — | — |
+| View similarity flags and record a decision | — | — | Assigned | View (college) | — | — |
+| Enter and submit a grade | — | — | Assigned | — | — | — |
+| Approve, return, or reopen a grade | — | — | — | College | — | — |
+| View a final grade | Own | — | Assigned | College | — | — |
+| Evaluate the training entity | Own | — | — | View (college) | — | — |
+| Export grade sheets and reports | — | — | Assigned (records) | College | — | — |
+| Issue or revoke a certificate | — | — | — | College | — | — |
+| Verify a certificate | — | — | — | — | — | Yes |
+| View the audit log | — | — | — | College | Accounts, organizations, verification | — |
 
 ## 3. Overall Description
 
 ### 3.1 Product Perspective
 
-InternSync is a new, self-contained system that replaces the current mix of email, spreadsheets, and paper forms. It has no live connection to university systems: student and staff data enter through CSV files, and grades leave as exported PDF and Excel files. Figure 3.1 shows the system boundary, its users, and the external services it depends on.
+InternSync is a new, self-contained system that replaces the current mix of email, spreadsheets, and paper forms. It has no live connection to university or government systems: users enter their own data when they register, the responsible person verifies it (Section 4.17), and grades leave as exported PDF and Excel files. One platform serves many universities, their colleges, and many companies, and keeps the records of each organization apart. Figure 3.1 shows the system boundary, its users, and the external services it depends on.
 
 ![Figure 3.1 – Context diagram](../InternSync_Diagrams/png/02_context.png)
 
@@ -290,21 +304,25 @@ Inside the boundary, a React PWA client talks to a single Python/FastAPI backend
 
 ### 3.2 Co-op Life Cycle Supported
 
-1.  The coordinator opens a training cycle, imports students and academic supervisors from CSV files, and creates company supervisor accounts.
+1.  The Platform Admin adds universities and colleges, and verifies the coordinator of each college and every company that registers.
 
-2.  Company supervisors submit vacancies; the coordinator reviews and publishes them.
+2.  The coordinator opens a training cycle for the college and invites the college's academic supervisors.
 
-3.  Students build their profiles, upload CVs, confirm the extracted skills, view vacancies ranked by fit with an explanation, and apply.
+3.  Students register, upload proof of their registration in the co-op course, and are verified by their coordinator, who enrols them in the cycle.
 
-4.  Company supervisors accept or decline applicants; the coordinator confirms placements and assigns academic supervisors.
+4.  Verified companies publish vacancies, open to all universities or to selected ones; the Company Admin may invite more company supervisors.
 
-5.  During training, students submit weekly reports, company supervisors record attendance weekly and submit the periodic evaluation, and the system sends reminders and late flags.
+5.  Students build their profiles, upload CVs, confirm the extracted skills, view vacancies ranked by fit with an explanation, and apply.
 
-6.  Academic supervisors review reports with the similarity indicator and accept them or request revisions.
+6.  Company supervisors accept or decline applicants; the student's coordinator confirms the placement and assigns an academic supervisor.
 
-7.  At the end of training, the student submits the final report, the company supervisor submits the final evaluation, and the grade passes through the approval workflow.
+7.  During training, students submit weekly reports, company supervisors record attendance weekly and submit the periodic evaluation, and the system sends reminders and late flags.
 
-8.  The coordinator exports grade sheets and summaries and issues certificates; students evaluate the training entity and answer the outcome survey.
+8.  Academic supervisors review reports with the similarity indicator and accept them or request revisions.
+
+9.  At the end of training, the student submits the final report, the company supervisor submits the final evaluation, and the grade passes through the approval workflow.
+
+10. The coordinator exports grade sheets and summaries and issues certificates; students evaluate the training entity and answer the outcome survey.
 
 ### 3.3 Use Case Overview
 
@@ -312,10 +330,10 @@ Inside the boundary, a React PWA client talks to a single Python/FastAPI backend
 
 | **UC** | **Use case** | **Primary actor** | **Requirements** |
 |:--:|:---|:--:|:---|
-| UC-01 | Open a training cycle and import users | CO | FR-CYC-01 – 04, FR-PRF-01, FR-AUT-02 |
-| UC-02 | Activate account, log in, reset password | All roles | FR-AUT-01 – 04 |
+| UC-01 | Open a training cycle | CO | FR-CYC-01 – 03, FR-CYC-05 |
+| UC-02 | Register, confirm email, log in, reset password | All roles | FR-AUT-01 – 04, FR-ORG-02 |
 | UC-03 | Build profile and confirm CV skills | ST | FR-PRF-02 – 05 |
-| UC-04 | Submit and publish a vacancy | CS, CO | FR-VAC-01, FR-VAC-02 |
+| UC-04 | Publish a vacancy | CS | FR-VAC-01, FR-VAC-02 |
 | UC-05 | View ranked vacancies and apply | ST | FR-VAC-03 – 05, FR-MAT-01 – 07 |
 | UC-06 | Review applicants and confirm placement | CS, CO | FR-VAC-06 – 08 |
 | UC-07 | Submit a weekly or final report | ST | FR-REP-01 – 04 |
@@ -327,6 +345,11 @@ Inside the boundary, a React PWA client talks to a single Python/FastAPI backend
 | UC-13 | Issue and verify a certificate | CO, Public | FR-CER-01 – 03 |
 | UC-14 | Evaluate the training entity and answer the survey | ST | FR-EVL-05, FR-DSH-03 |
 | UC-15 | Send reminders, late flags, and escalations | Scheduler (system timer) | FR-REP-04, FR-NOT-02 – 04 |
+| UC-16 | Verify a coordinator or a company | PA | FR-ORG-03, FR-ORG-04, FR-ORG-07 – 09 |
+| UC-17 | Verify a student and enrol them in a cycle | CO | FR-ORG-05, FR-ORG-08, FR-ORG-09 |
+| UC-18 | Invite and manage academic supervisors | CO | FR-ORG-06, FR-AUT-06 |
+| UC-19 | Invite and manage company supervisors | CS (Company Admin) | FR-ORG-06, FR-AUT-06 |
+| UC-20 | Manage universities, colleges, and the skill vocabulary | PA | FR-ORG-01, FR-CYC-04, FR-DSH-05 |
 
 ### 3.4 Operating Environment
 
@@ -356,12 +379,12 @@ Functional requirements are grouped by area. In each table, the acceptance crite
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-AUT-01** | The system shall support four roles — Student, Company Supervisor, Academic Supervisor, and Coordinator — and each account shall hold exactly one role. The Coordinator also performs system administration in this release. | Must | A user of each role logs in and sees only the menu items of that role. |
-| **FR-AUT-02** | The system shall not offer public self-registration. The Coordinator shall create accounts one at a time or through CSV import (FR-PRF-01), and the system shall email each new user a one-time activation link valid for 72 hours (default). | Must | No registration page exists; an activation link works once; a used or expired link is rejected with a message. |
+| **FR-AUT-01** | The system shall support five roles — Student, Company Supervisor, Academic Supervisor, Coordinator, and Platform Admin — and each account shall hold exactly one role. A Company Supervisor may also hold the Company Admin right of the company (FR-ORG-04). | Must | A user of each role logs in and sees only the menu items of that role; a Company Admin also sees the company team menu. |
+| **FR-AUT-02** | Students, coordinators, and company representatives shall create their own accounts (FR-ORG-02); academic supervisors and further company supervisors join by invitation (FR-ORG-06); Platform Admin accounts are created only by the platform provider. The system shall email a one-time link valid for 72 hours (default) to confirm the email address or to accept an invitation. | Must | Registration is offered only for the three self-registering roles; a confirmation or invitation link works once; a used or expired link is rejected with a message. |
 | **FR-AUT-03** | Users shall log in with email and password. A session shall end after 30 minutes of inactivity (default), and users shall be able to log out at any time. | Must | After 30 idle minutes the next action returns to the login page; after logout the old token is rejected. |
 | **FR-AUT-04** | The system shall let a user reset a forgotten password through an emailed one-time link valid for 60 minutes. | Must | The link resets the password once; the old password stops working; an expired link is rejected. |
-| **FR-AUT-05** | The system shall enforce the permission matrix of Table 2.3 on the server for every request: supervisors reach only the records of students assigned to them, and students only their own records. | Must | Automated permission tests cover every API endpoint for every role, with 0 failing tests (O1). |
-| **FR-AUT-06** | The Coordinator shall be able to deactivate and reactivate accounts. A deactivated user cannot log in, and the records that user created remain unchanged. | Must | Login of a deactivated user fails; the user’s past reports and evaluations stay visible to authorized users. |
+| **FR-AUT-05** | The system shall enforce the permission matrix of Table 2.3 on the server for every request: supervisors reach only the records of students assigned to them, students only their own records, a coordinator only the records of the college, a company user only the records of the company, and the Platform Admin no academic records. | Must | Automated permission tests cover every API endpoint for every role, with two colleges and two companies in the test data, and show 0 failing tests and no access across organizations (O1). |
+| **FR-AUT-06** | The Platform Admin shall be able to deactivate and reactivate any account or organization; a Coordinator, the academic supervisors and students of the college; and a Company Admin, the company's supervisors. A deactivated user cannot log in, and the records that user created remain unchanged. | Must | Login of a deactivated user fails; the user’s past reports and evaluations stay visible to authorized users; a Coordinator cannot deactivate a user of another college. |
 
 ### 4.2 Training Cycles and Configuration
 
@@ -369,20 +392,20 @@ Functional requirements are grouped by area. In each table, the acceptance crite
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-CYC-01** | The Coordinator shall create a training cycle with a name, type (Co-op or Summer), start and end dates, number of training weeks, weekly working days (used for attendance, A-08), weekly report deadline (weekday and time), and due dates for the periodic evaluation, final evaluation, and final report. | Must | Creating a 12-week cycle generates 12 weekly deadlines on the configured weekday and time; each week's scheduled days equal the configured working days. |
+| **FR-CYC-01** | The Coordinator shall create a training cycle for the college with a name, type (Co-op or Summer), start and end dates, number of training weeks, weekly working days (used for attendance, A-08), weekly report deadline (weekday and time), and due dates for the periodic evaluation, final evaluation, and final report. | Must | Creating a 12-week cycle generates 12 weekly deadlines on the configured weekday and time; each week's scheduled days equal the configured working days. |
 | **FR-CYC-02** | The Coordinator shall define the grade components of a cycle and their weights; the system shall reject weights that do not sum to 100%. | Must | Weights 40/30/20 are rejected; 40/30/30 are saved. |
 | **FR-CYC-03** | The Coordinator shall define one evaluation rubric per cycle: a list of criteria, each with a description for every level of a 1–5 scale. After the first evaluation of the cycle is submitted, the rubric shall become read-only. | Must | After one evaluation is submitted, editing the rubric is refused. |
-| **FR-CYC-04** | The Coordinator shall maintain the skill vocabulary: each skill has an English name, an Arabic name, synonyms, and optional learning resources (title, link, estimated effort). | Must | A skill with the synonym “JS” is recognized in a CV containing “JS” and is shown as “JavaScript”. |
+| **FR-CYC-04** | The Platform Admin shall maintain the skill vocabulary, shared by all organizations: each skill has an English name, an Arabic name, synonyms, and optional learning resources (title, link, estimated effort). | Must | A skill with the synonym “JS” is recognized in a CV containing “JS” and is shown as “JavaScript”. |
 | **FR-CYC-05** | The Coordinator shall be able to close a cycle, which makes its records read-only; reopening a closed cycle requires a written reason, recorded in the audit log. | Should | Edits in a closed cycle are refused; reopening without a reason is refused. |
 
-### 4.3 Student Profile, CV, and Data Import
+### 4.3 Student Profile and CV
 
 *Source: F2 · Objectives O2, O7*
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-PRF-01** | The Coordinator shall import students and academic supervisors from CSV files in the formats of Section 6.3.1. The system shall validate every row, create accounts for valid rows, and show an import report listing each rejected row with its reason (missing field, invalid email, duplicate ID). | Must | A 50-row file with 3 invalid rows creates 47 accounts and lists exactly the 3 rejected rows with reasons. |
-| **FR-PRF-02** | A student shall maintain a profile with major and GPA (imported and read-only), confirmed skills, languages, and areas of interest. | Must | The student can edit skills and interests but not major or GPA. |
+| **FR-PRF-01** | *Deleted in v1.2 (CR-05).* Students register themselves and are verified by their coordinator (FR-ORG-05); there is no CSV import. | — | — |
+| **FR-PRF-02** | A student shall maintain a profile with student number, major, GPA, and level (entered at registration and read-only after verification), confirmed skills, languages, and areas of interest. | Must | After verification the student can edit skills and interests but not the student number, major, or GPA. |
 | **FR-PRF-03** | A student shall upload a CV as a PDF or DOCX file of up to 5 MB. The latest CV is used for matching, and earlier versions are kept. | Must | A 6 MB file or another file type is refused; after a second upload both versions appear in the CV history. |
 | **FR-PRF-04** | After each CV upload, the system shall extract candidate skills from the CV text (Arabic or English), normalize them with the skill vocabulary, and show them to the student, who can add, edit, or remove skills before confirming. Only confirmed skills shall be used for matching. | Must | On a labelled set of 20 CVs (10 Arabic, 10 English), at least 70% of the skills listed by the annotators appear in the extracted list. |
 | **FR-PRF-05** | If no text can be extracted from a CV (for example, a scanned image), the system shall inform the student and allow manual skill entry. | Must | Uploading an image-only PDF shows the message and an empty, editable skill list. |
@@ -393,13 +416,13 @@ Functional requirements are grouped by area. In each table, the acceptance crite
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-VAC-01** | A Company Supervisor or the Coordinator shall create a vacancy with title, company, city, description, required skills, preferred skills, eligible majors, optional minimum GPA, number of seats, application deadline, and cycle. | Must | A vacancy missing a required field cannot be saved; a saved vacancy shows all fields. |
-| **FR-VAC-02** | A vacancy has one of the statuses Draft, Pending Review, Published, or Closed. A vacancy created by a Company Supervisor shall become visible to students only after the Coordinator publishes it; the Coordinator may return it with a comment. A vacancy created by the Coordinator is published directly. | Must | Students cannot see a Pending Review vacancy; after publication it appears in their list. |
-| **FR-VAC-03** | Students shall browse the published vacancies of their cycle, search by keyword, and filter by city, company, eligible major, and skill. | Must | Each filter returns only vacancies that satisfy it (checked on seeded data). |
-| **FR-VAC-04** | A student shall apply to an open vacancy for which they are eligible, before its deadline. The system shall prevent duplicate applications and limit active applications to 5 per student (default). | Must | A second application to the same vacancy, an application after the deadline, and a sixth active application are each refused with a message. |
+| **FR-VAC-01** | A Company Supervisor of a verified company shall create a vacancy with title, city, description, required skills, preferred skills, eligible majors, optional minimum GPA, number of seats, application deadline, training type (Co-op or Summer), training start and end dates, and optional target universities. | Must | A vacancy missing a required field cannot be saved; a saved vacancy shows all fields; a company that is not verified cannot create one. |
+| **FR-VAC-02** | A vacancy has one of the statuses Draft, Published, or Closed. The company publishes it directly, without review by a coordinator, and may close it. A published vacancy is visible to verified students of every university, or only of its target universities when any are set. | Must | Students cannot see a Draft vacancy; a vacancy targeted at university A is visible to students of A and not to students of B. |
+| **FR-VAC-03** | Students shall browse the published vacancies open to their university, search by keyword, and filter by city, company, eligible major, skill, and training type. | Must | Each filter returns only vacancies that satisfy it (checked on seeded data). |
+| **FR-VAC-04** | A verified student enrolled in a cycle shall apply to an open vacancy for which they are eligible, before its deadline. The system shall prevent duplicate applications and limit active applications to 5 per student (default). | Must | A second application to the same vacancy, an application after the deadline, and a sixth active application are each refused with a message. |
 | **FR-VAC-05** | A student shall be able to withdraw an application until a decision has been made on it. | Should | The withdrawn application leaves the applicant list and frees an application slot. |
-| **FR-VAC-06** | A Company Supervisor shall view the applicants to their own vacancies (profile, confirmed skills, CV) and mark each applicant Accepted or Declined. | Must | The supervisor sees applicants of own vacancies only; the decision is visible to the student and the Coordinator. |
-| **FR-VAC-07** | The Coordinator shall confirm the placement of an accepted applicant by assigning the student to the vacancy, its Company Supervisor, and an Academic Supervisor. A student shall have at most one confirmed placement per cycle; confirming it withdraws the student’s other active applications, and a vacancy closes automatically when its seats are filled. | Must | A second placement for the same student is refused; filling the last seat changes the vacancy to Closed. |
+| **FR-VAC-06** | A Company Supervisor shall view the applicants to their own vacancies, and the Company Admin those of all the company's vacancies (profile, confirmed skills, CV), and mark each applicant Accepted or Declined. | Must | A supervisor sees applicants of own vacancies only and the Company Admin those of the whole company; the decision is visible to the student and the Coordinator. |
+| **FR-VAC-07** | The Coordinator of the student's college shall confirm the placement of an accepted applicant by assigning the student to the vacancy, a Company Supervisor of the company, and an Academic Supervisor of the college, within the student's cycle. A student shall have at most one confirmed placement per cycle; confirming it withdraws the student’s other active applications, and a vacancy closes automatically when its seats are filled. | Must | A second placement for the same student is refused; filling the last seat changes the vacancy to Closed. |
 | **FR-VAC-08** | The Coordinator shall be able to change a student’s Academic Supervisor or cancel a placement, giving a mandatory reason. | Should | The action without a reason is refused; the change appears in the audit log. |
 
 ### 4.5 Matching and Explanation
@@ -408,9 +431,9 @@ Functional requirements are grouped by area. In each table, the acceptance crite
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-MAT-01** | For a student with confirmed skills, the system shall rank the open vacancies of the student’s cycle for which the student is eligible by a fit score from 0 to 100, in descending order. | Must | On a labelled set of at least 20 student profiles, at least one relevant vacancy is in the top 5 for at least 80% of profiles (O2). |
+| **FR-MAT-01** | For a student with confirmed skills, the system shall rank the open vacancies available to the student’s university for which the student is eligible by a fit score from 0 to 100, in descending order. | Must | On a labelled set of at least 20 student profiles, at least one relevant vacancy is in the top 5 for at least 80% of profiles (O2). |
 | **FR-MAT-02** | The fit score shall combine the semantic similarity between the student’s CV and profile and the vacancy text (multilingual embeddings) with rule-based criteria: required-skill overlap, eligible major, and minimum GPA. | Must | Of two otherwise identical vacancies, the one whose required skills the student has scores higher (unit test). |
-| **FR-MAT-03** | Vacancies for which the student is not eligible (major not listed, or GPA below the minimum) shall not appear in the ranked list; they stay visible in browsing with the reason. | Must | A vacancy with a minimum GPA above the student’s GPA is absent from the ranking and shows “GPA below minimum” when browsing. |
+| **FR-MAT-03** | Vacancies for which the student is not eligible (major not listed or GPA below the minimum) shall not appear in the ranked list; they stay visible in browsing with the reason. Vacancies not open to the student's university are neither ranked nor shown (FR-VAC-02). | Must | A vacancy with a minimum GPA above the student’s GPA is absent from the ranking and shows “GPA below minimum” when browsing. |
 | **FR-MAT-04** | If the embedding model is unavailable or a text has no embedding, the system shall rank with the rule-based score only and label the results “Basic matching”. | Must | With the model service stopped, the ranking is still returned within the limit of NFR-PER-02 and carries the label. |
 | **FR-MAT-05** | For each ranked vacancy, the system shall show the student’s matched skills and the missing required skills. | Should | In every test case the lists equal the set comparison of the student’s confirmed skills and the vacancy’s required skills after normalization. |
 | **FR-MAT-06** | For a vacancy selected by the student, the system shall produce a development plan listing each missing skill with the learning resources linked to it in the skill vocabulary, or “No resource available yet”. | Should | Every missing skill appears in the plan; skills with linked resources show at least one resource. |
@@ -483,8 +506,8 @@ Reports and grades are controlled by explicit state machines. Figure 4.1 shows t
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-SIM-01** | When a report is submitted, the system shall compare it with all reports stored in the system (all students and all cycles), excluding earlier versions of the same report by the same student. | Should | A report copied from a previous cycle’s report is compared and flagged. |
-| **FR-SIM-02** | If the similarity score with any stored report reaches the threshold (default 30%), the system shall flag the report and show the Academic Supervisor the score, the source report reference (cycle and week), and the matching passages side by side. The identity of the source report’s author is shown only to the Coordinator. | Should | Of 10 seeded reports with 40% or more copied text, at least 9 are flagged with passages shown; at most 1 of 10 independently written reports is flagged (O5). |
+| **FR-SIM-01** | When a report is submitted, the system shall compare it with all reports stored for the same university (all its colleges, students, and cycles), excluding earlier versions of the same report by the same student. Reports of other universities are never compared or shown. | Should | A report copied from a previous cycle’s report of the same university is flagged; an identical report stored for another university is not shown. |
+| **FR-SIM-02** | If the similarity score with any stored report reaches the threshold (default 30%), the system shall flag the report and show the Academic Supervisor the score, the source report reference (cycle and week), and the matching passages side by side. The identity of the source report’s author is shown only to the Coordinator of the author's college. | Should | Of 10 seeded reports with 40% or more copied text, at least 9 are flagged with passages shown; at most 1 of 10 independently written reports is flagged (O5). |
 | **FR-SIM-03** | A similarity flag shall be advisory: the Academic Supervisor records a decision (No issue or Overlap confirmed) with a comment, and the system shall never change a report status or a grade because of a similarity score. | Should | A flagged report’s status changes only through the actions of FR-REP-05. |
 
 ### 4.11 Notifications
@@ -497,7 +520,7 @@ Reports and grades are controlled by explicit state machines. Figure 4.1 shows t
 | **FR-NOT-02** | The system shall remind a student 24 hours before a report deadline (default) if the report has not been submitted. | Should | Reminders are sent only for unsubmitted slots, between 24 and 23 hours before the deadline. |
 | **FR-NOT-03** | Within 1 hour after a deadline, the system shall notify the student and the Academic Supervisor of each Missing report. | Should | Notifications for all seeded missing reports arrive within 1 hour (O3). |
 | **FR-NOT-04** | The system shall escalate to the Coordinator any report, attendance week, or evaluation still outstanding 3 days after its deadline (default). | Should | An escalation appears for each seeded overdue item on day 4. |
-| **FR-NOT-05** | The system shall notify the user who must act, or whose record changed, when: a vacancy is returned or published, an application is decided, a placement is confirmed, a revision is requested, a report is accepted, an evaluation is submitted, or a grade is returned, made Final, or reopened. | Should | Each listed event produces a notification to the right user in a scripted test. |
+| **FR-NOT-05** | The system shall notify the user who must act, or whose record changed, when: a registration is verified or rejected, an application is decided, a placement is confirmed, a revision is requested, a report is accepted, an evaluation is submitted, or a grade is returned, made Final, or reopened. | Should | Each listed event produces a notification to the right user in a scripted test. |
 | **FR-NOT-06** | Notifications and emails shall be sent in the recipient’s chosen language. | Should | A user with Arabic selected receives the Arabic email. |
 
 ### 4.12 Dashboards and Statistics
@@ -506,10 +529,11 @@ Reports and grades are controlled by explicit state machines. Figure 4.1 shows t
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-DSH-01** | Each role shall have a home dashboard listing its pending actions with counts and direct links — ST: reports due, revisions requested, application status; CS: applicants to review, attendance to record, evaluations due; AS: reports to review, open similarity flags, grades to submit; CO: vacancies to publish, placements to confirm, grades to approve, escalations. | Must | For a seeded scenario, every count equals the number of pending items in the database. |
-| **FR-DSH-02** | The Coordinator dashboard shall show the cycle status: students placed and not placed, report submission and late rates, attendance rate, and evaluation completion, overall and per company. | Must | Every figure equals the value computed directly from seeded data. |
+| **FR-DSH-01** | Each role shall have a home dashboard listing its pending actions with counts and direct links — ST: verification status, reports due, revisions requested, application status; CS: applicants to review, attendance to record, evaluations due; AS: reports to review, open similarity flags, grades to submit; CO: students to verify, placements to confirm, grades to approve, escalations; PA: coordinators and companies to verify. | Must | For a seeded scenario, every count equals the number of pending items in the database. |
+| **FR-DSH-02** | The Coordinator dashboard shall show the status of the college's cycle: students placed and not placed, report submission and late rates, attendance rate, and evaluation completion, overall and per company. | Must | Every figure equals the value computed directly from seeded data. |
 | **FR-DSH-03** | At the end of a cycle, the system shall offer students a short survey (job offer from the training company: Yes, No, or Pending), and the Coordinator dashboard shall show the placement-to-job-offer rate per cycle and per company. | Could | The rate equals Yes answers divided by survey answers for seeded data (O10). |
 | **FR-DSH-04** | For each company with at least 5 final evaluations, the system shall alert the Coordinator when the company’s mean rubric score is at least 0.8 points above the cycle mean (default). The alert is informational only. | Could | A seeded company with 5 evaluations averaging 4.8 against a cycle mean of 3.6 raises the alert; a company with 4 evaluations does not. |
+| **FR-DSH-05** | The Platform Admin dashboard shall show platform figures: universities, colleges with and without a coordinator, verified companies, users by role, pending verification requests and their age, and published vacancies. It shall show no academic records. | Should | Every figure equals the value computed from seeded data; no report, evaluation, or grade is reachable from it. |
 
 ### 4.13 Exports
 
@@ -528,7 +552,7 @@ Reports and grades are controlled by explicit state machines. Figure 4.1 shows t
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
 | **FR-CER-01** | When a grade is Final, the Coordinator shall issue a completion certificate (PDF) with a unique, unguessable certificate ID and a QR code linking to the public verification page. | Could | A certificate cannot be issued for a grade that is not Final; the QR code opens the correct verification page. |
-| **FR-CER-02** | The public verification page shall require no login and shall show only the certificate status (Valid, Revoked, or Not found), student name, cycle, company, and training dates. | Could | Valid, revoked, and altered IDs show Valid, Revoked, and Not found respectively (O9); no grade is shown. |
+| **FR-CER-02** | The public verification page shall require no login and shall show only the certificate status (Valid, Revoked, or Not found), student name, university and college, cycle, company, and training dates. | Could | Valid, revoked, and altered IDs show Valid, Revoked, and Not found respectively (O9); no grade is shown. |
 | **FR-CER-03** | The Coordinator shall be able to revoke a certificate with a mandatory reason. | Could | After revocation the verification page shows Revoked. |
 
 ### 4.15 Language and PWA Features
@@ -549,9 +573,27 @@ Reports and grades are controlled by explicit state machines. Figure 4.1 shows t
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **FR-AUD-01** | The system shall record an audit entry for every creation, change, and state transition of accounts, vacancies, placements, reports, attendance, evaluations, grades, and certificates: user, role, server time, action, and old and new values. | Must | Each action in the UAT script produces exactly one matching audit entry. |
-| **FR-AUD-02** | Audit entries shall be append-only: no role can edit or delete them through the system. The Coordinator shall be able to filter the audit log by student, user, record type, and date. | Must | No API endpoint updates or deletes audit entries (permission test); filters return the correct entries. |
+| **FR-AUD-01** | The system shall record an audit entry for every creation, change, and state transition of accounts, organizations, verification requests, vacancies, placements, reports, attendance, evaluations, grades, and certificates: user, role, server time, action, and old and new values. | Must | Each action in the UAT script produces exactly one matching audit entry. |
+| **FR-AUD-02** | Audit entries shall be append-only: no role can edit or delete them through the system. The Coordinator shall be able to filter the audit log of the college, and the Platform Admin the entries about accounts, organizations, and verification, by student, user, record type, and date. | Must | No API endpoint updates or deletes audit entries (permission test); filters return the correct entries. |
 | **FR-AUD-03** | Each report, evaluation, and grade shall show its history (state changes with user and time) to users allowed to view the record. | Should | The history shown matches the audit entries. |
+
+### 4.17 Organizations, Registration, and Verification
+
+*Source: F1 · Objective O1 · CR-05*
+
+The platform serves many organizations, arranged as follows: a university has colleges; each college has one Coordinator, who has academic supervisors, who supervise students. Each company has one Company Admin and, if the company wishes, more company supervisors. A company supervisor may supervise students of any university, and they need not share one academic supervisor.
+
+| **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
+|:---|:---|:--:|:---|
+| **FR-ORG-01** | The Platform Admin shall maintain the list of universities (Arabic and English names, email domains, GPA scale) and their colleges. A registration can choose only a listed, active college. | Must | A college added to a university appears in the registration form; a deactivated college does not. |
+| **FR-ORG-02** | Anyone shall be able to register as a Student, a Coordinator, or a company representative with name, email, password, and the data of FR-ORG-03 – 05. After the email is confirmed (FR-AUT-02) the account can log in, but it cannot act in its role until it is verified; meanwhile it sees its verification status, and a student may also complete the profile and browse vacancies. | Must | An unverified student cannot apply; an unverified coordinator sees no student; an unverified company cannot create vacancies. |
+| **FR-ORG-03** | A Coordinator shall register for one college and upload an official appointment document; the Platform Admin shall approve or reject the request, giving a reason when rejecting. A college shall have at most one active Coordinator. | Must | A registration for a college that already has a Coordinator is refused with a message; a rejection without a reason is refused. |
+| **FR-ORG-04** | A company representative shall register the company (name, commercial registration number, city) and upload the commercial registration and a letter of authorization; the Platform Admin shall approve or reject the request, giving a reason when rejecting. On approval the company is verified and the representative becomes its Company Admin. | Must | A second company with the same commercial registration number is refused; before approval the representative cannot create vacancies or invite supervisors. |
+| **FR-ORG-05** | A student shall register for one college with student number, major, GPA, level, and a document proving registration in the co-op course; the college's Coordinator shall approve the request by enrolling the student in an open cycle of the college, or reject it, giving a reason. | Must | After approval the student is enrolled in the chosen cycle and can apply; a rejection without a reason is refused; a Coordinator of another college cannot see the request. |
+| **FR-ORG-06** | The Coordinator shall invite the academic supervisors of the college, and the Company Admin the company supervisors of the company, by email. Accepting the invitation (FR-AUT-02) creates an account in that organization without further verification. | Must | An invited academic supervisor belongs to the inviting Coordinator's college; a used or expired invitation is rejected. |
+| **FR-ORG-07** | The Platform Admin shall transfer the Coordinator role of a college, or the Company Admin right of a company, to another person of the same organization, giving a reason. | Should | After the transfer the previous holder loses the rights; the transfer appears in the audit log. |
+| **FR-ORG-08** | Verification documents shall be visible only to the person who uploaded them and to the reviewer (the Platform Admin or the Coordinator), and shall be deleted 30 days (default) after the decision; the decision and its reason are kept. | Must | Another coordinator who requests the document gets 403; 30 days after the decision the file cannot be retrieved and the decision remains. |
+| **FR-ORG-09** | After a rejection, the applicant shall be able to correct the data or documents and submit a new request; every request and decision of an account is kept. | Should | After a rejection a new request can be submitted; the reviewer sees the earlier decisions. |
 
 ## 5. Non-Functional Requirements
 
@@ -562,7 +604,7 @@ Non-functional requirements state measurable qualities. Performance targets appl
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
 | **NFR-PER-01** | For ordinary operations (open a dashboard, open or submit a form, list vacancies), 95% of requests shall complete within 2 seconds with 50 concurrent users. | Must | Load test (e.g., Locust) on the reference deployment with seeded data. |
-| **NFR-PER-02** | The ranked vacancy list for one student shall be returned within 5 seconds for up to 300 open vacancies, also when the rule-based fallback is used. | Must | Timed test, 20 runs, 95th percentile. |
+| **NFR-PER-02** | The ranked vacancy list for one student shall be returned within 5 seconds for up to 1,000 open vacancies, also when the rule-based fallback is used. | Must | Timed test, 20 runs, 95th percentile. |
 | **NFR-PER-03** | Extracted skills shall be shown within 30 seconds after uploading a CV of up to 5 MB. | Must | Timed test on the 20 labelled CVs. |
 | **NFR-PER-04** | The similarity result of a submitted report shall be available within 2 minutes with up to 10,000 stored reports. | Should | Timed test with seeded reports. |
 | **NFR-PER-05** | Grade sheets for a 100-student cohort shall be exported to PDF and to Excel in under 60 seconds each (O6). | Should | Timed export test. |
@@ -583,14 +625,14 @@ Non-functional requirements state measurable qualities. Performance targets appl
 |:---|:---|:--:|:---|
 | **NFR-PRV-01** | At first login, each user shall see a consent notice in their language explaining what personal data is processed and why; the system stores the time of acknowledgement. | Must | First login cannot continue until the notice is acknowledged; the timestamp is stored. |
 | **NFR-PRV-02** | CV and report text shall be processed only by models running on the system’s own server; no personal data is sent to external AI services. | Must | Code and network-configuration inspection shows no outbound calls to AI services. |
-| **NFR-PRV-03** | Each role shall see only the personal data needed for its tasks (Table 2.3); push notification payloads shall contain no personal data beyond the event title. | Must | Permission tests; inspection of push payloads. |
+| **NFR-PRV-03** | Each role shall see only the personal data needed for its tasks (Table 2.3); the Platform Admin sees account and verification data but no CV, report, evaluation, or grade; push notification payloads shall contain no personal data beyond the event title. | Must | Permission tests; inspection of push payloads. |
 | **NFR-PRV-04** | The Coordinator shall be able to anonymize the personal data (names, contact details, CV files) of a closed cycle after the retention period set by the college, keeping anonymized statistics. | Could | After anonymization no name or CV of that cycle can be retrieved, and the statistics are unchanged. |
 
 ### 5.4 Usability and Accessibility
 
 | **ID** | **Requirement** | **Priority** | **Acceptance criterion** |
 |:---|:---|:--:|:---|
-| **NFR-USA-01** | In user acceptance testing with at least 8 participants covering all four roles, at least 80% of the test scenarios shall be completed without help (O8). | Must | UAT results in the test report. |
+| **NFR-USA-01** | In user acceptance testing with at least 8 participants covering all five roles, at least 80% of the test scenarios shall be completed without help (O8). | Must | UAT results in the test report. |
 | **NFR-USA-02** | Every pending action on a dashboard shall open with one click, and submitting a report, recording attendance, or submitting an evaluation shall take no more than 3 screens. | Must | Walkthrough of the main tasks against the screen flow. |
 | **NFR-USA-03** | All screens shall be usable at widths from 360 px to 1920 px without horizontal scrolling. | Must | Each screen of Table 6.1 checked at 360, 768, 1366, and 1920 px. |
 | **NFR-USA-04** | Text shall have a contrast ratio of at least 4.5:1, and the main tasks shall be operable with the keyboard alone (WCAG 2.1 AA subset). | Should | Automated contrast check (e.g., Lighthouse) and a keyboard walkthrough. |
@@ -654,20 +696,23 @@ Non-functional requirements state measurable qualities. Performance targets appl
 
 | **Screen** | **Roles** | **Purpose (requirements)** |
 |:---|:--:|:---|
-| Login, activation, password reset | All | Access the system (FR-AUT-02 – 04) |
+| Registration, login, email confirmation, password reset | All | Access the system (FR-AUT-02 – 04, FR-ORG-02) |
+| Verification status and documents | ST, CO, CS | Upload documents, see the decision, resubmit (FR-ORG-03 – 05, FR-ORG-09) |
 | Dashboard | All | Pending actions and status (FR-DSH-01 – 04) |
 | Profile and CV | ST | Profile, CV upload, skill confirmation (FR-PRF-02 – 05) |
 | Vacancies (browse and ranked) | ST | Browse, filter, ranked list with explanation, apply (FR-VAC-03 – 05, FR-MAT-01 – 07) |
-| Vacancy editor and applicants | CS, CO | Create vacancies, review applicants (FR-VAC-01, FR-VAC-02, FR-VAC-06) |
+| Vacancy editor and applicants | CS | Create and publish vacancies, review applicants (FR-VAC-01, FR-VAC-02, FR-VAC-06) |
+| Company team | CS (Company Admin) | Company profile, invite and deactivate supervisors (FR-ORG-04, FR-ORG-06, FR-AUT-06) |
 | Placements | CO | Confirm placements, assign supervisors (FR-VAC-07, FR-VAC-08) |
 | Report form and history | ST, AS, CS | Submit, review, comment, similarity panel (FR-REP-01 – 07, FR-SIM-02) |
 | Attendance | CS | Weekly attendance (FR-ATT-01 – 03) |
 | Evaluation form | CS, ST | Rubric evaluation; student evaluation of the company (FR-EVL-01 – 05) |
 | Grades | AS, CO | Enter, submit, approve, reopen grades (FR-WFL-02 – 07) |
-| Cycle settings | CO | Cycle, rubric, weights, vocabulary, defaults (FR-CYC-01 – 05) |
-| Users and import | CO | Accounts and CSV import (FR-AUT-02, FR-AUT-06, FR-PRF-01) |
+| Cycle settings | CO | Cycle, rubric, weights (FR-CYC-01 – 03, FR-CYC-05) |
+| Student verification and academic supervisors | CO | Verify and enrol students, invite and deactivate supervisors (FR-ORG-05, FR-ORG-06, FR-AUT-06) |
+| Platform administration | PA | Dashboard, verification queue, universities and colleges, companies, skill vocabulary, settings (FR-ORG-01, FR-ORG-03, FR-ORG-04, FR-ORG-07, FR-CYC-04, FR-DSH-05, NFR-MNT-03) |
 | Exports and certificates | CO, AS | Grade sheets, summaries, records, certificates (FR-EXP-01 – 03, FR-CER-01, FR-CER-03) |
-| Audit log | CO | Search audit entries (FR-AUD-02) |
+| Audit log | CO, PA | Search audit entries (FR-AUD-02) |
 | Certificate verification | Public | Verify a certificate (FR-CER-02) |
 
 Wireframes of these screens are produced in task T3 and will be included in the design document.
@@ -683,40 +728,12 @@ InternSync has no direct hardware interface. Users work from standard desktops, 
 | **Interface** | **Purpose** | **Data exchanged** | **Notes** |
 |:---|:---|:---|:---|
 | PostgreSQL 16 or later with pgvector (Supabase in the reference deployment) | Store relational data and text embeddings | SQL over TLS | Reached only by the API with a dedicated database role; the Supabase auto-generated Data API is disabled. |
-| File storage (Supabase Storage private bucket; a local volume under Docker Compose) | Store CVs, report attachments, exports, and certificates | Files in and out | Reached only by the API; downloads use short-lived signed links issued after a permission check (NFR-SEC-04). |
+| File storage (Supabase Storage private bucket; a local volume under Docker Compose) | Store CVs, report attachments, verification documents, exports, and certificates | Files in and out | Reached only by the API; downloads use short-lived signed links issued after a permission check (NFR-SEC-04). |
 | Multilingual embedding model (e.g., multilingual-e5-small via sentence-transformers) | Embeddings for matching and similarity | Text in, vector out | Runs on the server (NFR-PRV-02); fallback in FR-MAT-04. |
 | PDF/DOCX text extraction library | Read CV and report text | File in, text out | Image-only files handled by FR-PRF-05. |
 | Email provider (SMTP over TLS) | Activation, password reset, notifications | Outgoing email messages | Free provider (Gmail SMTP with an app password in the reference deployment); sending limits are dependency D-03. |
 | Browser push services (Web Push with VAPID keys) | Push notifications | Event title and link | No personal data in the payload (NFR-PRV-03). |
-| CSV import files | Students and academic supervisors | UTF-8 CSV files | Formats in Section 6.3.1. |
 | Export files | Grade sheets, summaries, records, certificates | .xlsx (Office Open XML) and PDF | Embedded Arabic font (NFR-L10N-03). |
-
-#### 6.3.1 CSV Import Formats
-
-Files are UTF-8 encoded (with or without BOM), comma-separated, and start with a header row containing the column names below.
-
-**Table 6.3 – students.csv**
-
-| **Column** | **Type** | **Rule** |
-|:---|:---|:---|
-| student_id | Text, 10 digits | Required; unique |
-| name_en | Text | Required |
-| name_ar | Text | Required |
-| email | Text | Required; valid email; unique |
-| major | Text | Required; a major not yet in the system is added and reported in the import report |
-| course_code | Text | Required; the training course the student is registered in for the cycle |
-| gpa | Decimal, 2 places | Required; within the university’s GPA scale |
-| level | Integer | Optional |
-
-**Table 6.4 – staff.csv (academic supervisors)**
-
-| **Column** | **Type** | **Rule**                      |
-|:-----------|:---------|:------------------------------|
-| staff_id   | Text     | Required; unique              |
-| name_en    | Text     | Required                      |
-| name_ar    | Text     | Required                      |
-| email      | Text     | Required; valid email; unique |
-| department | Text     | Required                      |
 
 ### 6.4 Communication Interfaces
 
@@ -743,7 +760,7 @@ Constraints limit the design and implementation choices. They come from the cour
 | C-03 | Technology: Python/FastAPI for the backend and AI services, React (Vite) PWA, PostgreSQL with pgvector, Docker, and GitHub. | Proposal 5.3; SPMP |
 | C-04 | Zero cost: open-source tools and free hosting tiers only; no licence, paid plan, or paid service. | Proposal 9 (economic feasibility); CR-01 |
 | C-05 | AI models run on the project server; CV and report text may not be sent to external AI services. | Proposal 5.3; PDPL |
-| C-06 | No live integration with university systems: data enters by CSV, and grades leave as exported files. | Proposal 7.2 |
+| C-06 | No live integration with university or government systems: users enter their data at registration and people verify it; grades leave as exported files. | Proposal 7.2; CR-05 |
 | C-07 | Processing of personal data must respect the Saudi PDPL (consent, purpose limitation, access control). | Proposal 9 (legal and privacy) |
 | C-08 | The interface must support Arabic (RTL) and English (LTR). | F10, O7 |
 | C-09 | Only synthetic or sample data is used for development, testing, and demonstration; no real student records. | Proposal 7.3 |
@@ -762,13 +779,14 @@ Assumptions are conditions taken as true without proof. If one proves false, the
 |:--:|:---|:---|
 | A-01 | Users have internet access and a supported browser (NFR-PRT-01). | Some users cannot use the system; an alternative channel would be needed. |
 | A-02 | Each placement has exactly one company supervisor and one academic supervisor. | Data model and permissions would need multi-supervisor support. |
-| A-03 | Company supervisors have a working email address and accept invitations from the co-op unit. | Attendance and evaluations cannot be collected; the Coordinator would have to enter them. |
+| A-03 | Companies that host students register on the platform, and their supervisors have a working email address. | Attendance and evaluations cannot be collected; the Coordinator would have to enter them. |
 | A-04 | Most CVs are text-based PDF or DOCX files, not scans. | More manual skill entry (FR-PRF-05) and weaker matching. |
-| A-05 | The co-op unit can provide CSV files in the formats of Section 6.3.1. | The Coordinator must reformat files before import. |
-| A-06 | A cycle has at most 300 students, 300 vacancies, 100 company supervisors, and 30 training weeks. | Performance targets (Section 5.1) must be re-checked. |
-| A-07 | Grade components, weights, and rubric criteria are decided by the co-op unit and entered by the Coordinator; the system does not prescribe them. | Fixed values would have to be agreed and built in. |
+| A-05 | The co-op unit of each college joins the platform, and its Coordinator reviews student registrations within a few working days. | Students of that college cannot apply until it does. |
+| A-06 | A college's cycle has at most 300 students and 30 training weeks; the platform holds at most 1,000 open vacancies and 300 companies in the demonstration. | Performance targets (Section 5.1) must be re-checked. |
+| A-07 | Grade components, weights, and rubric criteria are decided by the co-op unit of each college and entered by its Coordinator; the system does not prescribe them. | Fixed values would have to be agreed and built in. |
 | A-08 | The weekly working days are the same for all placements in a cycle. | Per-placement work calendars would be needed for attendance. |
 | A-09 | Arabic and English are the only languages needed. | Further translation work. |
+| A-10 | Coordinators and companies can provide official documents (appointment letter, commercial registration) that a person can check. | Verification would need another proof, such as a call to the organization. |
 
 ### 8.2 Dependencies
 
@@ -812,7 +830,7 @@ Priorities were assigned to functions with four criteria:
 
 4.  **Visibility** to stakeholders and in the course demonstrations.
 
-Each requirement inherits the priority of its function, except convenience requirements inside a Must function, which are marked Should (FR-CYC-05, FR-VAC-05, FR-VAC-08, FR-ATT-02, FR-EVL-04, FR-WFL-07, FR-AUD-03).
+Each requirement inherits the priority of its function, except convenience requirements inside a Must function, which are marked Should (FR-CYC-05, FR-VAC-05, FR-VAC-08, FR-ATT-02, FR-EVL-04, FR-WFL-07, FR-AUD-03, FR-ORG-07, FR-ORG-09, FR-DSH-05).
 
 ### 9.2 Priority Summary
 
@@ -820,9 +838,11 @@ Each requirement inherits the priority of its function, except convenience requi
 
 | **Category**               | **Must** | **Should** | **Could** | **Total** |
 |:---------------------------|:--------:|:----------:|:---------:|:---------:|
-| Functional (Section 4)     |    51    |     24     |     6     |    81     |
+| Functional (Section 4)     |    57    |     27     |     6     |    90     |
 | Non-functional (Section 5) |    25    |     9      |     1     |    35     |
-| **Total**                  |    76    |     33     |     7     |    116    |
+| **Total**                  |    82    |     36     |     7     |    125    |
+
+FR-PRF-01, deleted in v1.2, is not counted.
 
 ### 9.3 Mapping to Increments
 
@@ -830,8 +850,8 @@ Each requirement inherits the priority of its function, except convenience requi
 
 | **Increment** | **Dates (2026)** | **Functions** | **Requirement groups** |
 |:---|:---|:---|:---|
-| Increment 1 | Oct 16 – Nov 1 | F1, F2, F3, F5, F10 | FR-AUT, FR-CYC, FR-PRF, FR-VAC, FR-REP, FR-LOC, FR-AUD-01 – 02 |
-| Increment 2 | Nov 2 – Nov 15 | F4, F6, F7, F8, F9 | FR-MAT-01 – 04 and 07, FR-ATT, FR-EVL-01 – 04, FR-WFL, FR-DSH-01 – 02 |
+| Increment 1 | Oct 16 – Nov 1 | F1, F2, F3, F5, F10 | FR-AUT, FR-ORG, FR-CYC, FR-PRF-02 – 05, FR-VAC, FR-REP, FR-LOC, FR-AUD-01 – 02 |
+| Increment 2 | Nov 2 – Nov 15 | F4, F6, F7, F8, F9 | FR-MAT-01 – 04 and 07, FR-ATT, FR-EVL-01 – 04, FR-WFL, FR-DSH-01 – 02 and 05 |
 | Increment 3 | Nov 16 – Nov 25 | F11 – F15 | FR-MAT-05 – 06, FR-SIM, FR-NOT, FR-EXP, FR-PWA, FR-AUD-03 |
 | Testing phase (if time allows) | Nov 26 – Dec 10 | F16 – F19 | FR-CER, FR-EVL-05, FR-DSH-03 – 04 |
 
@@ -916,6 +936,7 @@ The measurable targets from the Proposal are verified as follows: 0 failing perm
 | Synthetic data may not reflect real CVs and reports | Matching and similarity may perform worse on real data | Mix Arabic, English, and mixed-language samples with realistic formatting. |
 | Web push on iOS requires installing the app | Some users miss push notifications | Email fallback (FR-NOT-01). |
 | Default values (limits, thresholds, reminder times) chosen by the team | May not match co-op unit practice | Configurable (NFR-MNT-03); confirmed in the stakeholder walkthrough. |
+| Forged or wrong verification documents | A fake company, coordinator, or student gains access | Documents checked by the responsible person; rejection with a reason; deactivation of accounts and organizations (FR-AUT-06); every decision in the audit trail. |
 
 ### 10.6 Baseline and Change Control
 
@@ -935,15 +956,15 @@ Table A.1 traces each function of the Proposal to its requirements, objectives, 
 
 | **F** | **Requirements** | **Objective** | **Problem** | **Priority** | **Increment** | **Verification** |
 |:--:|:---|:--:|:--:|:--:|:--:|:--:|
-| F1 | FR-AUT-01 – 06 | O1 | All | Must | 1 | T |
-| F2 | FR-PRF-01 – 05 | O2, O7 | P1 | Must | 1 | T, A |
+| F1 | FR-AUT-01 – 06, FR-ORG-01 – 09 | O1 | All | Must | 1 | T |
+| F2 | FR-PRF-02 – 05 | O2, O7 | P1 | Must | 1 | T, A |
 | F3 | FR-VAC-01 – 08 | O1 | P1 | Must | 1 | T, D |
 | F4 | FR-MAT-01 – 04, FR-MAT-07 | O2 | P1 | Must | 2 | A, T |
 | F5 | FR-REP-01 – 07 | O3 | P2 | Must | 1 | T |
 | F6 | FR-ATT-01 – 04 | O1 | P3 | Must | 2 | T |
 | F7 | FR-EVL-01 – 04 | O4 | P3 | Must | 2 | T, I |
 | F8 | FR-WFL-01 – 07 | O6 | P5 | Must | 2 | T |
-| F9 | FR-DSH-01 – 02 | O1 | P2, P5 | Must | 2 | T, D |
+| F9 | FR-DSH-01 – 02, FR-DSH-05 | O1 | P2, P5 | Must | 2 | T, D |
 | F10 | FR-LOC-01 – 02 | O7 | — | Must | 1 | I, T |
 | F11 | FR-MAT-05 – 06 | O2 | P1 | Should | 3 | T |
 | F12 | FR-SIM-01 – 03 | O5 | P4 | Should | 3 | A |

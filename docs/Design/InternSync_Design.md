@@ -1,16 +1,17 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.1 · October 13, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.2 · October 20, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
 | 1.0 | Oct 13, 2026 | First version for Milestone M2: architecture, zero-cost deployment, data model (ERD and data dictionary), behaviour design, security design. The API specification is a separate document. | Salam Alsaour |
 | 1.1 | Oct 13, 2026 | Section 8: wireframes (task T3), their mapping to SRS Table 6.1, and the design system. | Salam Alsaour |
+| 1.2 | Oct 20, 2026 | CR-05: organizations (universities, colleges, companies), self-registration and verification, Platform Admin; companies publish vacancies directly; CSV import removed. Sections 1, 2, 4, 5, 6, 7, 8, 9, and 10 updated; ERD redrawn in four parts (49 tables). | Salam Alsaour |
 
 **Related documents**
 
-- [SRS v1.1](../RSR/InternSync_SRS.md): the requirements this design implements. Requirement IDs (FR-…, NFR-…) refer to it.
+- [SRS v1.2](../RSR/InternSync_SRS.md): the requirements this design implements. Requirement IDs (FR-…, NFR-…) refer to it.
 - [API Specification](InternSync_API_Spec.md): every endpoint, its roles, payloads, and error codes.
 - [Diagram pack](../InternSync_Diagrams/README.md): figures referenced below. The ERD figures are generated from `source/06_erd.py`, which must match Section 4.
 - [Change requests](../Change_Requests.md): decisions that changed the SRS or SPMP.
@@ -32,7 +33,9 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.1 · Oc
 
 ### 1.1 Purpose
 
-This document describes how InternSync is built: its components, where they run, how data is stored, how the workflows behave, and how security and privacy requirements are met. It turns SRS v1.1 into decisions a developer can implement directly. The API contract is in the separate [API Specification](InternSync_API_Spec.md).
+This document describes how InternSync is built: its components, where they run, how data is stored, how the workflows behave, and how security and privacy requirements are met. It turns SRS v1.2 into decisions a developer can implement directly. The API contract is in the separate [API Specification](InternSync_API_Spec.md).
+
+Since version 1.2 (CR-05), InternSync is one platform for many organizations: a Platform Admin run by the provider; universities, each with colleges; one Coordinator per college with the college's academic supervisors and students; and companies, each with a Company Admin and optional further company supervisors.
 
 ### 1.2 Design Principles
 
@@ -40,6 +43,7 @@ This document describes how InternSync is built: its components, where they run,
 |:---|:---|:---|
 | One deployable backend | A single FastAPI container holds the REST API, the AI services, and the scheduler. No message broker or separate worker. | C-03, C-10 |
 | Server-side authorization | Every endpoint declares its roles and record scope; queries are filtered by scope, never by the client. | FR-AUT-05 |
+| Organization isolation | Every query on academic records is filtered by the caller's college, and every query on company records by the caller's company. The Platform Admin has no endpoint that returns academic records. | FR-AUT-05, NFR-PRV-03 |
 | Explicit state machines | Vacancies, applications, report slots, evaluations, grades, and certificates change state only through named transitions, each checked and audited. | FR-WFL-01, FR-AUD-01 |
 | AI is advisory | AI outputs are stored and displayed with their reason and model version; no AI output changes a status. | NFR-AI-01, FR-MAT-07, FR-SIM-03 |
 | Configurable defaults | Every value marked "default" in the SRS is a row in `system_settings` or a cycle field. | NFR-MNT-03 |
@@ -90,18 +94,18 @@ Each module is a Python package under `backend/app/` with the same files: `route
 | **Module** | **Responsibility** | **Main tables** | **SRS** |
 |:---|:---|:---|:---|
 | `core` | Settings, database session, error handling, i18n messages, audit helper, permission helpers, clock (UTC and Asia/Riyadh) | `system_settings`, `audit_log` | NFR-MNT-03, FR-AUD |
-| `auth` | Login, logout, sessions, activation, password reset, lockout, consent | `users`, `user_sessions`, `account_tokens` | FR-AUT-02 – 04, NFR-SEC-02/03, NFR-PRV-01 |
-| `users` | Accounts, companies, CSV import of students and staff | `users`, `companies`, `import_batches`, `enrollments` | FR-AUT-02, FR-AUT-06, FR-PRF-01 |
-| `cycles` | Training cycles, weeks, grade components, rubric, skill vocabulary, majors | `training_cycles`, `cycle_weeks`, `grade_components`, `rubric_criteria`, `skills`, `skill_resources`, `majors` | FR-CYC-01 – 05 |
+| `auth` | Registration, email confirmation, invitations, login, logout, sessions, password reset, lockout, consent | `users`, `user_sessions`, `account_tokens` | FR-AUT-02 – 04, FR-ORG-02, FR-ORG-06, NFR-SEC-02/03, NFR-PRV-01 |
+| `orgs` | Universities, colleges, companies, verification requests and documents, role transfer, account deactivation | `universities`, `colleges`, `companies`, `verification_requests`, `verification_documents`, `users` | FR-ORG-01 – 09, FR-AUT-06 |
+| `cycles` | Training cycles of a college, weeks, grade components, rubric, enrolments; skill vocabulary and majors (Platform Admin) | `training_cycles`, `cycle_weeks`, `grade_components`, `rubric_criteria`, `enrollments`, `skills`, `skill_resources`, `majors` | FR-CYC-01 – 05, FR-ORG-05 |
 | `profiles` | Student profile, CV upload, skill extraction and confirmation | `student_profiles`, `cvs`, `cv_extracted_skills`, `student_skills` | FR-PRF-02 – 05 |
-| `vacancies` | Vacancies, applications, placements | `vacancies`, `vacancy_skills`, `vacancy_majors`, `applications`, `placements` | FR-VAC-01 – 08 |
+| `vacancies` | Vacancies published by companies, applications, placements | `vacancies`, `vacancy_skills`, `vacancy_majors`, `vacancy_universities`, `applications`, `placements` | FR-VAC-01 – 08 |
 | `matching` | Eligibility, fit score, explanation, development plan | `match_scores` | FR-MAT-01 – 07 |
 | `reports` | Report slots, versions, attachments, reviews, comments | `report_slots`, `report_versions`, `report_attachments`, `report_reviews`, `report_comments` | FR-REP-01 – 07, FR-WFL-01 |
 | `similarity` | Passages, similarity checks, supervisor decisions | `report_passages`, `similarity_checks`, `similarity_matches` | FR-SIM-01 – 03 |
 | `attendance` | Weekly attendance, unlocks | `attendance_weeks` | FR-ATT-01 – 04 |
 | `evaluations` | Periodic and final evaluations, student evaluation of the company, outcome survey | `evaluations`, `evaluation_scores`, `company_evaluations`, `outcome_surveys` | FR-EVL-01 – 05, FR-DSH-03 |
 | `grades` | Grade entry, computation, approval workflow | `grades`, `grade_component_scores` | FR-WFL-02 – 07 |
-| `dashboards` | Pending actions, cycle statistics, leniency alerts | (read-only queries) | FR-DSH-01 – 04 |
+| `dashboards` | Pending actions, cycle and platform statistics, leniency alerts | (read-only queries) | FR-DSH-01 – 05 |
 | `exports` | Grade sheet, term summary, training record | `files` | FR-EXP-01 – 03 |
 | `certificates` | Issue, revoke, public verification | `certificates` | FR-CER-01 – 03 |
 | `notifications` | In-app list, email and push delivery, push subscriptions | `notifications`, `push_subscriptions` | FR-NOT-01 – 06, FR-PWA-02 |
@@ -114,10 +118,11 @@ Each module is a Python package under `backend/app/` with the same files: `route
 1. **Transport:** HTTPS is terminated by the hosting provider (NFR-SEC-01). CORS allows only the configured frontend origins.
 2. **Authentication:** the `current_user` dependency verifies the JWT signature and expiry, loads the session by its `sid`, rejects it if revoked or idle for more than the idle timeout, and updates `last_seen_at` (at most once per minute).
 3. **Consent gate:** until `users.consent_at` is set, every endpoint except `GET /me`, `POST /me/consent`, and `POST /auth/logout` returns `403 CONSENT_REQUIRED` (NFR-PRV-01).
-4. **Authorization:** the route declares allowed roles; the service loads the record through a scope-filtered query (Section 7.2). A record outside the caller's scope returns `403 FORBIDDEN`.
-5. **Business rule and transition:** the service checks the state machine (Section 5) and limits, then writes the change.
-6. **Audit and notifications:** the audit entry and any notifications are inserted in the **same database transaction** as the change, so either all are saved or none (FR-AUD-01, NFR-REL-04).
-7. **Response:** JSON, or `application/problem+json` for errors with a code and a message in the user's language (NFR-USA-05).
+4. **Verification gate:** an account whose verification is pending or rejected reaches only `/me`, its own verification requests, and, for students, the profile, CV, and vacancy list. Every other endpoint returns `403 VERIFICATION_REQUIRED` (FR-ORG-02).
+5. **Authorization:** the route declares allowed roles; the service loads the record through a scope-filtered query that always includes the caller's college or company (Section 7.2). A record outside the caller's scope returns `403 FORBIDDEN`.
+6. **Business rule and transition:** the service checks the state machine (Section 5) and limits, then writes the change.
+7. **Audit and notifications:** the audit entry and any notifications are inserted in the **same database transaction** as the change, so either all are saved or none (FR-AUD-01, NFR-REL-04).
+8. **Response:** JSON, or `application/problem+json` for errors with a code and a message in the user's language (NFR-USA-05).
 
 ### 2.4 Synchronous and Background Work
 
@@ -154,7 +159,7 @@ The SRS v1.0 assumed one Linux VM, and the first diagram pack recommended Railwa
 | Push | Browser push services with VAPID keys | — | Payload holds the event title and a link only (NFR-PRV-03). |
 | CI, backups, keep-alive | GitHub Actions | Free minutes for public repositories | See Section 3.5. |
 
-**Why the limits are acceptable:** the demonstration uses synthetic data for one cycle (C-09). With `halfvec(384)`, one embedding takes about 0.8 KB. 300 students × 13 reports × about 15 passages is about 59,000 passage vectors, about 45 MB plus about 60 MB of index, so the whole database stays well under 500 MB. Even the 10,000-report test of NFR-PER-04 (about 150,000 passages) fits in about 250 MB. Demo files are kept small (CVs about 100 KB) so storage stays under 1 GB.
+**Why the limits are acceptable:** the demonstration uses synthetic data for 2 universities and 4 colleges, about 400 students in total (C-09). With `halfvec(384)`, one embedding takes about 0.8 KB. 400 students × 13 reports × about 15 passages is about 78,000 passage vectors, about 60 MB plus about 80 MB of index, so the whole database stays well under 500 MB. Even the 10,000-report test of NFR-PER-04 (about 150,000 passages) fits in about 250 MB. Demo files are kept small (CVs about 100 KB) so storage stays under 1 GB.
 
 ### 3.3 Environments
 
@@ -204,16 +209,21 @@ All configuration comes from environment variables. Secrets never enter the repo
 - Mutable tables have `created_at` and `updated_at`. Who changed what is kept in `audit_log`, not in extra columns, unless a column is needed for display or rules.
 - Embeddings are `halfvec(384)` with an HNSW index using cosine distance.
 - Text search on vacancies uses `ILIKE` with a `pg_trgm` GIN index, because PostgreSQL has no built-in Arabic dictionary.
+- **Organization scope:** a student, an academic supervisor, and a coordinator carry `users.college_id`; a company supervisor carries `users.company_id`. Academic records reach their college through `placements.student_id` and their company through `vacancies.company_id`. Every scoped query joins to one of these columns (Section 7.2).
 
 ### 4.2 Entity-Relationship Diagrams
 
-The data model has 45 tables in three diagrams. Crow's-foot notation; orange columns are vectors.
+The data model has 49 tables in four diagrams. Crow's-foot notation; orange columns are vectors.
 
-![Figure 6a – ERD: accounts, configuration, profiles, vacancies, and matching](../InternSync_Diagrams/png/06a_erd_accounts_matching.png)
+![Figure 6a – ERD: organizations, accounts, cycles, and student profiles](../InternSync_Diagrams/png/06a_erd_organizations_profiles.png)
 
-![Figure 6b – ERD: reports, similarity, attendance, evaluations, grades, and certificates](../InternSync_Diagrams/png/06b_erd_training_grading.png)
+![Figure 6b – ERD: vacancies, matching, applications, and placements](../InternSync_Diagrams/png/06b_erd_vacancies_placement.png)
 
-![Figure 6c – ERD: platform services (sessions, tokens, files, notifications, audit, imports, settings, jobs)](../InternSync_Diagrams/png/06c_erd_platform.png)
+![Figure 6c – ERD: reports, similarity, attendance, evaluations, grades, and certificates](../InternSync_Diagrams/png/06c_erd_training_grading.png)
+
+![Figure 6d – ERD: verification and platform services (tokens, sessions, files, notifications, audit, settings, jobs)](../InternSync_Diagrams/png/06d_erd_platform.png)
+
+**Changes in version 1.2 (CR-05):** new tables `universities`, `colleges`, `vacancy_universities`, `verification_requests`, and `verification_documents`; `import_batches` removed. `users` gained `college_id`, `is_company_admin`, `email_confirmed_at`, and `verification_status` (and lost `staff_id`, `department`, and `activated_at`); `companies` gained the commercial registration number and a status; `training_cycles` gained `college_id`; `vacancies` lost `cycle_id`, the `pending_review` status, and `return_comment`, and gained the training type and dates; `student_profiles.university_id` became `student_number`; `report_passages` gained `university_id`.
 
 **Changes from the ERD in diagram pack v1.0:** the embedding moved from `CV` to `student_profiles` (the profile text includes confirmed skills and interests). New tables: `account_tokens`, `user_sessions`, `push_subscriptions`, `system_settings`, `cycle_weeks`, `majors`, `vacancy_majors`, `skill_resources`, `cv_extracted_skills`, `match_scores`, `files`, `report_reviews`, `report_passages`, `similarity_checks` (replaces the decision column of `SIMILARITY_FLAG`, renamed `similarity_matches`), `import_batches`, and `job_runs`. `vacancies` gained `company_supervisor_id` and `return_comment`; `training_cycles` gained `working_days` and `rubric_locked_at`.
 
@@ -221,16 +231,41 @@ The data model has 45 tables in three diagrams. Crow's-foot notation; orange col
 
 Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not null. Columns are nullable unless marked NN.
 
-#### 4.3.1 Accounts and access
+#### 4.3.1 Organizations, accounts, and access
 
-**`companies`**: partner companies (FR-VAC-01).
+**`universities`** (FR-ORG-01).
 
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
 | id | uuid | PK | |
-| name | text | NN, UQ on `lower(name)` | As entered |
-| city | text | NN | |
+| name_en, name_ar | text | NN, UQ on `lower(name_en)` | |
+| email_domains | text[] | NN, default `{}` | e.g., `{example.edu.sa}`. A student email in one of these domains is shown to the Coordinator as a hint, not as proof |
+| gpa_scale | numeric(3,2) | NN, default 5.00, CHECK in (4.00, 5.00) | Used to check student GPAs |
+| is_active | boolean | NN, default true | |
 | created_at | timestamptz | NN | |
+
+**`colleges`** (FR-ORG-01, FR-ORG-03). The college's single Coordinator is found in `users` (partial UQ below).
+
+| **Column** | **Type** | **Constraints** | **Notes** |
+|:---|:---|:---|:---|
+| id | uuid | PK | |
+| university_id | uuid | NN, FK `universities` | |
+| name_en, name_ar | text | NN; UQ (university_id, `lower(name_en)`) | |
+| is_active | boolean | NN, default true | Inactive colleges are not offered at registration |
+| created_at | timestamptz | NN | |
+
+**`companies`** (FR-ORG-04, FR-VAC-01).
+
+| **Column** | **Type** | **Constraints** | **Notes** |
+|:---|:---|:---|:---|
+| id | uuid | PK | |
+| name | text | NN | As entered |
+| commercial_reg_no | text | NN, UQ | Commercial registration number |
+| city | text | NN | |
+| website | text | | Optional |
+| status | text | NN, default `pending`, CHECK in (`pending`, `verified`, `rejected`, `suspended`) | Only a verified company can create vacancies or invite supervisors |
+| verified_at | timestamptz | | |
+| created_at, updated_at | timestamptz | NN | |
 
 **`users`**: one row per account, exactly one role (FR-AUT-01).
 
@@ -238,33 +273,63 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 |:---|:---|:---|:---|
 | id | uuid | PK | |
 | email | text | NN, UQ on `lower(email)` | Login name |
-| password_hash | text | | Argon2id; null until activation |
-| role | text | NN, CHECK in (`student`, `company_supervisor`, `academic_supervisor`, `coordinator`) | |
+| password_hash | text | | Argon2id; null until an invitation is accepted |
+| role | text | NN, CHECK in (`student`, `company_supervisor`, `academic_supervisor`, `coordinator`, `platform_admin`) | |
 | name_en, name_ar | text | NN | |
 | language | text | NN, default `ar`, CHECK in (`ar`, `en`) | Interface, email, and notification language (FR-LOC-01, FR-NOT-06) |
+| college_id | uuid | FK `colleges`; CHECK set if and only if role is `student`, `academic_supervisor`, or `coordinator` | |
 | company_id | uuid | FK `companies`; CHECK set if and only if role is `company_supervisor` | |
-| staff_id | text | UQ | Academic supervisors (staff.csv) |
-| department | text | | Academic supervisors |
+| is_company_admin | boolean | NN, default false; CHECK true only for `company_supervisor`; partial UQ (company_id) where true | One Company Admin per company (FR-ORG-04) |
+| email_confirmed_at | timestamptz | | Set by the confirmation or invitation link (FR-AUT-02) |
+| verification_status | text | NN, CHECK in (`pending`, `verified`, `rejected`, `not_required`) | `not_required` for invited users and the Platform Admin |
 | is_active | boolean | NN, default true | FR-AUT-06 |
-| activated_at | timestamptz | | |
 | failed_logins | smallint | NN, default 0 | NFR-SEC-03 |
 | locked_until | timestamptz | | NFR-SEC-03 |
 | consent_at | timestamptz | | NFR-PRV-01 |
 | last_login_at | timestamptz | | |
 | created_at, updated_at | timestamptz | NN | |
 
-**`account_tokens`**: one-time activation and password-reset links (FR-AUT-02, FR-AUT-04).
+Partial UQ (college_id) where role = `coordinator`, verification_status = `verified`, and is_active: one Coordinator per college (FR-ORG-03).
+
+**`account_tokens`**: one-time email-confirmation, invitation, and password-reset links (FR-AUT-02, FR-AUT-04, FR-ORG-06).
 
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
 | id | uuid | PK | |
 | user_id | uuid | NN, FK `users` | |
-| purpose | text | NN, CHECK in (`activation`, `password_reset`) | |
+| purpose | text | NN, CHECK in (`email_confirmation`, `invitation`, `password_reset`) | |
 | token_hash | text | NN, UQ | SHA-256 of the random token; the token itself is only in the email |
-| expires_at | timestamptz | NN | 72 h for activation, 60 min for reset (settings) |
+| expires_at | timestamptz | NN | 72 h for confirmation and invitation, 60 min for reset (settings) |
 | used_at | timestamptz | | Set on use |
 | revoked_at | timestamptz | | Set when a newer token of the same purpose is issued |
 | created_at | timestamptz | NN | |
+
+**`verification_requests`**: one request per registration attempt (FR-ORG-03 – 05, FR-ORG-09).
+
+| **Column** | **Type** | **Constraints** | **Notes** |
+|:---|:---|:---|:---|
+| id | uuid | PK | |
+| user_id | uuid | NN, FK `users` | The applicant |
+| kind | text | NN, CHECK in (`coordinator`, `company`, `student`) | |
+| college_id | uuid | FK `colleges` | Coordinator and student requests |
+| company_id | uuid | FK `companies` | Company requests |
+| submitted_data | jsonb | NN | Data as submitted (student number, major, GPA, level; or company name, registration number, city), kept for history |
+| status | text | NN, default `pending`, CHECK in (`pending`, `approved`, `rejected`) | Partial UQ (user_id) where `pending`: one open request per account |
+| reviewer_id | uuid | FK `users` | Platform Admin for coordinators and companies; the college's Coordinator for students |
+| decided_at | timestamptz | | |
+| reason | text | CHECK required when `rejected` | Shown to the applicant |
+| cycle_id | uuid | FK `training_cycles` | Student approvals: the cycle the student is enrolled in |
+| created_at | timestamptz | NN | |
+
+**`verification_documents`** (FR-ORG-08).
+
+| **Column** | **Type** | **Constraints** | **Notes** |
+|:---|:---|:---|:---|
+| id | uuid | PK | |
+| request_id | uuid | NN, FK `verification_requests` | |
+| kind | text | NN, CHECK in (`appointment_letter`, `commercial_registration`, `authorization_letter`, `course_registration`, `other`) | |
+| file_id | uuid | FK `files` | Set to null when the file is deleted after the retention period |
+| purged_at | timestamptz | | |
 
 **`user_sessions`**: server side of each login, for idle timeout and logout (FR-AUT-03).
 
@@ -295,7 +360,8 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
 | id | uuid | PK | |
-| name | text | NN, UQ | e.g., "Co-op Fall 2026" |
+| college_id | uuid | NN, FK `colleges` | The college that runs the cycle |
+| name | text | NN; UQ (college_id, name) | e.g., "Co-op Fall 2026" |
 | type | text | NN, CHECK in (`coop`, `summer`) | |
 | start_date, end_date | date | NN, CHECK end > start | |
 | weeks | smallint | NN, CHECK 1–30 | A-06; must fit between the dates |
@@ -340,7 +406,7 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | levels | jsonb | NN | `{"1": {"en": "…", "ar": "…"}, …, "5": {…}}`; all five levels required |
 | position | smallint | NN; UQ (cycle_id, position) | |
 
-**`skills`**: the skill vocabulary (FR-CYC-04).
+**`skills`**: the skill vocabulary, shared by all organizations and maintained by the Platform Admin (FR-CYC-04).
 
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
@@ -364,28 +430,28 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | language | text | CHECK in (`ar`, `en`) | |
 | position | smallint | NN | |
 
-**`majors`** (Table 6.3, FR-VAC-01).
+**`majors`** (FR-PRF-02, FR-VAC-01).
 
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
 | id | uuid | PK | |
-| name_en | text | NN, UQ | As in students.csv; a new major is added during import and reported |
-| name_ar | text | | Filled in later by the Coordinator |
+| name_en | text | NN, UQ | Maintained by the Platform Admin; chosen by students at registration and by companies for eligibility |
+| name_ar | text | NN | |
 
-**`system_settings`**: every SRS default (NFR-MNT-03).
+**`system_settings`**: every SRS default, set by the Platform Admin for the whole platform (NFR-MNT-03).
 
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
 | key | text | PK | Dotted name, see Table 4.1 |
 | value | jsonb | NN | Validated against a schema per key |
-| updated_by | uuid | FK `users` | |
+| updated_by | uuid | FK `users` | A Platform Admin |
 | updated_at | timestamptz | NN | |
 
 **Table 4.1 – Configurable defaults**
 
 | **Key** | **Default** | **Source** |
 |:---|:---|:---|
-| `auth.activation_link_hours` | 72 | FR-AUT-02 |
+| `auth.email_link_hours` | 72 | FR-AUT-02 (email confirmation and invitations) |
 | `auth.reset_link_minutes` | 60 | FR-AUT-04 |
 | `auth.idle_timeout_minutes` | 30 | FR-AUT-03 |
 | `auth.session_max_hours` | 12 | Design |
@@ -402,7 +468,8 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | `similarity.threshold` | 0.30 | FR-SIM-02 |
 | `similarity.passage_cosine` / `similarity.ngram_size` / `similarity.ngram_containment` | 0.90 / 5 / 0.5 | Section 6.3 |
 | `dashboard.leniency_min_evaluations` / `dashboard.leniency_delta` | 5 / 0.8 | FR-DSH-04 |
-| `students.gpa_scale` | 5.00 | Table 6.3 |
+| `verification.document_retention_days` | 30 | FR-ORG-08 |
+| `auth.registrations_per_ip_hour` | 5 | Section 7.1 |
 | `files.signed_url_seconds` | 60 | NFR-SEC-04 |
 
 #### 4.3.3 Students and CVs
@@ -412,9 +479,9 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
 | user_id | uuid | PK, FK `users` | Role must be `student` |
-| university_id | char(10) | NN, UQ, CHECK 10 digits | `student_id` in students.csv |
-| major_id | uuid | NN, FK `majors` | Read-only for the student |
-| gpa | numeric(3,2) | NN, CHECK 0–5 | Read-only for the student; checked against `students.gpa_scale` |
+| student_number | text | NN, CHECK length 4–20 | Entered at registration; unique within the university (checked by the service); read-only after verification |
+| major_id | uuid | NN, FK `majors` | Entered at registration; read-only after verification |
+| gpa | numeric(3,2) | NN, CHECK 0–5 | Entered at registration; must not exceed the university's `gpa_scale`; read-only after verification |
 | level | smallint | | |
 | languages, interests | text[] | NN, default `{}` | Editable by the student |
 | skills_confirmed_at | timestamptz | | Matching needs confirmed skills (FR-MAT-01) |
@@ -423,14 +490,14 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | embedded_at | timestamptz | | |
 | updated_at | timestamptz | NN | |
 
-**`enrollments`**: which students belong to which cycle (FR-PRF-01, FR-VAC-03).
+**`enrollments`**: which verified students belong to which cycle of their college (FR-ORG-05, FR-VAC-04).
 
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
-| cycle_id | uuid | PK, FK | |
+| cycle_id | uuid | PK, FK | The cycle must belong to the student's college |
 | student_id | uuid | PK, FK `users` | |
-| course_code | text | NN | |
-| import_batch_id | uuid | FK `import_batches` | |
+| verification_request_id | uuid | FK `verification_requests` | The approval that created it |
+| created_by | uuid | NN, FK `users` | The Coordinator |
 | created_at | timestamptz | NN | |
 
 **`cvs`** (FR-PRF-03 – 05).
@@ -470,16 +537,16 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
 | id | uuid | PK | |
-| cycle_id | uuid | NN, FK | |
-| company_id | uuid | NN, FK `companies` | |
-| company_supervisor_id | uuid | FK `users` | The supervisor who reviews applicants ("own vacancies"); set to the creator when a CS creates it; chosen by the CO otherwise |
+| company_id | uuid | NN, FK `companies` | The company must be `verified` |
+| company_supervisor_id | uuid | NN, FK `users` | The supervisor responsible for the vacancy and its applicants ("own vacancies"); the creator by default; the Company Admin can change it |
 | created_by | uuid | NN, FK `users` | |
 | title, city, description | text | NN | GIN `pg_trgm` index on `title || ' ' || description` |
+| training_type | text | NN, CHECK in (`coop`, `summer`) | |
+| training_start, training_end | date | NN, CHECK end > start | |
 | min_gpa | numeric(3,2) | | |
 | seats | smallint | NN, CHECK > 0 | |
 | application_deadline | timestamptz | NN | |
-| status | text | NN, CHECK in (`draft`, `pending_review`, `published`, `closed`) | Section 5.1 |
-| return_comment | text | | Last comment when returned |
+| status | text | NN, CHECK in (`draft`, `published`, `closed`) | Section 5.1 |
 | published_at, closed_at | timestamptz | | |
 | embedding | halfvec(384) | | Computed on publish and on edit |
 | embedding_model | text | | |
@@ -499,6 +566,13 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 |:---|:---|:---|:---|
 | vacancy_id | uuid | PK, FK | |
 | major_id | uuid | PK, FK | |
+
+**`vacancy_universities`**: target universities (FR-VAC-02). No row means the vacancy is open to every university.
+
+| **Column** | **Type** | **Constraints** | **Notes** |
+|:---|:---|:---|:---|
+| vacancy_id | uuid | PK, FK | |
+| university_id | uuid | PK, FK `universities` | |
 
 **`applications`** (FR-VAC-04 – 07, FR-MAT-07).
 
@@ -523,10 +597,10 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | id | uuid | PK | |
 | application_id | uuid | NN, FK, UQ | |
 | student_id | uuid | NN, FK `users` | Partial UQ (student_id, cycle_id) where status ≠ `cancelled` |
-| cycle_id | uuid | NN, FK | |
+| cycle_id | uuid | NN, FK | The student's enrolment cycle |
 | vacancy_id | uuid | NN, FK | |
-| company_supervisor_id | uuid | NN, FK `users` | |
-| academic_supervisor_id | uuid | NN, FK `users` | Can be changed with a reason (FR-VAC-08) |
+| company_supervisor_id | uuid | NN, FK `users` | A supervisor of the vacancy's company |
+| academic_supervisor_id | uuid | NN, FK `users` | An academic supervisor of the student's college; can be changed with a reason (FR-VAC-08) |
 | status | text | NN, CHECK in (`active`, `completed`, `cancelled`) | `completed` when the grade becomes Final |
 | confirmed_by | uuid | NN, FK `users` | |
 | confirmed_at | timestamptz | NN | |
@@ -616,6 +690,7 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 |:---|:---|:---|:---|
 | id | bigint | PK (identity) | |
 | version_id | uuid | NN, FK | Index |
+| university_id | uuid | NN, FK `universities` | Copied from the student's college so the similarity search stays inside one university (FR-SIM-01) |
 | idx | smallint | NN | Order in the report |
 | char_start, char_end | integer | NN | Position in `body_text` |
 | text | text | NN | |
@@ -761,7 +836,7 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | mime_type | text | NN | Detected from the content, not the extension |
 | size_bytes | integer | NN | |
 | sha256 | char(64) | NN | |
-| purpose | text | NN, CHECK in (`cv`, `report_document`, `report_attachment`, `export`, `certificate`) | |
+| purpose | text | NN, CHECK in (`cv`, `report_document`, `report_attachment`, `verification_document`, `export`, `certificate`) | Verification documents are kept under their own storage prefix |
 | uploaded_by | uuid | FK `users` | |
 | created_at | timestamptz | NN | |
 
@@ -793,25 +868,11 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | entity_type | text | NN | e.g., `vacancy`, `report_slot`, `grade` |
 | entity_id | text | NN | Index (entity_type, entity_id) |
 | student_id | uuid | | The student the record is about, for filtering (FR-AUD-02) |
-| cycle_id | uuid | | |
+| college_id, company_id, cycle_id | uuid | | Organization of the record, for scoping the log (FR-AUD-02) |
 | old_value, new_value | jsonb | | Changed fields only |
 | reason | text | | Mandatory reasons (reopen, cancel, unlock) |
 
 A trigger raises an error on `UPDATE` and `DELETE`, and the application's database role has only `INSERT` and `SELECT` on this table.
-
-**`import_batches`** (FR-PRF-01).
-
-| **Column** | **Type** | **Constraints** | **Notes** |
-|:---|:---|:---|:---|
-| id | uuid | PK | |
-| kind | text | NN, CHECK in (`students`, `staff`) | |
-| cycle_id | uuid | FK | Required for students |
-| file_name | text | NN | |
-| total_rows, created_count | integer | NN | |
-| rejected | jsonb | NN | `[{"row": 7, "column": "email", "code": "INVALID_EMAIL"}]` |
-| new_majors | text[] | NN, default `{}` | Majors added by this import |
-| uploaded_by | uuid | NN, FK | |
-| created_at | timestamptz | NN | |
 
 **`job_runs`** (NFR-REL-03). Rows older than 30 days are deleted.
 
@@ -829,14 +890,16 @@ A trigger raises an error on `UPDATE` and `DELETE`, and the application's databa
 | **Value** | **Computed from** | **SRS** |
 |:---|:---|:---|
 | Active applications of a student | `applications` with status `submitted` or `accepted` | FR-VAC-04 |
-| Eligibility and its reason | Enrolment in the cycle, `vacancy_majors`, `min_gpa`, status, deadline | FR-MAT-03 |
+| Eligibility and its reason | Student verified and enrolled in an open cycle; vacancy published, before its deadline, and open to the student's university (`vacancy_universities`); `vacancy_majors`; `min_gpa` | FR-MAT-03, FR-VAC-02 |
 | Attendance percentage | Σ attended_days ÷ Σ scheduled_days over recorded weeks | FR-ATT-03 |
 | Dashboard counts and cycle statistics | Live queries (Section 5.7) | FR-DSH-01, FR-DSH-02 |
 | History of a record | `audit_log` filtered by entity | FR-AUD-03 |
 
 ### 4.5 Data Retention and Anonymization
 
-Records stay for the life of the system. NFR-PRV-04 (Could) is designed as one Coordinator action on a closed cycle: replace names and contact details of that cycle's students with placeholders, delete their CV files from storage, clear `extracted_text`, embeddings, and report text, and keep statistics-bearing columns (statuses, scores, dates). It is built only if time allows.
+Records stay for the life of the system. NFR-PRV-04 (Could) is designed as one Coordinator action on a closed cycle: replace names and contact details of that cycle's students with placeholders, delete their CV files from storage, clear `extracted_text`, embeddings, and report text, and keep statistics-bearing columns (statuses, scores, dates). It is planned for the testing phase with the other Could requirements.
+
+Verification documents are deleted from storage 30 days after the decision by the `purge_verification_documents` job; the request, its decision, and its reason stay (FR-ORG-08).
 
 ## 5. Behaviour Design
 
@@ -850,13 +913,13 @@ Every transition below is one service function. It checks the actor's role and s
 
 | **From** | **Action** | **Actor** | **Guard** | **To** | **Notifications** |
 |:---|:---|:---|:---|:---|:---|
-| – | create | CS | Own company | `draft` | – |
-| – | create | CO | – | `published` | – |
-| `draft` | submit | CS | All required fields | `pending_review` | CO: vacancy to review |
-| `pending_review` | return | CO | Comment required | `draft` | CS: vacancy returned |
-| `pending_review` | publish | CO | – | `published` | CS: vacancy published |
-| `published` | close | CO | – | `closed` | – |
-| `published` | (automatic) | system | Last seat filled by a placement | `closed` | – |
+| – | create | CS of a verified company | – | `draft` | – |
+| – | create and publish | CS of a verified company | All required fields; deadline in the future | `published` | – |
+| `draft` | publish | CS (own vacancy) or Company Admin | All required fields; deadline in the future | `published` | – |
+| `published` | close | CS (own vacancy) or Company Admin | – | `closed` | – |
+| `published` | (automatic) | system | Last seat filled by a placement, or the company suspended (Table 5.5) | `closed` | – |
+
+There is no review by a coordinator (CR-05); the coordinator's control is the placement confirmation (Table 5.2).
 
 When a vacancy closes, its remaining active applications become `withdrawn` with reason `vacancy_closed` so they no longer count against the students' limit; the students are notified. This is a closure rule, not a decision on the applicant, so FR-MAT-07 still holds.
 
@@ -866,10 +929,10 @@ When a vacancy closes, its remaining active applications become `withdrawn` with
 
 | **From** | **Action** | **Actor** | **Guard** | **To** | **Notifications** |
 |:---|:---|:---|:---|:---|:---|
-| – | apply | ST | Enrolled in the cycle; vacancy published; before deadline; eligible; no earlier application; fewer than `applications.max_active` active | `submitted` | CS: new applicant |
+| – | apply | ST | Verified and enrolled in an open cycle; vacancy published, open to the student's university, and before its deadline; eligible; no earlier application; fewer than `applications.max_active` active | `submitted` | CS: new applicant |
 | `submitted` | withdraw | ST | – | `withdrawn` | – |
-| `submitted` | accept / decline | CS (own vacancy) or CO | – | `accepted` / `declined` | ST: application decided |
-| `accepted` | confirm placement | CO | No other non-cancelled placement for the student in the cycle; free seat; AS given | `placed` | ST, CS, AS: placement confirmed |
+| `submitted` | accept / decline | CS (own vacancy) or Company Admin | – | `accepted` / `declined` | ST: application decided; CO of the student: applicant accepted |
+| `accepted` | confirm placement | CO of the student's college | No other non-cancelled placement for the student in the cycle; free seat; AS of the same college; CS of the vacancy's company | `placed` | ST, CS, AS: placement confirmed |
 | `submitted`, `accepted` | (automatic) | system | Another placement of the student confirmed, or vacancy closed | `withdrawn` | ST |
 | `placed` | cancel placement | CO | Reason required | `placement_cancelled` | ST, CS, AS |
 
@@ -909,7 +972,10 @@ Saving a draft creates or updates the single draft version and does not change t
 | Attendance week | record or edit (CS) while `now ≤ end of week + attendance.edit_days` or `now ≤ unlocked_until`; unlock (CO, reason required) | FR-ATT-01, FR-ATT-02 |
 | Certificate | issue (CO; grade `final`) → `valid`; revoke (CO; reason required) → `revoked` | FR-CER-01, FR-CER-03 |
 | Training cycle | `open` → `closed` (CO); `closed` → `open` (CO; reason required). While closed, every write to the cycle's records returns `409 CYCLE_CLOSED` | FR-CYC-05 |
-| Account | active ↔ inactive (CO). Deactivation revokes all sessions | FR-AUT-06 |
+| Account | Self-registered: `pending` (email confirmed, request open) → `verified` or `rejected` with its request. active ↔ inactive (Platform Admin: any account; Coordinator: the college's academic supervisors and students; Company Admin: the company's supervisors). Deactivation revokes all sessions | FR-ORG-02, FR-AUT-06 |
+| Verification request | `pending` → `approved` or `rejected` (reason required). The Platform Admin decides coordinator and company requests; the college's Coordinator decides student requests and chooses the cycle. Approval sets the user to `verified`; for a company it also sets the company to `verified` and makes the representative its Company Admin; for a student it creates the enrolment. A rejected applicant may submit a new request | FR-ORG-03 – 05, FR-ORG-09 |
+| Company | `pending` → `verified` or `rejected` with its request; `verified` ↔ `suspended` (Platform Admin, reason required). Suspension closes the company's published vacancies and stops new ones; running placements continue | FR-ORG-04, FR-AUT-06 |
+| Coordinator role, Company Admin right | transfer to another verified member of the same college or company (Platform Admin, reason required); the previous holder keeps a normal account (an academic supervisor or a company supervisor) | FR-ORG-07 |
 
 ### 5.2 Deadlines and Time
 
@@ -930,15 +996,19 @@ All jobs run inside the API process under APScheduler. Each job takes a PostgreS
 | `escalate_overdue` | 15 min | Reports not submitted, attendance weeks not recorded, evaluations not submitted, 3 or more days after their deadline | Notify the Coordinator (FR-NOT-04) | `escalation:{type}:{id}` |
 | `similarity_retry` | 5 min | `similarity_checks` still `pending` after 5 minutes, or `failed` fewer than 3 times | Run the check again | – |
 | `deliver_notifications` | 1 min | Notifications with email or push `pending` | Send email in the user's language and web push; retry failed email up to 5 times | – |
+| `purge_verification_documents` | Daily | Documents of requests decided more than `verification.document_retention_days` ago | Delete the file from storage, set `purged_at` (FR-ORG-08) | – |
 | `cleanup` | Daily | Expired sessions and tokens; `job_runs` older than 30 days | Delete technical rows | – |
 
 **Table 5.6 – Notification events (FR-NOT-05)**
 
 | **Event** | **Recipient** |
 |:---|:---|
-| `vacancy.submitted` | CO |
-| `vacancy.returned`, `vacancy.published` | Vacancy's CS |
+| `verification.submitted` | Platform Admin (coordinator and company requests); the college's CO (student requests) |
+| `verification.approved`, `verification.rejected` | The applicant |
+| `invitation.sent` | The invited person (email only) |
+| `role.transferred` | The new and the previous holder |
 | `application.received` | Vacancy's CS |
+| `application.accepted` | CO of the student (placement to confirm) |
 | `application.decided`, `application.withdrawn_auto` | ST |
 | `placement.confirmed`, `placement.cancelled`, `placement.supervisor_changed` | ST, CS, AS |
 | `report.reminder`, `report.revision_requested`, `report.accepted` | ST |
@@ -978,9 +1048,10 @@ Counts are live queries, so they always equal the database (FR-DSH-01 acceptance
 | **Role** | **Pending actions** |
 |:---|:---|
 | ST | Reports due in the next 7 days or overdue and not closed; revisions requested; applications by status; evaluation of the company and survey (when the grade is Final) |
-| CS | Applicants to review on own vacancies; ended weeks without attendance (overdue after `attendance.pending_after_days`); evaluations due within 7 days or overdue |
+| CS | Applicants to review on own vacancies (the Company Admin: on all the company's vacancies); ended weeks without attendance (overdue after `attendance.pending_after_days`); evaluations due within 7 days or overdue |
 | AS | Submitted reports not yet reviewed; flagged similarity checks without a decision; grades in `draft` whose preconditions are met |
-| CO | Vacancies `pending_review`; accepted applications without a placement; grades `submitted`; escalations (items overdue 3 days or more) |
+| CO | Student verification requests of the college; accepted applications of the college's students without a placement; grades `submitted`; escalations (items overdue 3 days or more) |
+| PA | Coordinator and company verification requests with their age; platform figures (FR-DSH-05) |
 
 Coordinator statistics per cycle and per company: placed and unplaced students, report submission rate and late rate, attendance rate, evaluation completion, and, if built, the job-offer rate (FR-DSH-03) and leniency alerts (FR-DSH-04: a company with at least 5 final evaluations whose mean is at least 0.8 above the cycle mean).
 
@@ -1001,7 +1072,7 @@ The method is rule-based on purpose: it is fast, explainable, and the student al
 
 ### 6.2 Matching (FR-MAT-01 – 07)
 
-1. **Eligible vacancies:** published, in a cycle the student is enrolled in, before the deadline, the student's major among the eligible majors, and GPA ≥ `min_gpa`. Ineligible vacancies are left out of the ranking and show their reason when browsing (FR-MAT-03).
+1. **Eligible vacancies:** published, open to the student's university (no target universities, or the student's among them), before the deadline, the student's major among the eligible majors, and GPA ≥ `min_gpa`. The student must be verified and enrolled in an open cycle. Ineligible vacancies are left out of the ranking and show their reason when browsing (FR-MAT-03).
 2. **Texts:** the profile text is the confirmed skills (both names), interests, and the start of the current CV text, cut to the model's 512-token limit and prefixed with `query: `. The vacancy text is title, description, and skill names, prefixed with `passage: `, as the e5 model expects.
 3. **Score parts:**
    - `semantic = clamp((cos − floor) ÷ (ceiling − floor), 0, 1)`, with floor 0.70 and ceiling 0.95. This spreads the narrow cosine range of e5 over 0–1; both values are settings tuned on the labelled set.
@@ -1016,7 +1087,7 @@ The method is rule-based on purpose: it is fast, explainable, and the student al
 
 1. **Body text:** for weekly reports, the four text fields; for the final report, the text extracted from the main document.
 2. **Passages:** split into sentences (on `.`, `!`, `?`, `؟`, and line breaks), then group them into passages of 2–3 sentences (about 40–80 words). Each passage is embedded with the `query: ` prefix and stored in `report_passages`.
-3. **Candidates:** for each passage, take the 5 nearest passages by cosine (HNSW index) from submitted versions of **other** report slots, across all students and cycles (FR-SIM-01). Earlier versions of the same slot are excluded.
+3. **Candidates:** for each passage, take the 5 nearest passages by cosine (HNSW index) from submitted versions of **other** report slots, across all students and cycles of the same university; the search is filtered on `report_passages.university_id`, so reports of other universities are never compared (FR-SIM-01). Earlier versions of the same slot are excluded.
 4. **Confirm:** a candidate pair counts as overlap when cosine ≥ 0.90 **and** at least 50% of the passage's word 5-grams (normalized text) appear in the source passage. The lexical check stops two passages on the same topic from being flagged.
 5. **Score per source report:** characters of the checked report covered by confirmed passages ÷ total characters of the report.
 6. **Flag:** when any source reaches the threshold (default 30%), the check is flagged and the top 5 sources are stored with their passage pairs for the side-by-side view (FR-SIM-02).
@@ -1034,7 +1105,8 @@ The method is measured with the evaluation script on 10 copied and 10 original r
 
 - **Passwords:** Argon2id. At least 8 characters with letters and digits (NFR-SEC-02).
 - **Lockout:** after 5 consecutive failures, `locked_until = now + 15 min`; during the lock every attempt, even with the right password, returns `423 ACCOUNT_LOCKED` (NFR-SEC-03).
-- **Activation and reset links:** 32 random bytes, URL-safe; only the SHA-256 hash is stored. Single use and time-limited. A password reset revokes all sessions of the user.
+- **Email-confirmation, invitation, and reset links:** 32 random bytes, URL-safe; only the SHA-256 hash is stored. Single use and time-limited. A password reset revokes all sessions of the user.
+- **Registration:** at most `auth.registrations_per_ip_hour` registrations per IP address per hour. A new account cannot log in before its email is confirmed, and stays behind the verification gate (Section 2.3) until it is verified.
 - **Forgot password** always answers `202`, whether or not the email exists, so accounts cannot be discovered.
 - **Access token:** JWT HS256 with `sub`, `role`, `sid`, `iat`, and `exp` (12 h maximum). The session row enforces the 30-minute idle timeout and logout (FR-AUT-03). The frontend keeps the token in memory and `sessionStorage` only (never in cookies, so there is no CSRF exposure), and Vercel sends a strict Content-Security-Policy to limit XSS.
 
@@ -1045,15 +1117,17 @@ Each route declares its allowed roles. Record access then follows these scope ru
 | **Role** | **Scope rule** |
 |:---|:---|
 | ST | `student_id = me` (profile, CVs, applications, placements and everything under them) |
-| CS | Vacancies with `company_supervisor_id = me`, their applications and applicant profiles; placements with `company_supervisor_id = me` and their reports (read-only), attendance, and evaluations. Never `company_evaluations` |
-| AS | Placements with `academic_supervisor_id = me` and their reports, similarity checks, evaluations, and grades. Source report authors are hidden |
-| CO | Everything |
-| Public | `GET /public/certificates/{code}`, `GET /health`, and the auth endpoints that need no login |
+| CS | Vacancies with `company_supervisor_id = me`, their applications and applicant profiles; placements with `company_supervisor_id = me` and their reports (read-only), attendance, and evaluations. The Company Admin also: every vacancy, application, and placement of the company, and the company's users. Never `company_evaluations` |
+| AS | Placements with `academic_supervisor_id = me` (always students of the AS's college) and their reports, similarity checks, evaluations, and grades. Source report authors are hidden |
+| CO | Records whose student belongs to the CO's college (`users.college_id`), the college's cycles and users, and the student verification requests of the college. Applicant profiles of other colleges are never visible |
+| PA | Universities, colleges, companies, users (account fields only), coordinator and company verification requests, skills, majors, settings, platform figures, and audit entries about accounts and organizations. No endpoint returns CVs, reports, evaluations, or grades to the PA |
+| Public | `POST /auth/register`, `GET /public/certificates/{code}`, `GET /health`, the lists of universities and colleges for the registration form, and the other auth endpoints that need no login |
 
-**Permission tests:** `backend/tests/permissions/matrix.yaml` lists every route with the expected status for each role, including scope cases (own versus another user's record). One parametrized test runs the whole matrix, and a second test fails if any route registered in FastAPI is missing from the matrix, so every endpoint is covered for every role (FR-AUT-05 acceptance).
+**Permission tests:** `backend/tests/permissions/matrix.yaml` lists every route with the expected status for each role, including scope cases (own versus another user's record). The test data hold two universities, three colleges, and two companies, and every scope case is also tried across organizations (a coordinator on another college's student, a company user on another company's vacancy). One parametrized test runs the whole matrix, and a second test fails if any route registered in FastAPI is missing from the matrix, so every endpoint is covered for every role (FR-AUT-05 acceptance).
 
 ### 7.3 Data Protection
 
+- **Verification documents:** stored under their own private prefix, downloadable only by the uploader and the reviewer, and deleted 30 days after the decision (FR-ORG-08).
 - **Supabase:** the Data API (PostgREST) is disabled and Row Level Security is enabled with no policies on every table, so the public `anon` key cannot read anything. The API uses its own database role.
 - **Audit log:** append-only by trigger and privileges (FR-AUD-02).
 - **Push payloads:** event title and link only (NFR-PRV-03).
@@ -1074,23 +1148,26 @@ The wireframes are a clickable prototype made in Claude Design: [InternSync Wire
 
 | **SRS screen** | **Artboards** | **States shown (tweaks)** | **Requirements** |
 |:---|:---|:---|:---|
-| Login, activation, password reset | `Login`, `Consent` | wrong password, account locked | FR-AUT-02 – 04, NFR-SEC-03, NFR-PRV-01 |
-| Dashboard | `Main` (student), `ST_Dashboard_Mobile`, `ST_Dashboard_EN`, `CS_Dashboard`, `AS_Dashboard`, `CO_Dashboard` | offline banner (student) | FR-DSH-01, FR-DSH-02, FR-LOC-01, FR-PWA-03, NFR-USA-03 |
+| Registration, login, email confirmation, password reset | `Register`, `Login`, `Consent` | account type (student, coordinator, company); wrong password, account locked | FR-AUT-02 – 04, FR-ORG-02 – 05, NFR-SEC-03, NFR-PRV-01 |
+| Verification status and documents | `Verification_Pending` | pending; rejected with a new request | FR-ORG-02, FR-ORG-08, FR-ORG-09 |
+| Dashboard | `Main` (student), `ST_Dashboard_Mobile`, `ST_Dashboard_EN`, `CS_Dashboard`, `AS_Dashboard`, `CO_Dashboard`, `PA_Dashboard` | offline banner (student) | FR-DSH-01, FR-DSH-02, FR-DSH-05, FR-LOC-01, FR-PWA-03, NFR-USA-03 |
 | Profile and CV | `ST_Profile` | CV without readable text | FR-PRF-02 – 05 |
 | Vacancies (browse and ranked) | `ST_Vacancies` | semantic or basic matching | FR-VAC-03 – 05, FR-MAT-01 – 07 |
-| Vacancy editor and applicants | `CS_VacancyEditor`, `CS_Applicants` | vacancy returned by the coordinator | FR-VAC-01, FR-VAC-02, FR-VAC-06 |
+| Vacancy editor and applicants | `CS_VacancyEditor`, `CS_Applicants` | company not yet verified | FR-VAC-01, FR-VAC-02, FR-VAC-06, FR-ORG-02 |
+| Company team | `CS_Team` | – | FR-ORG-04, FR-ORG-06, FR-AUT-06 |
 | Placements | `CO_Placements` | – | FR-VAC-07, FR-VAC-08 |
 | Report form and history | `ST_Report`, `AS_ReportReview` | similarity flagged or not | FR-REP-01 – 07, FR-SIM-02, FR-SIM-03 |
 | Attendance | `CS_Attendance` | – | FR-ATT-01 – 04 |
 | Evaluation form | `CS_Evaluation` | incomplete form with errors | FR-EVL-01 – 03 |
 | Grades | `AS_Grade`, `CO_Grades` | preconditions met or not | FR-WFL-02 – 07 |
-| Cycle settings | `CO_CycleSettings` | weights not totalling 100 | FR-CYC-01 – 03, NFR-MNT-03 |
-| Users and import | `CO_Import` | – | FR-AUT-02, FR-AUT-06, FR-PRF-01 |
+| Cycle settings | `CO_CycleSettings` | weights not totalling 100 | FR-CYC-01 – 03 |
+| Student verification and academic supervisors | `CO_Students`, `CO_Supervisors` | approve and enrol; reject without a reason | FR-ORG-05, FR-ORG-06, FR-ORG-08, FR-AUT-06 |
+| Platform administration | `PA_Dashboard`, `PA_Verifications`, `PA_Organizations`, `PA_Settings` | company or coordinator request | FR-ORG-01, FR-ORG-03, FR-ORG-04, FR-ORG-07, FR-CYC-04, FR-DSH-05, NFR-MNT-03 |
 | Exports and certificates | `CO_Exports` | – | FR-EXP-01 – 03, FR-CER-01, FR-CER-03 |
 | Audit log | `CO_Audit` | – | FR-AUD-02 |
 | Certificate verification | `Verify_Mobile` | valid, revoked, not found | FR-CER-02 |
 
-Not yet drawn: the student's evaluation of the company and the outcome survey (FR-EVL-05, FR-DSH-03, both Could), and the notification list.
+Not yet drawn: the student's evaluation of the company and the outcome survey (FR-EVL-05, FR-DSH-03, both Could), the notification list, and the Platform Admin's audit view (the same layout as `CO_Audit`, limited to accounts, organizations, and verification).
 
 ### 8.2 Design System
 
@@ -1111,11 +1188,12 @@ Not yet drawn: the student's evaluation of the company and the outcome survey (F
 
 - **Routes by role**, after login:
   - ST: `/student` (dashboard), `/student/profile`, `/student/vacancies`, `/student/applications`, `/student/reports`.
-  - CS: `/company` (dashboard), `/company/vacancies`, `/company/students/:placementId`.
+  - CS: `/company` (dashboard), `/company/vacancies`, `/company/students/:placementId`, `/company/team` (Company Admin only).
   - AS: `/academic` (dashboard), `/academic/students/:placementId`, `/academic/grades`.
-  - CO: `/admin` (dashboard), `/admin/cycles`, `/admin/users`, `/admin/vacancies`, `/admin/placements`, `/admin/grades`, `/admin/exports`, `/admin/audit`.
-  - Public: `/verify/:code`.
-  - Shared: `/login`, `/activate/:token`, `/reset/:token`, `/notifications`.
+  - CO: `/coordinator` (dashboard), `/coordinator/students` (verification), `/coordinator/supervisors`, `/coordinator/cycles`, `/coordinator/placements`, `/coordinator/grades`, `/coordinator/exports`, `/coordinator/audit`.
+  - PA: `/platform` (dashboard), `/platform/verifications`, `/platform/organizations`, `/platform/settings`, `/platform/audit`.
+  - Public: `/register`, `/verify/:code`.
+  - Shared: `/login`, `/confirm/:token`, `/invite/:token`, `/reset/:token`, `/verification` (own request status), `/notifications`.
 - **Layout:** `dir` and `lang` on `<html>` follow the selected language. Spacing uses logical properties (`ms-`, `me-`, `ps-`, `pe-`), and directional icons are mirrored in Arabic.
 - **Status chips:** text plus colour, never colour alone. AI results sit in a panel labelled "Advisory" (6.1 of the SRS).
 - **Task length:** report submission, attendance, and evaluation each fit in at most 3 screens (NFR-USA-02); "Full attendance" is one button.
@@ -1125,10 +1203,11 @@ Not yet drawn: the student's evaluation of the company and the outcome survey (F
 
 | **SRS area** | **Module (2.2)** | **Tables (4.3)** | **API section** |
 |:---|:---|:---|:---|
-| FR-AUT | `auth`, `users` | users, user_sessions, account_tokens | 3.1, 3.2 |
+| FR-AUT | `auth`, `orgs` | users, user_sessions, account_tokens | 3.1, 3.2 |
+| FR-ORG | `orgs`, `auth`, `cycles` | universities, colleges, companies, users, verification_requests, verification_documents, enrollments | 3.1, 3.2 |
 | FR-CYC | `cycles` | training_cycles, cycle_weeks, grade_components, rubric_criteria, skills, skill_resources, majors, system_settings | 3.3, 3.4 |
-| FR-PRF | `profiles`, `users` | student_profiles, enrollments, cvs, cv_extracted_skills, student_skills, import_batches | 3.2, 3.5 |
-| FR-VAC | `vacancies` | vacancies, vacancy_skills, vacancy_majors, applications, placements | 3.6, 3.7 |
+| FR-PRF | `profiles` | student_profiles, cvs, cv_extracted_skills, student_skills | 3.5 |
+| FR-VAC | `vacancies` | vacancies, vacancy_skills, vacancy_majors, vacancy_universities, applications, placements | 3.6, 3.7 |
 | FR-MAT | `matching` | match_scores | 3.8 |
 | FR-REP, FR-WFL-01 | `reports` | report_slots, report_versions, report_attachments, report_reviews, report_comments | 3.9 |
 | FR-SIM | `similarity` | report_passages, similarity_checks, similarity_matches | 3.10 |
@@ -1152,3 +1231,4 @@ Not yet drawn: the student's evaluation of the company and the outcome survey (F
 | Labelled AI evaluation sets (20 CVs and profiles, 10 copied and 10 original reports) | Increment 2 | Generate synthetic data now; a second person must label independently (SRS 10.2). |
 | Calibration of `semantic_floor` and `semantic_ceiling` and the similarity thresholds | Increment 2 – 3 | Tune with `ai-eval/evaluate.py`; record the chosen values and results in the test report. |
 | Project Gmail account, Hugging Face account and Space, Supabase project, Vercel project | Before Increment 1 ends | Create the free accounts; store the secrets as in Section 3.4. |
+| Platform Admin account and demo organizations | Increment 1 | The seed script creates the Platform Admin, 2 universities with 4 colleges, majors, the skill vocabulary, and sample companies; real Platform Admin accounts are created only by the provider (FR-AUT-02). |

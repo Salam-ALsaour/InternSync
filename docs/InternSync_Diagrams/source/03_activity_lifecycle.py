@@ -5,44 +5,54 @@ from act import Activity
 
 L = ["Student", "Company Supervisor", "Academic Supervisor", "Coordinator", "System"]
 ST, CS, AS, CO, SY = L
+PA = "Platform Admin"
 
 # ------------------------------------------------------------------ Part 1
-a = Activity(L, top=0.55)
-a.start("s", CO); a.row(0.2)
-a.action("c1", CO, "Open training cycle\n(dates, deadlines,\nrubric, grade weights)"); a.row()
-a.action("c2", CO, "Import students and\nacademic supervisors;\ncreate company accounts"); a.row()
-a.action("m1", SY, "Email one-time\nactivation links", system=True); a.row()
-a.action("v1", CS, "Submit vacancy"); a.row()
-a.action("v2", CO, "Review vacancy"); a.row(0.16)
-a.decision("d1", CO, "Approved?"); a.row(0.2)
-a.action("v3", CO, "Publish vacancy"); a.row()
+L1 = [ST, CS, AS, CO, PA, SY]
+a = Activity(L1, lane_w=1.4, top=0.55)
+a.start("s", PA); a.row(0.2)
+a.action("o1", PA, "Add university\nand its colleges"); a.row()
+a.bar("f0", [CS, CO, PA]); a.row()
+a.same_row([("k1", CS, "Company Admin\nregisters (proof:\ncommercial reg.)", False),
+            ("c0", CO, "Coordinator\nregisters (proof:\nappointment letter)", False)])
+a.row()
+a.bar("j0", [CS, CO, PA]); a.row()
+a.action("a1", PA, "Verify coordinator\nand company\n(check proof)"); a.row()
+a.bar("f1", [CS, CO, PA]); a.row()
+a.same_row([("v1", CS, "Invite company\nsupervisors; publish\nvacancies (no review)", False),
+            ("c1", CO, "Open training cycle;\ninvite academic\nsupervisors", False)])
+a.row()
+a.bar("j1", [ST, CS, CO]); a.row()
+a.action("r1", ST, "Register with\nenrolment proof"); a.row()
+a.action("r2", CO, "Verify student;\nenrol in cycle"); a.row(0.16)
+a.decision("d1", CO, "Verified?"); a.row(0.2)
 a.action("p1", ST, "Upload CV\n(PDF / DOCX)"); a.row()
 a.action("p2", SY, "Extract skills from\nCV text (AR / EN)", system=True); a.row()
 a.action("p3", ST, "Confirm or edit\nextracted skills"); a.row()
-a.action("p4", SY, "Rank eligible vacancies:\nfit score, matched and\nmissing skills", system=True); a.row()
+a.action("p4", SY, "Rank eligible\nvacancies: fit score,\nmatched and\nmissing skills", system=True); a.row()
 a.action("p5", ST, "Apply\n(max 5 active)"); a.row()
 a.action("p6", CS, "Accept or decline\napplicants"); a.row()
 a.action("p7", CO, "Confirm placement;\nassign academic\nsupervisor"); a.row()
 a.action("p8", SY, "Create weekly and\nfinal report slots", system=True); a.row(0.2)
 a.connector("A", SY, "A")
-a.text_note = None
 
-for x, y in [("s", "c1"), ("c1", "c2"), ("c2", "m1"), ("m1", "v1"), ("v1", "v2"), ("v2", "d1"),
-             ("v3", "p1"), ("p1", "p2"), ("p2", "p3"), ("p3", "p4"), ("p4", "p5"), ("p5", "p6"),
-             ("p6", "p7"), ("p7", "p8"), ("p8", "A")]:
+for x, y in [("s", "o1"), ("o1", "f0"), ("f0", "k1"), ("f0", "c0"), ("k1", "j0"), ("c0", "j0"), ("j0", "a1"),
+             ("a1", "f1"), ("f1", "v1"), ("f1", "c1"), ("v1", "j1"), ("c1", "j1"), ("j1", "r1"), ("r1", "r2"),
+             ("r2", "d1"), ("p1", "p2"), ("p2", "p3"), ("p3", "p4"), ("p4", "p5"), ("p5", "p6"), ("p6", "p7"),
+             ("p7", "p8"), ("p8", "A")]:
     a.edge(x, y)
-a.edge("d1", "v3", "yes", label_pos=None)
+a.edge("d1", "p1", "yes", label_pos=None)
 
 
-def back_to_v1(d, v):
-    xr = v["x"] + v["w"] / 2
+def back_to_r1(d, r):
+    xr = r["x"] + r["w"] / 2
     xc = xr + 0.28
-    return [(d["x"] - 0.16, d["y"]), (xc, d["y"]), (xc, v["y"]), (xr, v["y"])]
+    return [(d["x"] - 0.16, d["y"]), (xc, d["y"]), (xc, r["y"]), (xr, r["y"])]
 
 
-_v, _d = a.nodes["v1"], a.nodes["d1"]
-a.edge("d1", "v1", "no: returned\nwith comment", route=back_to_v1,
-       label_pos=(_v["x"] + _v["w"] / 2 + 0.33, (_v["y"] + _d["y"]) / 2))
+_r, _d = a.nodes["r1"], a.nodes["d1"]
+a.edge("d1", "r1", "no: rejected\nwith reason", route=back_to_r1,
+       label_pos=(_r["x"] + _r["w"] / 2 + 0.33, (_r["y"] + _d["y"]) / 2))
 a.draw("../png/03a_activity_setup_placement")
 
 

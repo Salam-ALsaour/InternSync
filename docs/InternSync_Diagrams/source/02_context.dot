@@ -1,32 +1,32 @@
 digraph G {
-  graph [rankdir=TB, splines=spline, nodesep=0.45, ranksep=0.95, fontname="Liberation Sans", bgcolor="white", pad=0.2];
+  graph [rankdir=TB, splines=spline, nodesep=0.40, ranksep=0.95, fontname="Liberation Sans", bgcolor="white", pad=0.2];
   node  [fontname="Liberation Sans", fontsize=11, shape=box, style="rounded,filled", fillcolor="#EAF0FA", color="#1F3864", penwidth=1.2, margin="0.18,0.08"];
   edge  [fontname="Liberation Sans", fontsize=10, color="#44546A", fontcolor="#333333", arrowsize=0.7];
 
   subgraph cluster_users { style=invis;
-    ST [label="Student"];
-    CS [label="Company\nSupervisor"];
+    ST [label="Student\n(self-registers)"];
+    CS [label="Company Supervisor\n(incl. Company Admin)"];
     AS [label="Academic\nSupervisor"];
-    CO [label="Coordinator\n(co-op unit; admin)"];
+    CO [label="Coordinator\n(one per college)"];
+    PA [label="Platform Admin\n(platform provider)"];
   }
 
   SYS [label="InternSync\n(React PWA · FastAPI + AI services ·\nPostgreSQL/pgvector · scheduler · file storage)", shape=box, style="rounded,filled,bold", fillcolor="#1F3864", fontcolor="white", fontsize=12, penwidth=2, margin="0.35,0.2"];
 
-  { rank=same; PUB; MAIL; PUSH; SIS; ADM; }
+  { rank=same; PUB; MAIL; PUSH; ADM; }
   PUB  [label="Public verifier", fillcolor="#FFFFFF"];
   MAIL [label="Email provider\n(SMTP)", fillcolor="#F2F2F2", style="rounded,filled,dashed"];
   PUSH [label="Browser push\nservices", fillcolor="#F2F2F2", style="rounded,filled,dashed"];
-  SIS  [label="University SIS\n(no live link)", fillcolor="#F2F2F2", style="rounded,filled,dashed"];
-  ADM  [label="College\nadministration", fillcolor="#F2F2F2", style="rounded,filled,dashed"];
+  ADM  [label="University and college\nadministration", fillcolor="#F2F2F2", style="rounded,filled,dashed"];
 
-  ST -> SYS [dir=both, label=" CV, applications,\n reports ⇄ ranked\n vacancies, feedback,\n grade"];
-  CS -> SYS [dir=both, label=" vacancies, attendance,\n evaluations ⇄\n applicants, reminders"];
-  AS -> SYS [dir=both, label=" review decisions,\n grades ⇄ reports,\n similarity flags"];
-  CO -> SYS [dir=both, label=" cycles, CSV import,\n approvals ⇄ dashboards,\n escalations"];
+  ST -> SYS [dir=both, label=" registration proof, CV,\n applications, reports\n ⇄ \n ranked vacancies,\n feedback, grade"];
+  CS -> SYS [dir=both, label=" company proof, vacancies,\n team invitations,\n attendance, evaluations\n ⇄ \n applicants, reminders"];
+  AS -> SYS [dir=both, label=" review decisions,\n grades\n ⇄ \n reports,\n similarity flags"];
+  CO -> SYS [dir=both, label=" appointment proof, cycles,\n student verification,\n placements, approvals\n ⇄ \n dashboards, escalations"];
+  PA -> SYS [dir=both, label=" verification decisions,\n universities, colleges,\n skills\n ⇄ \n requests,\n platform statistics"];
 
-  SYS -> PUB  [dir=both, label=" certificate ID ⇄\n status"];
-  SYS -> MAIL [label=" activation,\n notifications"];
+  SYS -> PUB  [dir=both, label=" certificate ID\n ⇄ \n status"];
+  SYS -> MAIL [label=" confirmation, invitation,\n notifications"];
   SYS -> PUSH [label=" push\n notifications"];
-  SIS -> SYS  [style=dashed, label=" CSV files\n (uploaded by CO)"];
-  SYS -> ADM  [style=dashed, label=" exported PDF /\n Excel files"];
+  SYS -> ADM  [style=dashed, label=" exported PDF /\n Excel files (by CO)"];
 }

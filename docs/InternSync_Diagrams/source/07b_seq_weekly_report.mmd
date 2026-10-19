@@ -13,7 +13,7 @@ sequenceDiagram
   API->>DB: One transaction: save version + files,<br/>status = Submitted, Late flag if<br/>server time > due_at, audit entry
   API-->>PWA: 201 Created<br/>(On time or Late)
   API-)AI: Background task:<br/>check similarity
-  AI->>DB: Compare with all stored reports<br/>(except own earlier versions)
+  AI->>DB: Compare with stored reports of the<br/>same university (except own earlier versions)
   opt Score ≥ threshold (default 30 %)
     AI->>DB: Create flag with<br/>matching passages
   end

@@ -12,7 +12,7 @@ SYS_EDGE = "#C55A11"
 EDGE = "#44546A"
 LANE_LINE = "#8EA9DB"
 TXT = "#1A1A1A"
-plt.rcParams["font.family"] = "Liberation Sans"
+plt.rcParams["font.family"] = ["Liberation Sans", "Arial", "DejaVu Sans"]  # first one installed wins
 
 
 class Activity:

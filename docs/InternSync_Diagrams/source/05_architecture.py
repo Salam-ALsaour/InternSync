@@ -8,9 +8,10 @@ c = Canvas(W, H)
 
 # ---------------------------------------------------------------- users
 c.frame(0.15, 0.12, 7.0, 0.82, "Users — browser or installed PWA", kind="ext")
-for i, (k, t) in enumerate([("ST", "Student"), ("CS", "Company\nsupervisor"), ("AS", "Academic\nsupervisor"),
-                            ("CO", "Coordinator"), ("PV", "Public verifier\n(QR scan, no login)")]):
-    c.box(k, 0.35 + i * 1.36, 0.42, 1.18, 0.42, t, kind="white")
+for i, (k, t) in enumerate([("ST", "Student"), ("CS", "Company supervisor\n(and Company Admin)"),
+                            ("AS", "Academic\nsupervisor"), ("CO", "Coordinator\n(one per college)"),
+                            ("PA", "Platform Admin"), ("PV", "Public verifier\n(QR, no login)")]):
+    c.box(k, 0.30 + i * 1.145, 0.42, 1.06, 0.42, t, kind="white", fs=7.0)
 
 # ---------------------------------------------------------------- client
 c.frame(0.15, 1.22, 7.0, 1.05, "Client — React PWA (Vite), served as static files")
@@ -24,7 +25,7 @@ c.arrow([(W / 2, 0.94), (W / 2, 1.22)], "HTTPS", lpos=(W / 2 + 0.06, 1.08))
 c.frame(0.15, 2.62, 7.0, 3.88, "Server — Python 3 / FastAPI, one Docker image (single instance)")
 c.frame(0.3, 2.95, 6.7, 1.55, "REST API  /api/v1  —  JWT authentication, role check on every request", fill="white",
         fs=7.8)
-mods = [("AUTH", "Auth and RBAC\n(activation, lockout)"), ("USR", "Users, cycles,\nCSV import, rubric"),
+mods = [("AUTH", "Auth, registration,\nRBAC, org scoping"), ("USR", "Organizations,\nverification, cycles"),
         ("WFL", "Evaluations, grades,\napproval workflow"), ("EXP", "Exports (PDF / Excel)\nand certificates"),
         ("PRF", "Profiles, CVs\nand skills"), ("VAC", "Vacancies, applications\nand placements"),
         ("REP", "Reports, comments\nand attendance"), ("NTF", "Notifications\nand audit log")]
@@ -53,7 +54,7 @@ for src, f in (("MAT", 0.3), ("SIM", 0.6)):
 c.text(c.at("SIM", "bottom")[0] + 0.62, yb + 0.015, "both use the shared model", fontsize=6.4, color=AI_EDGE, ha="left", va="top")
 
 c.box("SCH", 0.3, 5.85, 6.7, 0.45,
-      "Scheduler (APScheduler, every 15 min, idempotent jobs):  reminders  ·  Late / Missing flags  ·  escalations",
+      "Scheduler (APScheduler, every 15 min, idempotent jobs):  reminders  ·  Late / Missing flags  ·  escalations  ·  proof purge",
       kind="white")
 nt = c.at("NTF", "right")
 c.arrow([c.at("SCH", "right", 0.5), (6.93, c.at("SCH", "right", 0.5)[1]), (6.93, nt[1]), nt])
@@ -61,7 +62,7 @@ c.arrow([c.at("SCH", "right", 0.5), (6.93, c.at("SCH", "right", 0.5)[1]), (6.93,
 # ---------------------------------------------------------------- data + external
 c.frame(0.15, 6.78, 4.2, 1.35, "Data")
 c.cylinder("DB", 0.35, 7.08, 2.05, 0.92, "PostgreSQL 16 + pgvector\nrelational data and\n384-d embeddings")
-c.box("FS", 2.6, 7.13, 1.6, 0.82, "Private file storage\nCVs, attachments,\nexports")
+c.box("FS", 2.6, 7.13, 1.6, 0.82, "Private file storage\nCVs, proofs,\nattachments, exports")
 c.frame(4.55, 6.78, 2.6, 1.35, "External", kind="ext")
 c.box("MAIL", 4.7, 7.13, 1.15, 0.82, "Email provider\n(SMTP, TLS)", kind="ext")
 c.box("PUSH", 5.95, 7.13, 1.05, 0.82, "Browser push\nservices", kind="ext")

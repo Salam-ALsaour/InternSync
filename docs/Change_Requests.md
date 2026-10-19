@@ -8,6 +8,7 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 | CR-02 | Oct 13, 2026 | UC-15 added to SRS Table 3.1 | Approved |
 | CR-03 | Oct 13, 2026 | Weekly working days added to FR-CYC-01 | Approved |
 | CR-04 | Oct 13, 2026 | Change requests logged in the repository | Approved |
+| CR-05 | Oct 20, 2026 | One platform for many universities and companies: open registration with verification, Platform Admin, direct vacancy publishing, no CSV import | Approved |
 
 ## CR-01 – Zero-cost reference deployment
 
@@ -49,3 +50,31 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 - **Affected:** SRS 10.6, SPMP 8.
 - **Effect on schedule:** none.
 - **Decision:** approved. SRS 1.1, SPMP 1.1.
+
+## CR-05 – One platform for many universities and companies
+
+- **Requested by:** Salam Alsaour, Oct 20, 2026.
+- **Change:**
+  - InternSync becomes one platform, run by its provider, that connects many universities, their colleges, many companies, and students.
+  - A fifth role, **Platform Admin** (the provider), maintains universities, colleges, and the skill vocabulary, verifies coordinators and companies, and sets the platform defaults. It sees no academic records.
+  - **Open registration with verification** (new SRS Section 4.17, FR-ORG-01 – 09):
+    - A student registers for one college with proof of registration in the co-op course; the college's Coordinator verifies the student and enrols them in a cycle.
+    - A coordinator registers for one college with an appointment letter; the Platform Admin verifies. Each college has exactly one Coordinator.
+    - A company representative registers the company with the commercial registration and a letter of authorization; the Platform Admin verifies, and the representative becomes the **Company Admin**.
+    - Academic supervisors are invited by their Coordinator, and further company supervisors by the Company Admin; invitations need no verification.
+    - Verification documents are seen only by the uploader and the reviewer and are deleted 30 days after the decision.
+  - A company supervisor's trainees may come from any university and any academic supervisor.
+  - **Companies publish vacancies directly** (Draft, Published, Closed); the coordinator's review of vacancies is removed. A vacancy may be limited to target universities. The Coordinator still confirms each placement.
+  - **CSV import is removed** (FR-PRF-01 deleted, SRS 6.3.1 removed).
+  - Similarity checks compare reports of the same university only.
+  - F16 – F19 (Could) stay in scope.
+- **Reason:** the product is meant to work like an open network (as on LinkedIn) where anyone can join and trust comes from verification, instead of one university importing its users. Direct publishing removes a review step from the coordinators, and self-registration makes the CSV import unnecessary.
+- **Affected:**
+  - SRS 1 – 4, 4.17 (new), 5, 6.1 – 6.3, 7, 8, 9.1 – 9.3, 10.5, and Appendix A: 125 active requirements (82 Must, 36 Should, 7 Could); use cases UC-16 – UC-20 added; FR-MAT-03 made consistent with FR-VAC-02.
+  - Design document 1.2: organizations and verification tables (49 tables), routes, scoping, jobs, Table 8.1.
+  - API specification 1.1: registration, invitations, verification requests, organizations, Platform Admin scope; `NOT_ELIGIBLE` no longer covers a vacancy outside the student's university (that is `403`).
+  - Diagrams 1, 2, 3a, 4c, 5, 6a – 6d (ERD in four parts), 7b, 8, 11; diagram pack 1.2.
+  - Wireframes: `Register`, `Verification_Pending`, `CS_Team`, `CO_Students`, `CO_Supervisors`, and four Platform Admin screens added; `CO_Import` removed; 14 screens edited.
+  - SPMP 1.2: T4, M2 status, data plan, and risks.
+- **Effect on schedule:** milestones are unchanged. Increment 1 gains the registration and verification work (FR-ORG, 7 Must) and starts 5 days late because the design was redone; part of this is offset by removing the CSV import and the vacancy review. Tracked as a new SPMP risk.
+- **Decision:** approved by Salam Alsaour. SRS 1.2, design document 1.2, API specification 1.1, SPMP 1.2, diagram pack 1.2, wireframes 1.1.
