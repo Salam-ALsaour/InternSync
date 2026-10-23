@@ -9,11 +9,11 @@ CSC 305 – Software Engineering \| Semester 1 – 2026/2027 \| Section 5MA1 \| 
 |:---|:---|
 | Project title | InternSync – Cooperative Training Coordination and Tracking System |
 | Team name | Group 3 (Section 5MA1) |
-| Advisor | [Instructor name] |
+| Advisor | Dr. Sultan Al-Enezi |
 | Version | 1.3 |
 | Date | 23-10-2026 |
 
-> This Markdown file is the maintained version of the SRS. `InternSync_SRS_v1.3.docx` and `.pdf` in this folder are generated from it on the course template; `InternSync_SRS.docx` and `InternSync_SRS.pdf` are the earlier v1.0 draft. Changes are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
+> This Markdown file is the maintained version of the SRS. `InternSync_SRS_v1.3.docx` and `.pdf` in this folder are generated from it on the course template (v1.3 submitted on Oct 23, 2026); `old/InternSync_SRS.docx` and `old/InternSync_SRS.pdf` are the earlier v1.0 draft. Changes are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
 
 ### Team Information
 

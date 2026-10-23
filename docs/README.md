@@ -9,7 +9,7 @@ CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Group 3
 | Project Idea Form | – (frozen) | [MINISTRY OF EDUCATION-1.pdf](Project%20Idea%20%20Team%20&%20Problem%20Definition/MINISTRY%20OF%20EDUCATION-1.pdf) | Sep 5, 2026 |
 | Project Proposal | – (frozen) | [InternSync_Project_Proposal-1.pdf](Project%20Proposal%20%20Process%20&%20Feasibility/InternSync_Project_Proposal-1.pdf) | Oct 2, 2026 |
 | Software Project Management Plan | [InternSync_SPMP.md](Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md) | InternSync_SPMP-1.pdf (v1.0) | 1.2 |
-| Software Requirements Specification | [InternSync_SRS.md](RSR/InternSync_SRS.md) | [InternSync_SRS_v1.3.docx](RSR/InternSync_SRS_v1.3.docx) and [.pdf](RSR/InternSync_SRS_v1.3.pdf), generated on the course template; InternSync_SRS.docx / .pdf are the v1.0 draft | 1.3 |
+| Software Requirements Specification | [InternSync_SRS.md](RSR/InternSync_SRS.md) | [InternSync_SRS_v1.3.pdf](RSR/InternSync_SRS_v1.3.pdf) (submitted Oct 23, 2026) and [.docx](RSR/InternSync_SRS_v1.3.docx), generated on the course template; the v1.0 draft is in [RSR/old](RSR/old/) | 1.3 |
 | System Design Document | [InternSync_Design.md](Design/InternSync_Design.md) | – | 1.2 |
 | Wireframes (clickable prototype) | [Claude Design canvas](https://claude.ai/artifact/GUCAYYDPvkkBiwntVfJWJA); sources in [Design/wireframes](Design/wireframes/) | – | 1.1 |
 | API Specification | [InternSync_API_Spec.md](Design/InternSync_API_Spec.md) | – | 1.1 |
