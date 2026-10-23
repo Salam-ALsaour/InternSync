@@ -1,6 +1,6 @@
 # Increment 1 – Requirements (Scope and Acceptance)
 
-**Status:** Draft for review · Oct 23, 2026 · Author: Salam Alsaour  
+**Status:** Approved Oct 23, 2026 – the decisions of Section 5 were adopted as recommended ([02_Design.md](02_Design.md), Section 1) · Author: Salam Alsaour  
 **Baseline:** [SRS 1.3](../../RSR/InternSync_SRS.md), [Design 1.2](../../Design/InternSync_Design.md), [API 1.1](../../Design/InternSync_API_Spec.md), [SPMP 1.2](../../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md)  
 **Milestone:** M3 – Increment 1 delivered, **Nov 1, 2026**: demo of the F1, F2, F3, F5, and F10 foundation; automated tests pass.
 
@@ -168,7 +168,7 @@ Each test comes from the SRS acceptance criterion of its requirement and will be
 | AT-VAC-01 | FR-VAC-01 | Missing required field cannot be saved; saved vacancy shows all fields; unverified company refused | API |
 | AT-VAC-02 | FR-VAC-02 | Draft invisible to students; vacancy targeted at university A visible to A's students only | API |
 | AT-VAC-03 | FR-VAC-03 | Each filter returns only matching vacancies on seeded data | API |
-| AT-VAC-04 | FR-VAC-04 | Duplicate, after-deadline, and sixth active applications each refused with a message | API |
+| AT-VAC-04 | FR-VAC-04 | Duplicate, after-deadline, wrong-training-type (CR-06), and sixth active applications each refused with a message | API |
 | AT-VAC-05 | FR-VAC-05 (stretch) | Withdrawn application leaves the list and frees a slot | API |
 | AT-VAC-06 | FR-VAC-06 | Supervisor sees own vacancies' applicants only; Company Admin sees the company's; decision visible to student and coordinator | API |
 | AT-VAC-07 | FR-VAC-07 | Second placement for the student refused; filling the last seat closes the vacancy; other active applications withdrawn | API |

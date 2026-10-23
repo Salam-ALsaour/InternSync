@@ -9,6 +9,7 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 | CR-03 | Oct 13, 2026 | Weekly working days added to FR-CYC-01 | Approved |
 | CR-04 | Oct 13, 2026 | Change requests logged in the repository | Approved |
 | CR-05 | Oct 20, 2026 | One platform for many universities and companies: open registration with verification, Platform Admin, direct vacancy publishing, no CSV import | Approved |
+| CR-06 | Oct 23, 2026 | Training type part of eligibility | Approved |
 
 ## CR-01 – Zero-cost reference deployment
 
@@ -79,3 +80,12 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 - **Effect on schedule:** milestones are unchanged. Increment 1 gains the registration and verification work (FR-ORG, 7 Must) and starts 5 days late because the design was redone; part of this is offset by removing the CSV import and the vacancy review. Tracked as a new SPMP risk.
 - **Decision:** approved by Salam Alsaour. SRS 1.2, design document 1.2, API specification 1.1, SPMP 1.2, diagram pack 1.2, wireframes 1.1.
 - **Follow-up (SRS 1.3, Oct 23, 2026):** NFR-MNT-03 and the glossary now name the Platform Admin for platform defaults and the skill vocabulary. The same version restructures the SRS to the course template; that is an editorial change, not a change request.
+
+## CR-06 – Training type part of eligibility
+
+- **Requested by:** Salam Alsaour, Oct 23, 2026 (found during the Increment 1 requirements analysis, decision RQ-1).
+- **Change:** a student may apply only to a vacancy whose training type (Co-op or Summer) equals the type of the cycle the student is enrolled in. Other vacancies stay visible when browsing, with the reason.
+- **Reason:** without this rule a student of a Summer cycle could apply to a Co-op vacancy and be placed in training of the wrong kind; nothing in the SRS prevented it.
+- **Affected:** SRS FR-VAC-04 and FR-MAT-03 (version 1.4); design document 4.4 and 6.2; API error `NOT_ELIGIBLE` with reason `training_type_mismatch`.
+- **Effect on schedule:** none; one more condition in the eligibility check, built in Increment 1.
+- **Decision:** approved. SRS 1.4.

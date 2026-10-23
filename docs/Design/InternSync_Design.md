@@ -890,7 +890,7 @@ A trigger raises an error on `UPDATE` and `DELETE`, and the application's databa
 | **Value** | **Computed from** | **SRS** |
 |:---|:---|:---|
 | Active applications of a student | `applications` with status `submitted` or `accepted` | FR-VAC-04 |
-| Eligibility and its reason | Student verified and enrolled in an open cycle; vacancy published, before its deadline, and open to the student's university (`vacancy_universities`); `vacancy_majors`; `min_gpa` | FR-MAT-03, FR-VAC-02 |
+| Eligibility and its reason | Student verified and enrolled in an open cycle; vacancy published, before its deadline, and open to the student's university (`vacancy_universities`); `vacancy_majors`; `min_gpa`; `training_type` equal to the type of the student's cycle (CR-06) | FR-MAT-03, FR-VAC-02, FR-VAC-04 |
 | Attendance percentage | Σ attended_days ÷ Σ scheduled_days over recorded weeks | FR-ATT-03 |
 | Dashboard counts and cycle statistics | Live queries (Section 5.7) | FR-DSH-01, FR-DSH-02 |
 | History of a record | `audit_log` filtered by entity | FR-AUD-03 |
@@ -1072,7 +1072,7 @@ The method is rule-based on purpose: it is fast, explainable, and the student al
 
 ### 6.2 Matching (FR-MAT-01 – 07)
 
-1. **Eligible vacancies:** published, open to the student's university (no target universities, or the student's among them), before the deadline, the student's major among the eligible majors, and GPA ≥ `min_gpa`. The student must be verified and enrolled in an open cycle. Ineligible vacancies are left out of the ranking and show their reason when browsing (FR-MAT-03).
+1. **Eligible vacancies:** published, open to the student's university (no target universities, or the student's among them), before the deadline, the student's major among the eligible majors, GPA ≥ `min_gpa`, and the vacancy's training type equal to the type of the student's cycle (CR-06). The student must be verified and enrolled in an open cycle. Ineligible vacancies are left out of the ranking and show their reason when browsing (FR-MAT-03).
 2. **Texts:** the profile text is the confirmed skills (both names), interests, and the start of the current CV text, cut to the model's 512-token limit and prefixed with `query: `. The vacancy text is title, description, and skill names, prefixed with `passage: `, as the e5 model expects.
 3. **Score parts:**
    - `semantic = clamp((cos − floor) ÷ (ceiling − floor), 0, 1)`, with floor 0.70 and ceiling 0.95. This spreads the narrow cosine range of e5 over 0–1; both values are settings tuned on the labelled set.

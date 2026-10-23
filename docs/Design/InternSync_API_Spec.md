@@ -599,7 +599,7 @@ An unknown or altered code returns `200` with `{"status": "not_found"}`, so the 
 | `TOO_MANY_ATTACHMENTS` | 409 | More than 3 attachments | FR-REP-02 |
 | `MAIN_DOCUMENT_REQUIRED` | 422 | Final report without its main document | FR-REP-02 |
 | `SKILLS_NOT_CONFIRMED` | 409 | Matching requested before skills are confirmed | FR-MAT-01 |
-| `NOT_ELIGIBLE` | 409 | Major not eligible or GPA below minimum; `reason` is `major_not_eligible` or `gpa_below_minimum`. A vacancy not open to the student's university is out of scope (`403 FORBIDDEN`) | FR-VAC-04, FR-MAT-03 |
+| `NOT_ELIGIBLE` | 409 | Major not eligible, GPA below minimum, or training type different from the student's cycle (CR-06); `reason` is `major_not_eligible`, `gpa_below_minimum`, or `training_type_mismatch`. A vacancy not open to the student's university is out of scope (`403 FORBIDDEN`) | FR-VAC-04, FR-MAT-03 |
 | `VACANCY_NOT_OPEN` | 409 | Vacancy not published | FR-VAC-04 |
 | `DEADLINE_PASSED` | 409 | Application after the vacancy deadline | FR-VAC-04 |
 | `DUPLICATE_APPLICATION` | 409 | Second application to the same vacancy | FR-VAC-04 |
