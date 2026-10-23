@@ -1,0 +1,35 @@
+sequenceDiagram
+  autonumber
+  actor ST as Student
+  actor AS as Academic Supervisor
+  participant PWA as React PWA
+  participant API as FastAPI
+  participant AI as Similarity service
+  participant DB as PostgreSQL
+
+  ST->>PWA: Fill weekly report,<br/>attach ≤ 3 files
+  PWA->>API: POST /report-slots/{id}/submit
+  API->>API: Check owner, slot<br/>open, files valid
+  API->>DB: One transaction: save version + files,<br/>status = Submitted, Late flag if<br/>server time > due_at, audit entry
+  API-->>PWA: 201 Created<br/>(On time or Late)
+  API-)AI: Background task:<br/>check similarity
+  AI->>DB: Compare with stored reports of the<br/>same university (except own earlier versions)
+  opt Score ≥ threshold (default 30 %)
+    AI->>DB: Create flag with<br/>matching passages
+  end
+  API-)AS: Notify "report submitted"<br/>(in-app + email)
+
+  AS->>PWA: Open report
+  PWA->>API: GET /report-slots/{id}
+  API-->>PWA: Report, versions, comments,<br/>similarity flag
+  alt Accept
+    AS->>PWA: Accept
+    PWA->>API: POST /report-slots/{id}/accept
+    API->>DB: Status = Accepted,<br/>audit entry
+  else Request revision
+    AS->>PWA: Request revision +<br/>comment (required)
+    PWA->>API: POST /report-slots/{id}/revision
+    API->>DB: Status = Revision<br/>Requested, audit entry
+    API-)ST: Notify student<br/>with the comment
+  end
+  Note over AS,DB: A similarity flag is advisory: it never changes the status by itself (FR-SIM-03)

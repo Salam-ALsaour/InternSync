@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Student dashboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1F4E9A}a:hover{color:#172B4D}
+</style>
+</helmet>
+<div dir="ltr" lang="en" style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F4F6F9; color: #1A2233; font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif; font-size: 15px">
+  <nav aria-label="Main menu" style="flex: 1 1 240px; background: #1F3864; color: #FFFFFF; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 12px">
+      <div style="font-size: 22px; font-weight: 700">InternSync</div>
+      <div style="font-size: 13px; color: #C9D4E8">Student portal</div>
+    </div>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+      <li><a href="ST_Dashboard_EN.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; background: #2E4D84; color: #FFFFFF; font-weight: 600; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Home</a></li>
+      <li><a href="ST_Vacancies.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>Vacancies</a></li>
+      <li><a href="ST_Report.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>My reports</a></li>
+      <li><a href="ST_Profile.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Profile and CV</a></li>
+      <li><a href="#evaluations" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>Evaluations</a></li>
+      <li><a href="#notifications" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications</a></li>
+    </ul>
+    <a href="Login.dc.html" style="margin-top: auto; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #D5DEEE; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Log out</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 24px 32px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h1 style="margin: 0; font-size: 26px; font-weight: 700">Welcome, Sara</h1>
+        <p style="margin: 0; font-size: 14px; color: #566173">Co-op Fall 2026 · Week 6 of 12</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <a href="Main.dc.html" lang="ar" dir="rtl" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1px solid #DCE2EA; border-radius: 8px; background: #FFFFFF; color: #1F3864; text-decoration: none; font-size: 14px; font-weight: 600"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>العربية</a>
+        <button type="button" aria-label="Notifications, 3 unread" style="position: relative; width: 44px; height: 44px; border: 1px solid #DCE2EA; border-radius: 8px; background: #FFFFFF; color: #1F3864; display: inline-flex; align-items: center; justify-content: center; cursor: pointer"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span style="position: absolute; top: 4px; right: 4px; min-width: 18px; height: 18px; border-radius: 9px; background: #A61B1B; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">3</span></button>
+        <button type="button" aria-label="User menu: Sara Ahmed" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #E6EEFB; color: #1F3864; font-weight: 700; font-size: 14px; font-family: inherit; cursor: pointer">SA</button>
+      </div>
+    </header>
+
+    <section aria-label="Needs your action" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+      <div style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 14px; color: #566173">Reports due</span>
+        <span style="font-size: 30px; font-weight: 700">1</span>
+        <span style="font-size: 13px; color: #566173">Week 6 · closes Thu 15/10/2026 23:59</span>
+        <a href="ST_Report.dc.html" style="font-size: 14px; font-weight: 600">Write the report</a>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 14px; color: #566173">Revisions requested</span>
+        <span style="font-size: 30px; font-weight: 700">1</span>
+        <span style="font-size: 13px; color: #566173">Week 4 report · note from Dr. Mona Alharbi</span>
+        <a href="ST_Report.dc.html" style="font-size: 14px; font-weight: 600">Open the note</a>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 14px; color: #566173">Attendance</span>
+        <span style="font-size: 30px; font-weight: 700">96%</span>
+        <span style="font-size: 13px; color: #566173">24 of 25 recorded working days</span>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 14px; color: #566173">Periodic evaluation</span>
+        <span style="display: inline-flex; align-self: flex-start; padding: 2px 10px; border-radius: 999px; background: #E6EEFB; color: #1F4E9A; font-size: 13px; font-weight: 600">Submitted</span>
+        <span style="font-size: 13px; color: #566173">By Reem Aldosari · 14/10/2026</span>
+        <a href="#evaluations" style="font-size: 14px; font-weight: 600">View evaluation</a>
+      </div>
+    </section>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <section aria-labelledby="reportsTitleEn" style="flex: 2 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <h2 id="reportsTitleEn" style="margin: 0; font-size: 18px; font-weight: 700">My reports</h2>
+          <a href="ST_Report.dc.html" style="font-size: 14px; font-weight: 600">All reports</a>
+        </div>
+        <div style="overflow-x: auto">
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+            <thead>
+              <tr>
+                <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">Report</th>
+                <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">Due</th>
+                <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">Status</th>
+                <th style="text-align: start; padding: 10px 12px; background: #F8FAFC; color: #566173; font-size: 13px; font-weight: 600; border-bottom: 1px solid #DCE2EA">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; font-weight: 600">Week 6</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; color: #566173">15/10/2026 23:59</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="display: inline-flex; padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #4A5363; font-size: 13px; font-weight: 600">Draft</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="ST_Report.dc.html" style="font-weight: 600">Continue writing</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; font-weight: 600">Week 5</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; color: #566173">08/10/2026 23:59</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="display: inline-flex; padding: 2px 10px; border-radius: 999px; background: #E6EEFB; color: #1F4E9A; font-size: 13px; font-weight: 600">Submitted — awaiting review</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="ST_Report.dc.html">View</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; font-weight: 600">Week 4</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; color: #566173">01/10/2026 23:59</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="display: inline-flex; padding: 2px 10px; border-radius: 999px; background: #F1EAFB; color: #6B3FA0; font-size: 13px; font-weight: 600">Revision requested</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="ST_Report.dc.html" style="font-weight: 600">Revise and resubmit</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; font-weight: 600">Week 3</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; color: #566173">24/09/2026 23:59</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="display: inline-flex; flex-wrap: wrap; gap: 6px"><span style="display: inline-flex; padding: 2px 10px; border-radius: 999px; background: #E3F3E7; color: #1E6B34; font-size: 13px; font-weight: 600">Accepted</span><span style="display: inline-flex; padding: 2px 10px; border-radius: 999px; background: #FFF1D6; color: #8A4B00; font-size: 13px; font-weight: 600">Late</span></span></td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="ST_Report.dc.html">View</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; font-weight: 600">Weeks 1 and 2</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5; color: #566173">—</td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><span style="display: inline-flex; padding: 2px 10px; border-radius: 999px; background: #E3F3E7; color: #1E6B34; font-size: 13px; font-weight: 600">Accepted</span></td>
+                <td style="padding: 12px; border-bottom: 1px solid #EEF1F5"><a href="ST_Report.dc.html">View</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; font-weight: 600">Final report</td>
+                <td style="padding: 12px; color: #566173">26/11/2026 23:59</td>
+                <td style="padding: 12px"><span style="display: inline-flex; padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #4A5363; font-size: 13px; font-weight: 600">Not started</span></td>
+                <td style="padding: 12px"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <section aria-labelledby="placementTitleEn" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+          <h2 id="placementTitleEn" style="margin: 0; font-size: 18px; font-weight: 700">My placement</h2>
+          <dl style="margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+            <div><dt style="color: #566173; font-size: 13px">Company</dt><dd style="margin: 0; font-weight: 600">Alryada Digital Solutions · Khobar</dd></div>
+            <div><dt style="color: #566173; font-size: 13px">Vacancy</dt><dd style="margin: 0">Data Analyst Trainee</dd></div>
+            <div><dt style="color: #566173; font-size: 13px">Company supervisor</dt><dd style="margin: 0">Reem Aldosari</dd></div>
+            <div><dt style="color: #566173; font-size: 13px">Academic supervisor</dt><dd style="margin: 0">Dr. Mona Alharbi</dd></div>
+            <div><dt style="color: #566173; font-size: 13px">Dates</dt><dd style="margin: 0">06/09/2026 – 28/11/2026</dd></div>
+          </dl>
+        </section>
+        <section aria-labelledby="gradeTitleEn" style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+          <h2 id="gradeTitleEn" style="margin: 0; font-size: 18px; font-weight: 700">Final grade</h2>
+          <p style="margin: 0; font-size: 14px; color: #566173">Your grade appears here once the co-op coordinator approves it as final.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

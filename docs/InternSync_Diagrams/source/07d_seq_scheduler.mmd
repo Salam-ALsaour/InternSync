@@ -1,0 +1,21 @@
+sequenceDiagram
+  autonumber
+  participant SCH as Scheduler (every 15 min)
+  participant DB as PostgreSQL
+  participant NTF as Notification service
+  participant MAIL as Email provider
+  participant PUSH as Browser push services
+
+  loop Every 15 minutes (missed runs execute within 1 h after restart)
+    SCH->>DB: Unsubmitted slots due in<br/>23–24 h, no reminder sent
+    SCH->>NTF: Reminder to student<br/>(key: slot + "reminder")
+    SCH->>DB: Slots past due_at, no<br/>submission, no Missing flag
+    SCH->>DB: Set Missing flag (once)
+    SCH->>NTF: Notify student and<br/>academic supervisor
+    SCH->>DB: Items overdue ≥ 3 days<br/>(reports, attendance,<br/>evaluations), not escalated
+    SCH->>NTF: Escalate to coordinator
+  end
+  NTF->>DB: In-app notification<br/>(skip if key already sent)
+  NTF->>MAIL: Email in the<br/>recipient's language
+  NTF->>PUSH: Web push: event title<br/>only, no personal data
+  Note over SCH,PUSH: Idempotency keys stop duplicate reminders and escalations (NFR-REL-03)

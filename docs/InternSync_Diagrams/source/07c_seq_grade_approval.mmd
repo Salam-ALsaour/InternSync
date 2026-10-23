@@ -1,0 +1,33 @@
+sequenceDiagram
+  autonumber
+  actor AS as Academic Supervisor
+  actor CO as Coordinator
+  participant PWA as React PWA
+  participant API as FastAPI
+  participant DB as PostgreSQL
+  actor ST as Student
+
+  AS->>PWA: Enter component scores
+  PWA->>API: PUT /grades/{placement}
+  API->>DB: Company component = mean rubric score ÷ 5 × 100,<br/>weighted total, status = Draft
+  AS->>PWA: Submit grade
+  PWA->>API: POST /grades/{p}/submit
+  API->>DB: Check: final evaluation submitted, final report<br/>Accepted, every weekly slot Accepted or<br/>Closed as Missing
+  alt A condition is not met
+    API-->>PWA: 409 Conflict +<br/>list of missing items
+  else All conditions met
+    API->>DB: Status = Submitted,<br/>audit entry
+    API-)CO: Notify "grade waiting<br/>for approval"
+  end
+
+  CO->>PWA: Review submitted grade
+  alt Approve
+    PWA->>API: POST /grades/{p}/approve
+    API->>DB: Status = Final (locked),<br/>approved_by / at, audit entry
+    API-)ST: Grade now visible<br/>(notification)
+  else Return
+    PWA->>API: POST /grades/{p}/return<br/>(comment required)
+    API->>DB: Status = Draft,<br/>audit entry
+    API-)AS: Notify with the comment
+  end
+  Note over CO,DB: Reopening a Final grade needs a reason and returns it to Draft (FR-WFL-05)

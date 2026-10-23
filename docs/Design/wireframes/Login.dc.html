@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تسجيل الدخول</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1F4E9A}a:hover{color:#172B4D}
+</style>
+</helmet>
+<div dir="rtl" lang="ar" style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F4F6F9; color: #1A2233; font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif; font-size: 15px">
+  <main style="flex: 1 1 480px; min-width: 0; display: flex; align-items: center; justify-content: center; padding: 48px 24px; box-sizing: border-box">
+    <div style="width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+        <span dir="ltr" style="font-size: 22px; font-weight: 700; color: #1F3864">InternSync</span>
+        <a href="#en" lang="en" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #DCE2EA; border-radius: 8px; background: #FFFFFF; color: #1F3864; text-decoration: none; font-size: 14px; font-weight: 600">English</a>
+      </div>
+      <form style="background: #FFFFFF; border: 1px solid #DCE2EA; border-radius: 12px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <h1 style="margin: 0; font-size: 26px; font-weight: 700">تسجيل الدخول</h1>
+          <p style="margin: 0; font-size: 14px; color: #566173">ادخل بالبريد الذي سجّلت به أو وصلتك عليه الدعوة.</p>
+        </div>
+
+        <sc-if value="{{ isWrong }}" hint-placeholder-val="{{ false }}">
+          <div role="alert" style="padding: 12px 14px; border-radius: 8px; background: #FCE8E8; color: #A61B1B; font-size: 14px; font-weight: 500">البريد أو كلمة المرور غير صحيحة. تبقّت محاولتان قبل الإيقاف المؤقت.</div>
+        </sc-if>
+        <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+          <div role="alert" style="padding: 12px 14px; border-radius: 8px; background: #FCE8E8; color: #A61B1B; font-size: 14px; font-weight: 500">أُوقف الدخول مؤقتاً بعد 5 محاولات خاطئة. حاول مجدداً بعد 15 دقيقة (الساعة 14:32).</div>
+        </sc-if>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <label for="email" style="font-size: 14px; font-weight: 600">البريد الإلكتروني</label>
+          <input id="email" type="email" dir="ltr" autocomplete="username" value="sara.ahmed@example.edu" style="min-height: 44px; padding: 0 12px; border: 1px solid #B9C3D2; border-radius: 8px; font-size: 15px; font-family: inherit; text-align: right">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+            <label for="password" style="font-size: 14px; font-weight: 600">كلمة المرور</label>
+            <a href="#reset" style="font-size: 14px">نسيت كلمة المرور؟</a>
+          </div>
+          <input id="password" type="password" autocomplete="current-password" style="min-height: 44px; padding: 0 12px; border: 1px solid #B9C3D2; border-radius: 8px; font-size: 15px; font-family: inherit">
+        </div>
+        <a href="Consent.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 8px; background: #1F3864; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 600">دخول</a>
+        <p style="margin: 0; font-size: 14px; color: #566173; line-height: 1.7">ليس لديك حساب؟ <a href="Register.dc.html" style="font-weight: 600">أنشئ حساباً</a> كطالب أو منسق كلية أو شركة. ينضم المشرفون الأكاديميون ومشرفو الشركات بدعوة.</p>
+      </form>
+    </div>
+  </main>
+
+  <aside aria-label="عن المنصة" style="flex: 1 1 420px; min-width: 0; background: #1F3864; color: #FFFFFF; padding: 64px 56px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: 28px">
+    <h2 style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.5">منصة واحدة تجمع الجامعات والشركات والطلاب، من الفرصة حتى الشهادة</h2>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; font-size: 16px; color: #D5DEEE">
+      <li style="display: flex; gap: 12px; align-items: flex-start"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>فرص مرتبة حسب مهاراتك، مع شرح لما ينقصك.</li>
+      <li style="display: flex; gap: 12px; align-items: flex-start"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>تقارير أسبوعية بمواعيد وتذكيرات واضحة.</li>
+      <li style="display: flex; gap: 12px; align-items: flex-start"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>درجات تُعتمد على مراحل، وكل خطوة مسجّلة.</li>
+    </ul>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["normal","wrong_password","locked"],"default":"normal"},"$preview":{"width":1280,"height":820}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = this.props.state ?? 'normal';
+return { isWrong: s === 'wrong_password', isLocked: s === 'locked' };
+}
+}
+</script>
+</body>
+</html>
