@@ -1,6 +1,6 @@
 # InternSync – Diagram Pack (v1.2)
 
-Requirements and design diagrams, consistent with [SRS v1.2](../RSR/InternSync_SRS.md), [SPMP v1.2](../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md), and the [design document](../Design/InternSync_Design.md).
+Requirements and design diagrams, consistent with [SRS v1.3](../RSR/InternSync_SRS.md), [SPMP v1.2](../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md), and the [design document](../Design/InternSync_Design.md).
 
 - `png/` and `svg/` hold the figures; `source/` holds their editable sources.
 - `InternSync_Diagrams.pdf` is the printable pack, built by `source/build_pack.py`.
@@ -10,14 +10,14 @@ Requirements and design diagrams, consistent with [SRS v1.2](../RSR/InternSync_S
 
 | **No.** | **Diagram** | **Source** | **Used in** |
 |:--:|:---|:---|:---|
-| 1 | [Use case diagram](png/01_use_case.png) | `01_use_case.py` | SRS 3.3 |
-| 2 | [Context diagram](png/02_context.png) | `02_context.dot` | SRS 3.1 |
-| 3a | [Activity – registration, setup, and placement](png/03a_activity_setup_placement.png) | `03_activity_lifecycle.py` | SRS 3.2 |
-| 3b | [Activity – training and grading](png/03b_activity_training_grading.png) | `03_activity_lifecycle.py` | SRS 3.2 |
-| 4a | [Report slot states](png/04a_report_states.png) | `04a_report_states.dot` | SRS 4.9, design 5.1 |
-| 4b | [Grade states](png/04b_grade_states.png) | `04b_grade_states.dot` | SRS 4.9, design 5.1 |
-| 4c | [Vacancy states](png/04c_vacancy_states.png) | `04c_vacancy_states.dot` | SRS 4.4, design 5.1 |
-| 4d | [Application and placement states](png/04d_application_states.png) | `04d_application_states.dot` | SRS 4.4, design 5.1 |
+| 1 | [Use case diagram](png/01_use_case.png) | `01_use_case.py` | SRS 3.2 |
+| 2 | [Context diagram](png/02_context.png) | `02_context.dot` | SRS 2.1 |
+| 3a | [Activity – registration, setup, and placement](png/03a_activity_setup_placement.png) | `03_activity_lifecycle.py` | SRS 2.2 |
+| 3b | [Activity – training and grading](png/03b_activity_training_grading.png) | `03_activity_lifecycle.py` | SRS 2.2 |
+| 4a | [Report slot states](png/04a_report_states.png) | `04a_report_states.dot` | SRS 3.1.10, design 5.1 |
+| 4b | [Grade states](png/04b_grade_states.png) | `04b_grade_states.dot` | SRS 3.1.10, design 5.1 |
+| 4c | [Vacancy states](png/04c_vacancy_states.png) | `04c_vacancy_states.dot` | SRS 6.2, design 5.1 |
+| 4d | [Application and placement states](png/04d_application_states.png) | `04d_application_states.dot` | SRS 6.2, design 5.1 |
 | 5 | [System architecture](png/05_architecture.png) | `05_architecture.py` | Design 2.1 |
 | 6a | [ERD – organizations, accounts, cycles, student profiles](png/06a_erd_organizations_profiles.png) | `06_erd.py` | Design 4.2 |
 | 6b | [ERD – vacancies, matching, applications, placements](png/06b_erd_vacancies_placement.png) | `06_erd.py` | Design 4.2 |
@@ -30,7 +30,7 @@ Requirements and design diagrams, consistent with [SRS v1.2](../RSR/InternSync_S
 | 8 | [AI pipelines](png/08_ai_pipelines.png) | `08_ai_pipelines.py` | Design 6 |
 | 9 | [Deployment (zero cost, CR-01)](png/09_deployment.png) | `09_deployment.py` | Design 3.2 |
 | 10 | [Schedule (Gantt)](png/10_gantt_schedule.png) | `10_charts.py` | SPMP 4 |
-| 11 | [Requirements by area and priority](png/11_requirements_priority.png) | `10_charts.py` | SRS 9.2 |
+| 11 | [Requirements by area and priority](png/11_requirements_priority.png) | `10_charts.py` | SRS 6.3.2 |
 
 ## Regenerating
 

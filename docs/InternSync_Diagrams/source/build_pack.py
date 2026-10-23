@@ -9,27 +9,27 @@ NAVY, GREY = "#1F3864", "#595959"
 # (number, title, what it shows, where to use it, [png files])
 FIGURES = [
     ("1", "Use case diagram", "Five roles and the public verifier, use cases UC-01 to UC-20, include / extend relations",
-     "SRS 3.3 (Table 3.1)", ["01_use_case"]),
-    ("2", "Context diagram", "System boundary, users and external services", "SRS 3.1 (Figure 3.1)", ["02_context"]),
+     "SRS 3.2 (Figure 3.3)", ["01_use_case"]),
+    ("2", "Context diagram", "System boundary, users and external services", "SRS 2.1 (Figure 2.1)", ["02_context"]),
     ("3a", "Activity diagram — registration, setup, and placement",
      "Swimlanes from registration and verification to a confirmed placement",
-     "SRS 3.2, design document", ["03a_activity_setup_placement"]),
+     "SRS 2.2 (Figure 2.2), design document", ["03a_activity_setup_placement"]),
     ("3b", "Activity diagram — training and grading", "Weekly loop, final evaluation, grade approval",
-     "SRS 3.2, design document", ["03b_activity_training_grading"]),
+     "SRS 2.2 (Figure 2.3), design document", ["03b_activity_training_grading"]),
     ("4a, 4b", "State machines — report and grade", "Report slot and grade life cycles",
-     "SRS 4.9 (Figures 4.1, 4.2); design 5.1", ["04a_report_states", "04b_grade_states"]),
+     "SRS 3.1.10 (Figures 3.1, 3.2); design 5.1", ["04a_report_states", "04b_grade_states"]),
     ("4c, 4d", "State machines — vacancy and application", "Vacancy and application / placement life cycles",
-     "SRS 4.4; design 5.1", ["04c_vacancy_states", "04d_application_states"]),
-    ("5", "System architecture", "Layers, API modules, AI services, scheduler, data", "Design 2.1, presentation",
+     "SRS 6.2 (Figures 6.1, 6.2); design 5.1", ["04c_vacancy_states", "04d_application_states"]),
+    ("5", "System architecture", "Layers, API modules, AI services, scheduler, data", "Design 2.1, SRS 6.2 (Figure 6.3), presentation",
      ["05_architecture"]),
     ("6a", "ERD — organizations, accounts, cycles, student profiles", "Tables, keys and cardinalities (crow's foot)",
-     "Design 4.2", ["06a_erd_organizations_profiles"]),
+     "Design 4.2; SRS 6.2 (Figure 6.4)", ["06a_erd_organizations_profiles"]),
     ("6b", "ERD — vacancies, matching, applications, placements", "Tables, keys and cardinalities (crow's foot)",
-     "Design 4.2", ["06b_erd_vacancies_placement"]),
+     "Design 4.2; SRS 6.2 (Figure 6.5)", ["06b_erd_vacancies_placement"]),
     ("6c", "ERD — reports, similarity, attendance, evaluations, grades, certificates",
-     "Tables, keys and cardinalities (crow's foot)", "Design 4.2", ["06c_erd_training_grading"]),
+     "Tables, keys and cardinalities (crow's foot)", "Design 4.2; SRS 6.2 (Figure 6.6)", ["06c_erd_training_grading"]),
     ("6d", "ERD — verification and platform services",
-     "Verification requests, tokens, sessions, files, notifications, audit, settings, jobs", "Design 4.2",
+     "Verification requests, tokens, sessions, files, notifications, audit, settings, jobs", "Design 4.2; SRS 6.2 (Figure 6.7)",
      ["06d_erd_platform"]),
     ("7a", "Sequence — CV upload and matching", "Skill extraction, confirmation, ranking with fallback", "Design 6",
      ["07a_seq_cv_matching"]),
@@ -45,7 +45,7 @@ FIGURES = [
      ["09_deployment"]),
     ("10", "Schedule (Gantt)", "Activities T1–T9, milestones M1–M7, dependencies", "SPMP 4, progress presentations",
      ["10_gantt_schedule"]),
-    ("11", "Requirements by area and priority", "125 requirements by area: Must / Should / Could", "SRS 9.2",
+    ("11", "Requirements by area and priority", "125 requirements by area: Must / Should / Could", "SRS 6.3.2",
      ["11_requirements_priority"]),
 ]
 
@@ -80,7 +80,7 @@ def main():
                     f"<td>{html.escape(where)}</td></tr>")
         pno += 1
     body = (f"<h1>InternSync — Diagram pack</h1><div class='sub'>Requirements and design diagrams · {VERSION} · "
-            "consistent with SRS v1.2, the SPMP v1.2 and the design document v1.2</div>"
+            "consistent with SRS v1.3, the SPMP v1.2 and the design document v1.2</div>"
             "<table><tr><th>No.</th><th>Diagram</th><th>What it shows</th><th>Where to use it</th></tr>"
             + "".join(rows) + "</table>"
             "<div class='note'>Colour key: blue = system behaviour or people; orange = AI-supported (advisory) behaviour; "

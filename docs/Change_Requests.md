@@ -78,3 +78,4 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
   - SPMP 1.2: T4, M2 status, data plan, and risks.
 - **Effect on schedule:** milestones are unchanged. Increment 1 gains the registration and verification work (FR-ORG, 7 Must) and starts 5 days late because the design was redone; part of this is offset by removing the CSV import and the vacancy review. Tracked as a new SPMP risk.
 - **Decision:** approved by Salam Alsaour. SRS 1.2, design document 1.2, API specification 1.1, SPMP 1.2, diagram pack 1.2, wireframes 1.1.
+- **Follow-up (SRS 1.3, Oct 23, 2026):** NFR-MNT-03 and the glossary now name the Platform Admin for platform defaults and the skill vocabulary. The same version restructures the SRS to the course template; that is an editorial change, not a change request.

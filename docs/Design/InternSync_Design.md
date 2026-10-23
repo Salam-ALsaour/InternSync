@@ -1144,7 +1144,7 @@ Each route declares its allowed roles. Record access then follows these scope ru
 
 The wireframes are a clickable prototype made in Claude Design: [InternSync Wireframes](https://claude.ai/artifact/GUCAYYDPvkkBiwntVfJWJA) (private until shared from the canvas's Share menu). Their sources are copied in [`wireframes/`](wireframes/). The screens are in Arabic (RTL) by default; one screen repeats the student dashboard in English (LTR) to show the mirroring. In Play mode, the sidebar links move between screens. Some screens have tweaks that switch between the states a test must cover.
 
-**Table 8.1 – Wireframes against SRS Table 6.1**
+**Table 8.1 – Wireframes against SRS Table 4.1**
 
 | **SRS screen** | **Artboards** | **States shown (tweaks)** | **Requirements** |
 |:---|:---|:---|:---|
@@ -1195,7 +1195,7 @@ Not yet drawn: the student's evaluation of the company and the outcome survey (F
   - Public: `/register`, `/verify/:code`.
   - Shared: `/login`, `/confirm/:token`, `/invite/:token`, `/reset/:token`, `/verification` (own request status), `/notifications`.
 - **Layout:** `dir` and `lang` on `<html>` follow the selected language. Spacing uses logical properties (`ms-`, `me-`, `ps-`, `pe-`), and directional icons are mirrored in Arabic.
-- **Status chips:** text plus colour, never colour alone. AI results sit in a panel labelled "Advisory" (6.1 of the SRS).
+- **Status chips:** text plus colour, never colour alone. AI results sit in a panel labelled "Advisory" (4.1 of the SRS).
 - **Task length:** report submission, attendance, and evaluation each fit in at most 3 screens (NFR-USA-02); "Full attendance" is one button.
 - **Offline:** the service worker caches the app shell. Offline, a banner is shown and every submit button is disabled (FR-PWA-03).
 
@@ -1225,10 +1225,10 @@ Not yet drawn: the student's evaluation of the company and the outcome survey (F
 
 | **Issue** | **Needed by** | **Plan** |
 |:---|:---|:---|
-| Wireframes: user walkthrough not yet done | Before Increment 1 ends | Walk through the clickable wireframes (Section 8.1) with at least one student and one faculty member (SRS 10.2, prototyping) and record the changes. Add the three screens listed as not yet drawn. |
-| Example grade components, weights, and rubric criteria for the demo cycle | Increment 1 | Seed example values (for example: company final evaluation 40%, weekly reports 30%, final report 30%) and confirm them with the course supervisor (SRS 10.5). |
+| Wireframes: user walkthrough not yet done | Before Increment 1 ends | Walk through the clickable wireframes (Section 8.1) with at least one student and one faculty member (SRS 6.4.2, prototyping) and record the changes. Add the three screens listed as not yet drawn. |
+| Example grade components, weights, and rubric criteria for the demo cycle | Increment 1 | Seed example values (for example: company final evaluation 40%, weekly reports 30%, final report 30%) and confirm them with the course supervisor (SRS 6.4.5). |
 | Skill vocabulary content (English and Arabic names, synonyms, resources) | Increment 1 | Seed about 150 skills common in computing majors; extend while labelling the 20 CVs. |
-| Labelled AI evaluation sets (20 CVs and profiles, 10 copied and 10 original reports) | Increment 2 | Generate synthetic data now; a second person must label independently (SRS 10.2). |
+| Labelled AI evaluation sets (20 CVs and profiles, 10 copied and 10 original reports) | Increment 2 | Generate synthetic data now; a second person must label independently (SRS 6.4.2). |
 | Calibration of `semantic_floor` and `semantic_ceiling` and the similarity thresholds | Increment 2 – 3 | Tune with `ai-eval/evaluate.py`; record the chosen values and results in the test report. |
 | Project Gmail account, Hugging Face account and Space, Supabase project, Vercel project | Before Increment 1 ends | Create the free accounts; store the secrets as in Section 3.4. |
 | Platform Admin account and demo organizations | Increment 1 | The seed script creates the Platform Admin, 2 universities with 4 colleges, majors, the skill vocabulary, and sample companies; real Platform Admin accounts are created only by the provider (FR-AUT-02). |
