@@ -1,0 +1,57 @@
+# Local development and the M3 demo (Design 3.3). `docker compose up` starts everything.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: internsync
+      POSTGRES_PASSWORD: internsync
+      POSTGRES_DB: internsync
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U internsync"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "8025:8025"   # inbox in the browser
+      - "1025:1025"   # SMTP
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://internsync:internsync@db:5432/internsync
+      JWT_SECRET: dev-only-secret-change-me-0123456789abcdef
+      FRONTEND_BASE_URL: http://localhost:5173
+      CORS_ORIGINS: http://localhost:5173
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      LOCAL_STORAGE_DIR: /data/storage
+      SCHEDULER_ENABLED: "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - file-data:/data/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  web:
+    build: ./frontend
+    environment:
+      VITE_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  db-data:
+  file-data:

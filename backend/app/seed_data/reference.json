@@ -1,0 +1,54 @@
+{
+  "majors": [
+    ["Computer Science", "علوم الحاسب"],
+    ["Computer Information Systems", "نظم المعلومات الحاسوبية"],
+    ["Cybersecurity and Digital Forensics", "الأمن السيبراني والتحقيق الجنائي الرقمي"],
+    ["Artificial Intelligence", "الذكاء الاصطناعي"],
+    ["Computer Networks and Communications", "شبكات الحاسب والاتصالات"],
+    ["Software Engineering", "هندسة البرمجيات"],
+    ["Data Science", "علم البيانات"],
+    ["Computer Engineering", "هندسة الحاسب"],
+    ["Electrical Engineering", "الهندسة الكهربائية"],
+    ["Mechanical Engineering", "الهندسة الميكانيكية"],
+    ["Industrial Engineering", "الهندسة الصناعية"],
+    ["Management Information Systems", "نظم المعلومات الإدارية"],
+    ["Accounting", "المحاسبة"],
+    ["Finance", "المالية"],
+    ["Marketing", "التسويق"],
+    ["Business Administration", "إدارة الأعمال"]
+  ],
+  "universities": [
+    {
+      "name_en": "Imam Abdulrahman Bin Faisal University",
+      "name_ar": "جامعة الإمام عبدالرحمن بن فيصل",
+      "email_domains": ["iau.edu.sa"],
+      "gpa_scale": "5.00",
+      "colleges": [
+        ["College of Computer Science and Information Technology", "كلية علوم الحاسب وتقنية المعلومات"],
+        ["College of Engineering", "كلية الهندسة"],
+        ["College of Business Administration", "كلية إدارة الأعمال"]
+      ]
+    },
+    {
+      "name_en": "King Fahd University of Petroleum and Minerals",
+      "name_ar": "جامعة الملك فهد للبترول والمعادن",
+      "email_domains": ["kfupm.edu.sa"],
+      "gpa_scale": "4.00",
+      "colleges": [
+        ["College of Computing and Mathematics", "كلية الحوسبة والرياضيات"]
+      ]
+    }
+  ],
+  "resources": {
+    "Python": [["Python Tutorial (official)", "https://docs.python.org/3/tutorial/", "1–2 weeks", "en"]],
+    "SQL": [["SQLBolt interactive lessons", "https://sqlbolt.com/", "3–5 days", "en"]],
+    "Git": [["Pro Git book", "https://git-scm.com/book/en/v2", "1 week", "en"]],
+    "Docker": [["Docker getting started", "https://docs.docker.com/get-started/", "3 days", "en"]],
+    "React": [["React: Quick Start", "https://react.dev/learn", "1 week", "en"]],
+    "Machine Learning": [["Machine Learning Crash Course", "https://developers.google.com/machine-learning/crash-course", "2 weeks", "en"]],
+    "Linux": [["Linux Journey", "https://linuxjourney.com/", "1 week", "en"]],
+    "Networking": [["Cisco Networking Academy: Networking Basics", "https://www.netacad.com/courses/networking-basics", "3 weeks", "en"]],
+    "Cybersecurity": [["OWASP Top Ten", "https://owasp.org/www-project-top-ten/", "3 days", "en"]],
+    "Power BI": [["Microsoft Learn: Power BI", "https://learn.microsoft.com/en-us/training/powerplatform/power-bi", "1 week", "en"]]
+  }
+}
