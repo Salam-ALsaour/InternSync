@@ -14,6 +14,7 @@ CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Group 3
 | Wireframes (clickable prototype) | [Claude Design canvas](https://claude.ai/artifact/GUCAYYDPvkkBiwntVfJWJA); sources in [Design/wireframes](Design/wireframes/) | – | 1.1 |
 | API Specification | [InternSync_API_Spec.md](Design/InternSync_API_Spec.md) | – | 1.1 |
 | Diagram pack | [InternSync_Diagrams/README.md](InternSync_Diagrams/README.md) and its sources | InternSync_Diagrams.pdf (v1.2), InternSync_Diagrams_v1.0.pdf | 1.2 |
+| Increment documents | [Increments/Increment_1](Increments/Increment_1/01_Requirements.md): requirements, design, test report per increment | – | – |
 | Change requests | [Change_Requests.md](Change_Requests.md) | – | – |
 
 ## Rules

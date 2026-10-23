@@ -89,8 +89,8 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | **Milestone** | **Deliverable** | **Target date** | **Status** |
 |:---|:---|:--:|:--:|
 | M1: Requirements baseline | SRS approved by the team and requirements frozen | Oct 3 | Done (SRS v1.0 on Oct 10) |
-| M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | Late: drafted Oct 13, then redone for CR-05 on Oct 20 (design document 1.2, API specification 1.1, ERD in four parts, 32 wireframes); approval pending |
-| M3: Increment 1 delivered | Demo of F1, F2, F3, F5, F10 foundation; automated tests pass | Nov 1 | Planned |
+| M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | Done Oct 23 (8 days late after CR-05): design document 1.2, API specification 1.1, ERD in four parts, 32 wireframes, SRS 1.3 submitted; merged to main |
+| M3: Increment 1 delivered | Demo of F1, F2, F3, F5, F10 foundation; automated tests pass | Nov 1 | In progress: requirements phase ([Increment 1 documents](../Increments/Increment_1/)) |
 | M4: Increment 2 delivered (all Must functions) | Demo of F4, F6, F7, F8, F9; every Must function passes its tests | Nov 15 | Planned |
 | M5: Increment 3 delivered | Demo of F11–F15; Should functions pass their tests | Nov 25 | Planned |
 | M6: Testing complete | Test report; user acceptance testing with at least 8 participants, 80% or more of scenarios completed without help | Dec 10 | Planned |
