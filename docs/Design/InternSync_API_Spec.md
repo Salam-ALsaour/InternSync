@@ -1,16 +1,17 @@
 # InternSync – API Specification
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Task T2 (System design) · Milestone M2 · Version 1.1 · October 20, 2026
+Task T2 (System design) · Milestone M2 · Version 1.2 · October 24, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
 | 1.0 | Oct 13, 2026 | First version for Milestone M2. | Salam Alsaour |
 | 1.1 | Oct 20, 2026 | CR-05: registration, email confirmation, invitations, verification requests, universities and colleges, company team, Platform Admin endpoints and scope; vacancy review endpoints and CSV import removed. | Salam Alsaour |
+| 1.2 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `GET /admin/universities`, `GET /placements/candidates`, and the development-only demo clock added; endpoints usable before consent listed; registration rate limit; `company_id` filter on placements; audit filters named `date_from` and `date_to`; error codes `STUDENT_NUMBER_TAKEN`, `DUPLICATE_NAME`, `FILE_PURGED`, `SEATS_BELOW_PLACEMENTS`, `ACADEMIC_SUPERVISOR_INVALID`, `COMPANY_SUPERVISOR_INVALID`, and `INTERNAL_ERROR` added; Section 6 describes the permission matrix and the contract check as built. | Salam Alsaour |
 
 This document is the API contract agreed before implementation (SPMP risk "integration problems"). During development, FastAPI generates the OpenAPI 3.1 document from the code at `/api/v1/openapi.json` (NFR-MNT-02), and the frontend client is generated from it. The generated document must match this specification; any difference is either a bug or a change that is recorded here first.
 
-Related: [System Design Document](InternSync_Design.md) (data model, state machines, security) and [SRS v1.2](../RSR/InternSync_SRS.md).
+Related: [System Design Document](InternSync_Design.md) (data model, state machines, security) and [SRS 1.4](../RSR/InternSync_SRS.md).
 
 ## Table of Contents
 
@@ -79,7 +80,7 @@ A request for a record outside the caller's scope returns `403 FORBIDDEN`. An ac
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| POST | `/auth/register` | Public | Multipart: `kind` (`student`, `coordinator`, `company`), account fields, the fields of that kind, and the documents (Section 4.3). Creates the account and its verification request and emails a confirmation link | FR-ORG-02 – 05 |
+| POST | `/auth/register` | Public | Multipart: `kind` (`student`, `coordinator`, `company`), account fields, the fields of that kind, and the documents (Section 4.3). Creates the account and its verification request and emails a confirmation link. At most `auth.registrations_per_ip_hour` registrations per address per hour (`429 RATE_LIMITED`) | FR-ORG-02 – 05, NFR-SEC-03 |
 | POST | `/auth/email/confirm` | Public | `{token}`: confirm the email address | FR-AUT-02 |
 | POST | `/auth/email/resend` | Public | `{email}`: always `202`; sends a new confirmation link if the account exists and is unconfirmed | FR-AUT-02 |
 | POST | `/auth/login` | Public | Log in with email and password; returns the access token and the user. Refused before the email is confirmed (`403 EMAIL_NOT_CONFIRMED`) | FR-AUT-03, NFR-SEC-03 |
@@ -94,11 +95,14 @@ A request for a record outside the caller's scope returns `403 FORBIDDEN`. An ac
 | GET | `/me/verification` | Any (unverified) | The caller's verification requests with status, reason, and documents | FR-ORG-02, FR-ORG-09 |
 | POST | `/me/verification` | Any (unverified) | Multipart: corrected data and documents; a new request after a rejection | FR-ORG-09 |
 
+Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the notice can be read in the other language), `POST /me/consent`, and `POST /auth/logout` answer; every other endpoint returns `403 CONSENT_REQUIRED`.
+
 ### 3.2 Organizations, Verification, and Accounts
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
 | GET | `/universities` | Public | Active universities with their active colleges (registration form) | FR-ORG-01 |
+| GET | `/admin/universities` | PA | Every university with every college, active or not (administration page) | FR-ORG-01 |
 | POST | `/universities` | PA | Add a university: names, email domains, GPA scale | FR-ORG-01 |
 | PATCH | `/universities/{id}` | PA | Edit or deactivate | FR-ORG-01 |
 | POST | `/universities/{id}/colleges` | PA | Add a college | FR-ORG-01 |
@@ -192,6 +196,7 @@ A request for a record outside the caller's scope returns `403 FORBIDDEN`. An ac
 | POST | `/applications/{id}/withdraw` | ST (own) | `submitted` → `withdrawn` | FR-VAC-05 |
 | POST | `/applications/{id}/accept` | CS (own vacancy), CA | `submitted` → `accepted`; notifies the student's Coordinator | FR-VAC-06 |
 | POST | `/applications/{id}/decline` | CS (own vacancy), CA | `submitted` → `declined` | FR-VAC-06 |
+| GET | `/placements/candidates` | CO | Accepted applicants of the college waiting for a placement, each with the vacancy's supervisor (the default company supervisor) and the company's other supervisors | FR-VAC-07 |
 | POST | `/placements` | CO (the student's college) | `{application_id, academic_supervisor_id, company_supervisor_id?}`: confirm in the student's cycle; creates report slots and the draft grade | FR-VAC-07, FR-REP-01 |
 | GET | `/placements` | ST (own), CS (assigned), CA, AS (assigned), CO | `?cycle_id&company_id&academic_supervisor_id&status` | FR-VAC-07 |
 | GET | `/placements/{id}` | Same as list | Overview: student, vacancy, supervisors, status, attendance %, report summary, grade status | FR-VAC-07, FR-ATT-03 |
@@ -311,7 +316,7 @@ A request for a record outside the caller's scope returns `403 FORBIDDEN`. An ac
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| GET | `/audit-log` | CO (the college's entries), PA (entries about accounts, organizations, and verification) | `?student_id&user_id&entity_type&entity_id&from&to`; read-only, no update or delete endpoint exists | FR-AUD-02 |
+| GET | `/audit-log` | CO (the college's entries), PA (entries about accounts, organizations, and verification) | `?student_id&user_id&entity_type&entity_id&date_from&date_to`; read-only, no update or delete endpoint exists | FR-AUD-02 |
 | GET | `/history/{entity_type}/{entity_id}` | Anyone allowed to view the record; `entity_type` is `report_slot`, `evaluation`, or `grade` | State changes with user and time | FR-AUD-03 |
 
 ### 3.19 Files
@@ -327,6 +332,11 @@ A request for a record outside the caller's scope returns `403 FORBIDDEN`. An ac
 | GET | `/health` | Public | `{status}`; with `?deep=true` also database, model, and scheduler status (keep-alive and uptime log) | NFR-REL-01 |
 | GET | `/version` | Public | Application version and embedding model version | NFR-AI-02 |
 | GET | `/openapi.json`, `/docs` | Public | Generated OpenAPI document and its viewer | NFR-MNT-02 |
+| GET | `/dev/clock` | Public, development only | The server's current time and the demo offset | – |
+| POST | `/dev/clock/advance` | Public, development only | `{hours}`: move the server clock forward for the M3 demo (late and missing reports) | – |
+| POST | `/dev/clock/reset` | Public, development only | Back to real time | – |
+
+The `/dev` routes are mounted only when `ENV` is `development` or `test`; the deployed API and the committed OpenAPI document do not contain them.
 
 ## 4. Main Payloads
 
@@ -572,13 +582,15 @@ An unknown or altered code returns `200` with `{"status": "not_found"}`, so the 
 | `NOT_FOUND` | 404 | Record does not exist | – |
 | `INVALID_TRANSITION` | 409 | Action not allowed from the current state | FR-WFL-01 |
 | `CYCLE_CLOSED` | 409 | Write to a closed cycle | FR-CYC-05 |
-| `RATE_LIMITED` | 429 | Too many login or reset requests | NFR-SEC-03 |
+| `RATE_LIMITED` | 429 | Too many registrations from one address in an hour | NFR-SEC-03 |
 | `INVALID_CREDENTIALS` | 401 | Wrong email or password | FR-AUT-03 |
 | `ACCOUNT_LOCKED` | 423 | 5 failed logins; includes `locked_until` | NFR-SEC-03 |
 | `ACCOUNT_INACTIVE` | 403 | Deactivated account | FR-AUT-06 |
 | `EMAIL_NOT_CONFIRMED` | 403 | Login before the email address is confirmed | FR-AUT-02 |
 | `VERIFICATION_REQUIRED` | 403 | The account's verification is pending or rejected, or the student is not enrolled | FR-ORG-02 |
 | `EMAIL_TAKEN` | 409 | Registration or invitation with an email already in use | FR-ORG-02 |
+| `STUDENT_NUMBER_TAKEN` | 409 | Student number already used at the same university | FR-ORG-05 |
+| `DUPLICATE_NAME` | 409 | A university, college, skill, major, or cycle with the same name already exists | FR-ORG-01, FR-CYC-01, FR-CYC-04 |
 | `COLLEGE_HAS_COORDINATOR` | 409 | Coordinator registration for a college that already has one | FR-ORG-03 |
 | `DUPLICATE_COMMERCIAL_REG` | 409 | Company registration with a registration number already on the platform | FR-ORG-04 |
 | `DOCUMENT_REQUIRED` | 422 | A required verification document is missing | FR-ORG-03 – 05 |
@@ -596,6 +608,7 @@ An unknown or altered code returns `200` with `{"status": "not_found"}`, so the 
 | `REASON_REQUIRED`, `COMMENT_REQUIRED` | 422 | Mandatory reason or comment missing | FR-VAC-02, FR-VAC-08, FR-REP-05, FR-WFL-04, FR-WFL-05, FR-CER-03 |
 | `FILE_TOO_LARGE` | 413 | CV over 5 MB or attachment over 10 MB | FR-PRF-03, FR-REP-02 |
 | `UNSUPPORTED_FILE_TYPE` | 415 | Content is not an allowed type (checked by content, not extension) | NFR-SEC-04 |
+| `FILE_PURGED` | 410 | Verification document deleted after the retention period | FR-ORG-08 |
 | `TOO_MANY_ATTACHMENTS` | 409 | More than 3 attachments | FR-REP-02 |
 | `MAIN_DOCUMENT_REQUIRED` | 422 | Final report without its main document | FR-REP-02 |
 | `SKILLS_NOT_CONFIRMED` | 409 | Matching requested before skills are confirmed | FR-MAT-01 |
@@ -606,6 +619,9 @@ An unknown or altered code returns `200` with `{"status": "not_found"}`, so the 
 | `APPLICATION_LIMIT_REACHED` | 409 | Already 5 active applications | FR-VAC-04 |
 | `ALREADY_PLACED` | 409 | Student already has a placement in the cycle | FR-VAC-07 |
 | `NO_SEATS` | 409 | Vacancy has no free seat | FR-VAC-07 |
+| `SEATS_BELOW_PLACEMENTS` | 422 | Seats reduced below the confirmed placements | FR-VAC-01 |
+| `ACADEMIC_SUPERVISOR_INVALID` | 422 | Chosen academic supervisor is not an active supervisor of the student's college | FR-VAC-07, FR-VAC-08 |
+| `COMPANY_SUPERVISOR_INVALID` | 422 | Chosen company supervisor is not an active member of the vacancy's company | FR-VAC-01, FR-VAC-07 |
 | `SLOT_CLOSED` | 409 | Submission to a slot closed as missing | FR-REP-07 |
 | `NOTHING_TO_SUBMIT` | 409 | Submit without a draft | FR-REP-03 |
 | `REQUIRED_FIELDS_MISSING` | 422 | Weekly report fields empty | FR-REP-02 |
@@ -621,10 +637,13 @@ An unknown or altered code returns `200` with `{"status": "not_found"}`, so the 
 | `GRADE_LOCKED` | 409 | Edit of a Final grade | FR-WFL-05 |
 | `GRADE_NOT_FINAL` | 409 | Certificate for a grade that is not Final | FR-CER-01 |
 | `CERTIFICATE_EXISTS` | 409 | A valid certificate already exists for the placement | FR-CER-01 |
+| `INTERNAL_ERROR` | 500 | Unexpected server error; the details are only in the server log | NFR-USA-05 |
+
+`PATCH /settings` reports each refused key in `errors` with the code `UNKNOWN_SETTING` or `OUT_OF_RANGE` under `422 VALIDATION_ERROR`.
 
 ## 6. Verification
 
-- **Permission matrix (FR-AUT-05):** `backend/tests/permissions/matrix.yaml` has one entry per endpoint of Section 3 with the expected status for ST, CS, CA, AS, CO, PA, an unverified account, and Public, plus scope cases: own record, another user's record, and a record of another college or company (the test data hold two universities, three colleges, and two companies). A test fails if any route registered in FastAPI is missing from the matrix.
+- **Permission matrix (FR-AUT-05):** `backend/tests/permissions/matrix.yaml` has one entry per endpoint with the callers allowed past the role gates (Public, an unverified student, ST, CS, CA, AS, CO, PA). One test calls every endpoint as every caller that is not allowed and expects `401` or `403`; a second test fails if a route registered in FastAPI is missing from the matrix or the matrix lists a route that does not exist. Scope cases (own record, another user's record, another college or company) are tested in the module suites, whose test data hold two universities, three colleges, and two companies.
 - **State machines (FR-WFL-01):** one test per allowed transition and at least one refused transition from each state, through the endpoints of Sections 3.6, 3.7, 3.9, 3.12, and 3.13.
-- **Contract:** CI regenerates the TypeScript client from `/openapi.json` and fails if it differs from the committed client, so frontend and backend stay in step.
+- **Contract:** CI exports the OpenAPI document from the code (`backend/scripts/export_openapi.py`) and fails if it differs from the committed `frontend/src/api/openapi.json`, then regenerates the TypeScript types from it and fails if they differ from the committed `schema.d.ts`, so frontend and backend stay in step.
 - **Changes:** a new or changed endpoint is added to this document and to the permission matrix in the same pull request.

@@ -1,5 +1,5 @@
 # InternSync web (Increment 1 design, Section 9). Local demo: Vite serves the app and proxies /api to the API.
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci

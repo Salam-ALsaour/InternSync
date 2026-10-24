@@ -1,6 +1,5 @@
-/// <reference types="vitest" />
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 // The API is reached through the dev server's proxy, so the browser sees one origin (no CORS in development).
 const target = process.env.API_PROXY_TARGET ?? "http://localhost:8000";

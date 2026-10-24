@@ -1,6 +1,6 @@
 # Increment 1 – Design
 
-**Status:** Approved for implementation · Oct 23, 2026 · Author: Salam Alsaour  
+**Status:** Approved for implementation · Oct 23, 2026; implemented Oct 24, 2026 (changes in Section 12) · Author: Salam Alsaour  
 **Input:** [01_Requirements.md](01_Requirements.md) (scope and decisions), [Design 1.2](../../Design/InternSync_Design.md), [API 1.1](../../Design/InternSync_API_Spec.md)
 
 This document narrows the system design to what Increment 1 builds and records the implementation decisions that the system design leaves open. Where it says nothing, the system design and the API specification apply unchanged.
@@ -22,18 +22,20 @@ The project owner delegated the decisions of 01_Requirements.md Section 5; the r
 ## 2. Repository Layout
 
 ```
-backend/                FastAPI application (Python 3.12 in Docker; 3.11+ for local tests)
+backend/                FastAPI application (Python 3.11 in Docker and CI)
   app/
     main.py             app factory: routers, error handlers, CORS, lifespan (scheduler)
     core/               config, db, errors, i18n messages, security, clock, audit, settings, mail, storage, deps
     models/             SQLAlchemy models, one file per module
     auth/ orgs/ cycles/ catalog/ profiles/ vacancies/ reports/ audit/ files/   router + schemas + service
+    dev/                development-only demo clock (mounted when ENV is development or test)
     ai/                 text extraction, normalization, skill extractor
     jobs/               scheduler and job functions
     seed_data/          skills, majors, universities (JSON)
-    seed.py, cli.py     demo seed and the create-platform-admin command
+    seed.py, cli.py     reference and demo seed; create-platform-admin and run-job commands
   alembic/              migrations
   tests/                pytest suites, permission matrix (matrix.yaml)
+  scripts/              demo_dry_run.py (M3 rehearsal against the running stack), export_openapi.py
 frontend/               React 18 + Vite + TypeScript PWA shell
   src/api/              generated OpenAPI types (schema.d.ts) and the typed client
   src/i18n/             ar.json, en.json
@@ -96,11 +98,11 @@ All endpoints of the API specification sections below are built, with their role
 
 ## 7. Jobs
 
-APScheduler `BackgroundScheduler` inside the API process, started only when `SCHEDULER_ENABLED=true`. Each job takes a PostgreSQL advisory lock and writes a `job_runs` row.
+APScheduler `BackgroundScheduler` inside the API process, started only when `SCHEDULER_ENABLED=true`. Each job runs in one transaction under a transaction-level PostgreSQL advisory lock (`pg_try_advisory_xact_lock`) and writes a `job_runs` row; `python -m app.cli run-job <name>` runs one by hand.
 
 | **Job** | **Every** | **Does** |
 |:---|:---|:---|
-| `flag_missing` | 15 min | Slots in `draft` past `due_at` with `is_missing = false`: set `is_missing` and `missing_flagged_at`; audit entry by `system` |
+| `flag_missing` | 15 min, first run 30 s after start | Slots in `draft` past `due_at` with `is_missing = false`: set `is_missing` and `missing_flagged_at`; audit entry by `system` |
 | `purge_verification_documents` | Daily 03:00 Asia/Riyadh | Documents of requests decided more than `verification.document_retention_days` days ago: delete the stored file, set `purged_at` |
 | `cleanup` | Daily 03:30 Asia/Riyadh | Delete expired sessions and tokens, and `job_runs` older than 30 days |
 
@@ -110,12 +112,12 @@ The job functions are plain functions so tests call them directly with a fixed c
 
 Design 6.1 asks for an Aho–Corasick automaton. Because every term is a whole word or a phrase of at most four words, the same result is reached with a dictionary of normalized n-grams: the normalized text is split into tokens (`[a-z0-9+#.]+` and Arabic letter runs), every n-gram of 1 to 4 tokens is looked up in a dictionary built from the active skills' `match_terms`, and the longest match wins at each position. The dictionary is rebuilt when the vocabulary changes. It needs no extra library and runs in milliseconds for a CV.
 
-The seed vocabulary holds about 150 computing skills with English and Arabic names and common synonyms.
+The seed vocabulary holds 160 skills (computing plus common professional skills) with English and Arabic names and common synonyms. Synonyms that are everyday words (for example "rest", "spring", "office", "العربية") were left out because they matched ordinary text; "Go" and "R" are named "Go (Golang)" and "R Programming" for the same reason.
 
 ## 9. Environments
 
-- **Local and demo (M3):** `docker compose up` starts PostgreSQL 16 on port 5433, the API on 8000 (`alembic upgrade head` then `uvicorn`), the web app on 5173, and Mailpit (SMTP 1025, inbox at 8025). `docker compose run --rm api python -m app.seed --demo` loads the demo data.
-- **CI:** GitHub Actions with a PostgreSQL service: `ruff`, `pytest` with coverage (gate 70% on the business modules), frontend `eslint`, `vitest` (including the translation-key check), `tsc`, `vite build`, and the generated-client check.
+- **Local and demo (M3):** `docker compose up` starts PostgreSQL 16 on port 5433, the API on 8000 (`alembic upgrade head` then `uvicorn`), the web app on 5173, and Mailpit (SMTP 1025, inbox at 8025). The API container loads the reference data (majors, skills, universities) on every start; `docker compose exec api python -m app.seed --demo` adds the demo accounts (password `Demo-2026-pass`, local use only, refused when `ENV=production`).
+- **CI:** GitHub Actions with a PostgreSQL service: `ruff`, `pytest` with coverage (gate 70%), the OpenAPI contract check, then for the frontend the generated-types check, `tsc` (strict), `vitest` (including the translation-key check), and `vite build`.
 - **Free-tier deployment:** start of Increment 2 (RQ-7).
 
 ## 10. Frontend
@@ -139,8 +141,32 @@ The role home page lists the role's menu with short descriptions; the dashboards
 - **Database:** tests run against a real PostgreSQL (Docker locally, a service in CI). The schema is created once per session with Alembic; every test starts from empty tables (`TRUNCATE … CASCADE`) plus the seed of the fixture it needs.
 - **Clock:** `app.core.clock.now()` is the only source of time; tests freeze and move it.
 - **Email and files:** an in-memory mail outbox and a temporary storage directory per test session.
-- **Fixtures:** factories create universities, colleges, companies, users of every role (verified or not), cycles, vacancies, placements; a `login(user)` helper returns an authenticated client.
-- **Suites:** one per module (`test_auth`, `test_orgs`, `test_cycles`, `test_catalog`, `test_profiles`, `test_vacancies`, `test_reports`, `test_audit`, `test_jobs`), unit tests for time, eligibility, report transitions, and skill extraction, and the permission suite.
+- **Fixtures:** factories (`tests/factories.py`) create universities, colleges, companies, users of every role (verified or not), cycles, vacancies, applications, and placements, and sample PDF, DOCX, and PNG files; `f.headers(user)` returns the headers of a signed-in session. The `w` fixture builds the standard world.
+- **Suites:** `test_auth`, `test_orgs`, `test_cycles`, `test_profiles` (with the catalog), `test_vacancies`, `test_reports`, `test_audit_jobs`, `test_config`, the end-to-end `test_demo_scenario`, unit tests for time, eligibility, report transitions, and skill extraction inside those files, and the permission suite.
 - **Permission matrix:** `tests/permissions/matrix.yaml` lists every route with the roles allowed to call it (`public`, `unverified`, `st`, `cs`, `ca`, `as`, `co`, `pa`). The suite calls every route as every role that is not allowed and expects `401` or `403`; a second test fails if a registered route is missing from the matrix. Scope rules (other college, other company, other student) are tested in the module suites with two universities, three colleges, and two companies.
 - **Acceptance tests:** each test of 01_Requirements.md Section 6 is a named test function (`test_at_vac_04_…`), so the test report can list them.
-- **Frontend:** Vitest checks that `ar.json` and `en.json` have the same keys (FR-LOC-02); the screens are checked by hand in both languages during the demo dry run.
+- **Frontend:** Vitest checks that `ar.json` and `en.json` have the same keys, that every key used in the code exists, and that placeholders match (FR-LOC-02), plus the date format (NFR-L10N-02); the screens are checked by hand in both languages during the demo dry run.
+
+## 12. Changes During Implementation
+
+Recorded as [CR-07](../../Change_Requests.md); the system design (1.3) and the API specification (1.2) were updated in the same pull request. The test results are in [04_Test_Report.md](04_Test_Report.md).
+
+| **Change** | **Why** |
+|:---|:---|
+| `PATCH /me` answers before consent | The privacy notice must be readable in either language |
+| Purged verification documents keep `file_id` and set `purged_at` | Setting it to null lost the record of what was submitted; the file endpoint answers `410 FILE_PURGED` |
+| Transaction-level advisory locks for jobs | A test showed that a session-level lock could stay on a pooled connection after a failed run, so the job would never run again |
+| `GET /admin/universities`, `GET /placements/candidates`, `company_id` filter on `GET /placements` | Needed by the organizations page and the coordinator's placement screen |
+| Development-only demo clock `/dev/clock` | The M3 demo shows late and missing reports without waiting a week |
+| Supervisors see the cycles of their own placements | The report pages show the cycle's schedule |
+| Error codes added to the API specification | They were raised by the code but missing from the contract |
+
+Defects found by the tests and fixed before the pull request:
+
+- The access token's issue time was checked against the system clock instead of the application clock, so sessions failed whenever the two differed.
+- Error messages were not shown in the user's saved language: the language was set in a worker thread and lost before the error was written. It is now kept on the request.
+- Publishing a vacancy in the same request that created it failed, because the database session did not flush the new majors before checking them.
+- The job lock described above.
+- The API container stopped at start when `CORS_ORIGINS` was a plain comma-separated value.
+- The Missing flag waited 15 minutes after every restart; it now also runs 30 seconds after start.
+- Numbers such as `3.10 / 5.00` were reversed in Arabic pages; they are now shown left to right.

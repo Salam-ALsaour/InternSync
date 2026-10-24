@@ -1,8 +1,9 @@
 """Configuration from environment variables (Design 3.4). Secrets never enter the repository."""
 from functools import lru_cache
+from typing import Annotated
 
 from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -13,7 +14,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://internsync:internsync@localhost:5433/internsync"
     jwt_secret: str = "dev-only-secret-change-me-0123456789abcdef"
     frontend_base_url: str = "http://localhost:5173"
-    cors_origins: list[str] = ["http://localhost:5173"]
+    cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]  # comma-separated in the environment
 
     storage_backend: str = "local"
     local_storage_dir: str = "./storage"

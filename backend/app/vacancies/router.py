@@ -164,9 +164,10 @@ def confirm_placement(body: s.PlacementIn, actor: Actor = Depends(auth("co")), d
 
 @router.get("/placements", response_model=Page[s.PlacementOut])
 def list_placements(cycle_id: uuid.UUID | None = None, status: str | None = None,
-                    academic_supervisor_id: uuid.UUID | None = None, params: PageParams = Depends(),
+                    academic_supervisor_id: uuid.UUID | None = None, company_id: uuid.UUID | None = None,
+                    params: PageParams = Depends(),
                     actor: Actor = Depends(auth("st", "cs", "as", "co")), db: Session = Depends(get_db)):
-    f = dict(cycle_id=cycle_id, status=status, academic_supervisor_id=academic_supervisor_id)
+    f = dict(cycle_id=cycle_id, status=status, academic_supervisor_id=academic_supervisor_id, company_id=company_id)
     return paginate(db, service.placements_query(actor, f), params, lambda p: service.placement_out(db, p))
 
 

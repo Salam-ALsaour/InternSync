@@ -442,6 +442,8 @@ def placements_query(actor: Actor, f: dict):
         stmt = stmt.where(Placement.status == f["status"])
     if f.get("academic_supervisor_id"):
         stmt = stmt.where(Placement.academic_supervisor_id == f["academic_supervisor_id"])
+    if f.get("company_id"):
+        stmt = stmt.where(Placement.vacancy_id.in_(select(Vacancy.id).where(Vacancy.company_id == f["company_id"])))
     return stmt
 
 

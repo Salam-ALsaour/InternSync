@@ -5979,6 +5979,7 @@ export interface operations {
                 cycle_id?: string | null;
                 status?: string | null;
                 academic_supervisor_id?: string | null;
+                company_id?: string | null;
                 page?: number;
                 page_size?: number;
             };

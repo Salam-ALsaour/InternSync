@@ -252,6 +252,9 @@ def test_placements_lists_are_scoped(client, w, f):
     for user, count in ((w.stA, 1), (w.stA2, 0), (w.asA1, 1), (w.asA1b, 0), (w.coA1, 1), (w.coB1, 0),
                         (w.ca1, 1), (w.cs1, 1), (w.ca2, 0)):
         assert client.get(f"{API}/placements", headers=f.headers(user)).json()["total"] == count, user.email
+    co = f.headers(w.coA1)
+    assert client.get(f"{API}/placements?company_id={w.co1.id}", headers=co).json()["total"] == 1
+    assert client.get(f"{API}/placements?company_id={w.co2.id}", headers=co).json()["total"] == 0
 
 
 # ---------------------------------------------------------------- AT-VAC-08

@@ -1,13 +1,14 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.2 · October 20, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.3 · October 24, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
 | 1.0 | Oct 13, 2026 | First version for Milestone M2: architecture, zero-cost deployment, data model (ERD and data dictionary), behaviour design, security design. The API specification is a separate document. | Salam Alsaour |
 | 1.1 | Oct 13, 2026 | Section 8: wireframes (task T3), their mapping to SRS Table 6.1, and the design system. | Salam Alsaour |
 | 1.2 | Oct 20, 2026 | CR-05: organizations (universities, colleges, companies), self-registration and verification, Platform Admin; companies publish vacancies directly; CSV import removed. Sections 1, 2, 4, 5, 6, 7, 8, 9, and 10 updated; ERD redrawn in four parts (49 tables). | Salam Alsaour |
+| 1.3 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `PATCH /me` usable before consent; purged verification documents keep their file reference; jobs use transaction-level advisory locks; supervisors see the cycles of their placements; permission test described as built. Sections 2, 4, 5, and 7 updated. | Salam Alsaour |
 
 **Related documents**
 
@@ -117,7 +118,7 @@ Each module is a Python package under `backend/app/` with the same files: `route
 
 1. **Transport:** HTTPS is terminated by the hosting provider (NFR-SEC-01). CORS allows only the configured frontend origins.
 2. **Authentication:** the `current_user` dependency verifies the JWT signature and expiry, loads the session by its `sid`, rejects it if revoked or idle for more than the idle timeout, and updates `last_seen_at` (at most once per minute).
-3. **Consent gate:** until `users.consent_at` is set, every endpoint except `GET /me`, `POST /me/consent`, and `POST /auth/logout` returns `403 CONSENT_REQUIRED` (NFR-PRV-01).
+3. **Consent gate:** until `users.consent_at` is set, every endpoint except `GET /me`, `PATCH /me` (language, so the notice can be read in the other language), `POST /me/consent`, and `POST /auth/logout` returns `403 CONSENT_REQUIRED` (NFR-PRV-01).
 4. **Verification gate:** an account whose verification is pending or rejected reaches only `/me`, its own verification requests, and, for students, the profile, CV, and vacancy list. Every other endpoint returns `403 VERIFICATION_REQUIRED` (FR-ORG-02).
 5. **Authorization:** the route declares allowed roles; the service loads the record through a scope-filtered query that always includes the caller's college or company (Section 7.2). A record outside the caller's scope returns `403 FORBIDDEN`.
 6. **Business rule and transition:** the service checks the state machine (Section 5) and limits, then writes the change.
@@ -328,8 +329,8 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 | id | uuid | PK | |
 | request_id | uuid | NN, FK `verification_requests` | |
 | kind | text | NN, CHECK in (`appointment_letter`, `commercial_registration`, `authorization_letter`, `course_registration`, `other`) | |
-| file_id | uuid | FK `files` | Set to null when the file is deleted after the retention period |
-| purged_at | timestamptz | | |
+| file_id | uuid | FK `files` | Kept after the retention period: the `files` row stays as the record of what was submitted, while the stored object is deleted |
+| purged_at | timestamptz | | Set when the stored object is deleted; the file endpoint then answers `410 FILE_PURGED` |
 
 **`user_sessions`**: server side of each login, for idle timeout and logout (FR-AUT-03).
 
@@ -982,17 +983,17 @@ Saving a draft creates or updates the single draft version and does not change t
 - Week *k* of a cycle covers `start_date + 7(k−1)` to `start_date + 7k − 1`. Its report deadline is the day in that week whose ISO weekday equals `report_weekday`, at `report_time` in Asia/Riyadh, converted to UTC. The final report deadline is the cycle's `final_report_due_at`.
 - `scheduled_days` of a week counts the cycle's working days that fall in the week and inside the cycle dates.
 - **On time or late:** the deadline minute is inclusive. A submission is On time when `submitted_at < due_at + 60 seconds`, otherwise Late. With a 23:59 deadline, 23:58 and 23:59:30 are On time and 00:00 is Late (NFR-L10N-02).
-- **Missing:** the `flag_missing` job marks a slot missing when `due_at` has passed and no version is submitted (FR-REP-04). It runs every 15 minutes, so the flag appears within 15 minutes, well inside the 1-hour target.
+- **Missing:** the `flag_missing` job marks a slot missing when `due_at` has passed and no version is submitted (FR-REP-04). It runs every 15 minutes and once 30 seconds after the API starts, so the flag appears within 15 minutes, well inside the 1-hour target, even after a restart.
 - The Coordinator may move one week's deadline. The change updates the slots of that week that are still in `draft` and is audited.
 
 ### 5.3 Scheduled Jobs
 
-All jobs run inside the API process under APScheduler. Each job takes a PostgreSQL advisory lock so that two running containers (for example during a redeploy) never run the same job twice. Jobs select work by **state**, not by time window, so a job missed during downtime catches up on its next run (NFR-REL-03).
+All jobs run inside the API process under APScheduler. Each job runs in one transaction under a transaction-level PostgreSQL advisory lock (`pg_try_advisory_xact_lock`), so two running containers (for example during a redeploy) never run the same job twice, and a failed or crashed run never leaves the lock held. Jobs select work by **state**, not by time window, so a job missed during downtime catches up on its next run (NFR-REL-03).
 
 | **Job** | **Every** | **Selects** | **Does** | **Idempotency key** |
 |:---|:---|:---|:---|:---|
 | `send_reminders` | 15 min | Slots in `draft` or `revision_requested`, active placement, `now < due_at ≤ now + 24 h` | Notify the student (FR-NOT-02) | `reminder:{slot_id}` |
-| `flag_missing` | 15 min | Slots in `draft`, `due_at < now`, `is_missing = false` | Set `is_missing`, notify the student and the AS (FR-REP-04, FR-NOT-03) | `missing:{slot_id}:{user_id}` |
+| `flag_missing` | 15 min, and 30 s after the API starts | Slots in `draft`, `due_at < now`, `is_missing = false` | Set `is_missing`, notify the student and the AS (FR-REP-04, FR-NOT-03) | `missing:{slot_id}:{user_id}` |
 | `escalate_overdue` | 15 min | Reports not submitted, attendance weeks not recorded, evaluations not submitted, 3 or more days after their deadline | Notify the Coordinator (FR-NOT-04) | `escalation:{type}:{id}` |
 | `similarity_retry` | 5 min | `similarity_checks` still `pending` after 5 minutes, or `failed` fewer than 3 times | Run the check again | – |
 | `deliver_notifications` | 1 min | Notifications with email or push `pending` | Send email in the user's language and web push; retry failed email up to 5 times | – |
@@ -1117,13 +1118,13 @@ Each route declares its allowed roles. Record access then follows these scope ru
 | **Role** | **Scope rule** |
 |:---|:---|
 | ST | `student_id = me` (profile, CVs, applications, placements and everything under them) |
-| CS | Vacancies with `company_supervisor_id = me`, their applications and applicant profiles; placements with `company_supervisor_id = me` and their reports (read-only), attendance, and evaluations. The Company Admin also: every vacancy, application, and placement of the company, and the company's users. Never `company_evaluations` |
-| AS | Placements with `academic_supervisor_id = me` (always students of the AS's college) and their reports, similarity checks, evaluations, and grades. Source report authors are hidden |
+| CS | Vacancies with `company_supervisor_id = me`, their applications and applicant profiles; placements with `company_supervisor_id = me`, their cycles, and their reports (read-only), attendance, and evaluations. The Company Admin also: every vacancy, application, and placement of the company, and the company's users. Never `company_evaluations` |
+| AS | Placements with `academic_supervisor_id = me` (always students of the AS's college), their cycles, and their reports, similarity checks, evaluations, and grades. Source report authors are hidden |
 | CO | Records whose student belongs to the CO's college (`users.college_id`), the college's cycles and users, and the student verification requests of the college. Applicant profiles of other colleges are never visible |
 | PA | Universities, colleges, companies, users (account fields only), coordinator and company verification requests, skills, majors, settings, platform figures, and audit entries about accounts and organizations. No endpoint returns CVs, reports, evaluations, or grades to the PA |
 | Public | `POST /auth/register`, `GET /public/certificates/{code}`, `GET /health`, the lists of universities and colleges for the registration form, and the other auth endpoints that need no login |
 
-**Permission tests:** `backend/tests/permissions/matrix.yaml` lists every route with the expected status for each role, including scope cases (own versus another user's record). The test data hold two universities, three colleges, and two companies, and every scope case is also tried across organizations (a coordinator on another college's student, a company user on another company's vacancy). One parametrized test runs the whole matrix, and a second test fails if any route registered in FastAPI is missing from the matrix, so every endpoint is covered for every role (FR-AUT-05 acceptance).
+**Permission tests:** `backend/tests/permissions/matrix.yaml` lists every route with the callers allowed past the role gates (Public, an unverified student, ST, CS, CA, AS, CO, PA). One test calls every route as every caller that is not allowed and expects `401` or `403`, and a second test fails if a route registered in FastAPI is missing from the matrix, so every endpoint is covered for every role (FR-AUT-05 acceptance). Scope cases (own versus another user's record, and across organizations: a coordinator on another college's student, a company user on another company's vacancy) are tested in the module suites, whose test data hold two universities, three colleges, and two companies.
 
 ### 7.3 Data Protection
 

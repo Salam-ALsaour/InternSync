@@ -86,7 +86,6 @@ MESSAGES: dict[str, tuple[str, str]] = {
     "STUDENT_NUMBER_TAKEN": ("This student number is already registered at the university.",
                              "هذا الرقم الجامعي مسجّل مسبقاً في الجامعة."),
     "DUPLICATE_NAME": ("This name already exists.", "هذا الاسم موجود مسبقاً."),
-    "NO_OPEN_CYCLE": ("The college has no open training cycle yet.", "لا توجد دورة تدريب مفتوحة في الكلية بعد."),
     "FILE_PURGED": ("This document was deleted after the retention period.", "حُذف هذا المستند بعد انتهاء مدة الاحتفاظ."),
     "INTERNAL_ERROR": ("Something went wrong. Please try again.", "حدث خطأ. حاول مجدداً."),
 }
