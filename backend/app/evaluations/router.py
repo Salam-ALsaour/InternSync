@@ -45,7 +45,7 @@ class EvaluationOut(BaseModel):
     reopen_reason: str | None
 
 
-class Item(BaseModel):
+class EvaluationItem(BaseModel):
     type: str
     due_at: datetime
     evaluation: EvaluationOut | None
@@ -60,13 +60,13 @@ class Criterion(BaseModel):
     levels: dict
 
 
-class Overview(BaseModel):
+class EvaluationOverview(BaseModel):
     placement_id: uuid.UUID
     rubric: list[Criterion]
-    items: list[Item]
+    items: list[EvaluationItem]
 
 
-class DraftIn(BaseModel):
+class EvaluationDraftIn(BaseModel):
     scores: list[ScoreIO] = Field(default_factory=list, max_length=30)
     overall_comment: str | None = Field(None, max_length=4000)
 
@@ -80,15 +80,15 @@ def _placement(db: Session, actor: Actor, placement_id: uuid.UUID) -> tuple[Plac
     return p, placement_access(db, actor, p)
 
 
-@router.get("/placements/{placement_id}/evaluations", response_model=Overview)
+@router.get("/placements/{placement_id}/evaluations", response_model=EvaluationOverview)
 def list_evaluations(placement_id: uuid.UUID, actor: Actor = Depends(auth("st", "cs", "as", "co")),
                      db: Session = Depends(get_db)):
     p, relation = _placement(db, actor, placement_id)
     return service.overview(db, actor, p, relation)
 
 
-@router.put("/placements/{placement_id}/evaluations/{type}", response_model=Overview)
-def save_evaluation(placement_id: uuid.UUID, type: Type, body: DraftIn, actor: Actor = Depends(auth("cs")),
+@router.put("/placements/{placement_id}/evaluations/{type}", response_model=EvaluationOverview)
+def save_evaluation(placement_id: uuid.UUID, type: Type, body: EvaluationDraftIn, actor: Actor = Depends(auth("cs")),
                     db: Session = Depends(get_db)):
     p, relation = _placement(db, actor, placement_id)
     service.save(db, actor, p, type, [s.model_dump() for s in body.scores], body.overall_comment)
@@ -96,7 +96,7 @@ def save_evaluation(placement_id: uuid.UUID, type: Type, body: DraftIn, actor: A
     return service.overview(db, actor, p, relation)
 
 
-@router.post("/placements/{placement_id}/evaluations/{type}/submit", response_model=Overview)
+@router.post("/placements/{placement_id}/evaluations/{type}/submit", response_model=EvaluationOverview)
 def submit_evaluation(placement_id: uuid.UUID, type: Type, actor: Actor = Depends(auth("cs")),
                       db: Session = Depends(get_db)):
     p, relation = _placement(db, actor, placement_id)
@@ -105,7 +105,7 @@ def submit_evaluation(placement_id: uuid.UUID, type: Type, actor: Actor = Depend
     return service.overview(db, actor, p, relation)
 
 
-@router.post("/evaluations/{evaluation_id}/reopen", response_model=Overview)
+@router.post("/evaluations/{evaluation_id}/reopen", response_model=EvaluationOverview)
 def reopen_evaluation(evaluation_id: uuid.UUID, body: ReasonIn, actor: Actor = Depends(auth("co")),
                       db: Session = Depends(get_db)):
     e = get_or_404(db, Evaluation, evaluation_id)

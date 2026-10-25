@@ -193,3 +193,14 @@ def test_majors_and_settings(client, w, f):
     assert r.json()["applications.max_active"] == 3
     r = client.patch(f"{API}/settings", headers=pa, json={"applications.max_active": 999, "nope": 1})
     assert r.status_code == 422 and {e["field"] for e in r.json()["errors"]} == {"applications.max_active", "nope"}
+
+
+def test_unit_attached_arabic_particles_are_matched():
+    from app.ai.skills import find, variants
+
+    assert variants("والتواصل") == ["والتواصل", "التواصل"]
+    assert "التعلم" in variants("بالتعلم") and "الحوادث" in variants("للحوادث")
+    index = {"التواصل": "Communication", "التعلم العميق": "Deep Learning", "جافاسكربت": "JavaScript"}
+    found = find(index, "أتقن العرض والتواصل، ولدي معرفة بالتعلم العميق ورياكت وجافاسكربت")
+    assert set(found) == {"Communication", "Deep Learning", "JavaScript"}
+    assert find({"الصحة": "health"}, "وزارة") == {}

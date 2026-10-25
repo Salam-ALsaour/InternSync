@@ -17,7 +17,7 @@ from app.models import Placement
 router = APIRouter(tags=["attendance"])
 
 
-class WeekOut(BaseModel):
+class AttendanceWeekOut(BaseModel):
     week_no: int
     starts_on: date
     ends_on: date
@@ -34,7 +34,7 @@ class WeekOut(BaseModel):
 
 class AttendanceOut(BaseModel):
     placement_id: uuid.UUID
-    weeks: list[WeekOut]
+    weeks: list[AttendanceWeekOut]
     attended_days: int
     scheduled_days: int
     percent: float | None

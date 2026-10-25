@@ -15,7 +15,7 @@ from app.models import TrainingCycle
 router = APIRouter(tags=["dashboard"])
 
 
-class Item(BaseModel):
+class DashboardItem(BaseModel):
     type: str
     count: int
     link: str
@@ -25,7 +25,7 @@ class Item(BaseModel):
 
 class Dashboard(BaseModel):
     role: str
-    items: list[Item]
+    items: list[DashboardItem]
 
 
 class Figures(BaseModel):

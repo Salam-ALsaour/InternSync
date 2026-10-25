@@ -15,6 +15,7 @@ from pathlib import Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.attendance.service import week_end
 from app.catalog.router import match_terms
 from app.core import clock
 from app.core.config import get_settings
@@ -22,9 +23,13 @@ from app.core.db import SessionLocal
 from app.core.deps import Actor
 from app.core.security import hash_password
 from app.cycles import service as cycles
+from app.evaluations import service as evaluations
+from app.matching import service as matching
 from app.models import (
+    AttendanceWeek,
     College,
     Company,
+    CycleWeek,
     Enrollment,
     Major,
     Skill,
@@ -106,6 +111,23 @@ def _user(db: Session, email: str, role: str, name_en: str, name_ar: str, **extr
 
 def _skills(db: Session, names: list[str]) -> list[Skill]:
     return list(db.scalars(select(Skill).where(Skill.name_en.in_(names))))
+
+
+def _demo_tracking(db: Session, company_user: User, placement) -> None:
+    """Attendance for the weeks that have ended and a submitted periodic evaluation (Increment 2 screens)."""
+    now = clock.now()
+    for w in db.scalars(select(CycleWeek).where(CycleWeek.cycle_id == placement.cycle_id).order_by(CycleWeek.week_no)):
+        if week_end(w) >= now:
+            break
+        attended = w.scheduled_days - (1 if w.week_no == 2 else 0)
+        db.add(AttendanceWeek(placement_id=placement.id, week_no=w.week_no, scheduled_days=w.scheduled_days,
+                              attended_days=attended, note="Sick leave, one day" if w.week_no == 2 else None,
+                              recorded_by=company_user.id, recorded_at=now))
+    criteria = evaluations.criteria(db, placement.cycle_id)
+    actor = Actor(company_user, None)
+    evaluations.save(db, actor, placement, "periodic", [{"criterion_id": c.id, "score": 4} for c in criteria],
+                     "Reliable and quick to learn; should ask for code review earlier.")
+    evaluations.submit(db, actor, placement, "periodic")
 
 
 def seed_demo(db: Session) -> list[tuple[str, str]]:
@@ -208,12 +230,26 @@ def seed_demo(db: Session) -> list[tuple[str, str]]:
             "major_ids": [majors[m].id for m in ("Computer Information Systems", "Data Science",
                                                  "Management Information Systems")],
             "target_university_ids": [], "publish": True})
+        vacancies.create(db, ca_actor, {
+            "title": "Security Operations Trainee", "city": "Dammam",
+            "description": "Monitor alerts in the security operations centre, harden Linux servers, and document "
+                           "incidents with the network team.",
+            "training_type": "coop", "training_start": cycle.start_date, "training_end": cycle.end_date,
+            "min_gpa": Decimal("2.75"), "seats": 2, "application_deadline": clock.now() + timedelta(days=25),
+            "required_skill_ids": [k.id for k in _skills(db, ["Linux", "Networking"])],
+            "preferred_skill_ids": [k.id for k in _skills(db, ["Cybersecurity", "Incident Response"])],
+            "major_ids": [majors[m].id for m in ("Cybersecurity and Digital Forensics", "Computer Science",
+                                                 "Computer Networks and Communications")],
+            "target_university_ids": [uni.id], "publish": True})
         s1, s2 = student_users[0], student_users[1]
+        for s in student_users:
+            matching.embed_profile(db, s.id)
         a1 = vacancies.apply(db, Actor(s1, None), vacancy)
         vacancies.decide(db, ca_actor, a1, accept=True)
-        vacancies.confirm_placement(db, coord_actor, a1.id, as1.id, None)
+        placement = vacancies.confirm_placement(db, coord_actor, a1.id, as1.id, None)
         a2 = vacancies.apply(db, Actor(s2, None), vacancy)
         vacancies.decide(db, ca_actor, a2, accept=True)
+        _demo_tracking(db, ca, placement)
     db.flush()
     return [("Platform Admin", admin.email), ("Coordinator", coord.email), ("Academic supervisor", as1.email),
             ("Company Admin", ca.email), ("Company supervisor", "omar@nakheel.example"),

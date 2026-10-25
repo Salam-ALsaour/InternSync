@@ -1448,6 +1448,364 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/students/me/matches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My Matches */
+        get: operations["my_matches_api_v1_students_me_matches_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/students/me/matches/{vacancy_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My Match */
+        get: operations["my_match_api_v1_students_me_matches__vacancy_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/students/me/matches/{vacancy_id}/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My Plan */
+        get: operations["my_plan_api_v1_students_me_matches__vacancy_id__plan_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Attendance */
+        get: operations["get_attendance_api_v1_placements__placement_id__attendance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/attendance/{week_no}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Record Week */
+        put: operations["record_week_api_v1_placements__placement_id__attendance__week_no__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/attendance/{week_no}/unlock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unlock Week */
+        post: operations["unlock_week_api_v1_placements__placement_id__attendance__week_no__unlock_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Evaluations */
+        get: operations["list_evaluations_api_v1_placements__placement_id__evaluations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/evaluations/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save Evaluation */
+        put: operations["save_evaluation_api_v1_placements__placement_id__evaluations__type__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/evaluations/{type}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Evaluation */
+        post: operations["submit_evaluation_api_v1_placements__placement_id__evaluations__type__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluations/{evaluation_id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reopen Evaluation */
+        post: operations["reopen_evaluation_api_v1_evaluations__evaluation_id__reopen_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/grade": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Grade */
+        get: operations["get_grade_api_v1_placements__placement_id__grade_get"];
+        /** Put Grade */
+        put: operations["put_grade_api_v1_placements__placement_id__grade_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/grade/preconditions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Preconditions */
+        get: operations["get_preconditions_api_v1_placements__placement_id__grade_preconditions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grades/{grade_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Grade */
+        post: operations["submit_grade_api_v1_grades__grade_id__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grades/{grade_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Grade */
+        post: operations["approve_grade_api_v1_grades__grade_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grades/{grade_id}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Return Grade */
+        post: operations["return_grade_api_v1_grades__grade_id__return_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grades/{grade_id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reopen Grade */
+        post: operations["reopen_grade_api_v1_grades__grade_id__reopen_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grades/bulk-approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bulk Approve */
+        post: operations["bulk_approve_api_v1_grades_bulk_approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Grades */
+        get: operations["list_grades_api_v1_grades_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Dashboard */
+        get: operations["get_dashboard_api_v1_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cycles/{cycle_id}/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Cycle Stats */
+        get: operations["get_cycle_stats_api_v1_cycles__cycle_id__stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Platform Stats */
+        get: operations["get_platform_stats_api_v1_platform_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1548,6 +1906,71 @@ export interface components {
             role: string;
             /** Size Bytes */
             size_bytes: number;
+        };
+        /** AttendanceIn */
+        AttendanceIn: {
+            /**
+             * Full
+             * @default false
+             */
+            full: boolean;
+            /** Attended Days */
+            attended_days?: number | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** AttendanceOut */
+        AttendanceOut: {
+            /**
+             * Placement Id
+             * Format: uuid
+             */
+            placement_id: string;
+            /** Weeks */
+            weeks: components["schemas"]["AttendanceWeekOut"][];
+            /** Attended Days */
+            attended_days: number;
+            /** Scheduled Days */
+            scheduled_days: number;
+            /** Percent */
+            percent: number | null;
+            /** Can Record */
+            can_record: boolean;
+            /** Can Unlock */
+            can_unlock: boolean;
+        };
+        /** AttendanceWeekOut */
+        AttendanceWeekOut: {
+            /** Week No */
+            week_no: number;
+            /**
+             * Starts On
+             * Format: date
+             */
+            starts_on: string;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Scheduled Days */
+            scheduled_days: number;
+            /** Attended Days */
+            attended_days: number | null;
+            /** Note */
+            note: string | null;
+            /** State */
+            state: string;
+            /** Locked */
+            locked: boolean;
+            /** Recorded At */
+            recorded_at: string | null;
+            /** Recorded By En */
+            recorded_by_en: string | null;
+            /** Recorded By Ar */
+            recorded_by_ar: string | null;
+            /** Unlocked Until */
+            unlocked_until: string | null;
         };
         /** AuditOut */
         AuditOut: {
@@ -1676,6 +2099,34 @@ export interface components {
             /** File */
             file: string;
         };
+        /** BulkIn */
+        BulkIn: {
+            /** Grade Ids */
+            grade_ids: string[];
+        };
+        /** BulkResult */
+        BulkResult: {
+            /**
+             * Grade Id
+             * Format: uuid
+             */
+            grade_id: string;
+            /** Ok */
+            ok: boolean;
+            /** Code */
+            code: string | null;
+        };
+        /** Check */
+        Check: {
+            /** Item */
+            item: string;
+            /** Ok */
+            ok: boolean;
+            /** Week No */
+            week_no: number | null;
+            /** Component Id */
+            component_id: string | null;
+        };
         /** CollegeDetail */
         CollegeDetail: {
             /**
@@ -1765,6 +2216,42 @@ export interface components {
             /** Author Role */
             author_role: string;
         };
+        /** CompanyFigures */
+        CompanyFigures: {
+            /** Placed */
+            placed: number;
+            /** Reports Due */
+            reports_due: number;
+            /** Reports Submitted */
+            reports_submitted: number;
+            /** Submission Rate */
+            submission_rate: number | null;
+            /** Late Rate */
+            late_rate: number | null;
+            /** Attended Days */
+            attended_days: number;
+            /** Scheduled Days */
+            scheduled_days: number;
+            /** Attendance Rate */
+            attendance_rate: number | null;
+            /** Evaluations Expected */
+            evaluations_expected: number;
+            /** Evaluations Submitted */
+            evaluations_submitted: number;
+            /** Evaluation Completion */
+            evaluation_completion: number | null;
+            /** Enrolled */
+            enrolled?: number | null;
+            /** Unplaced */
+            unplaced?: number | null;
+            /**
+             * Company Id
+             * Format: uuid
+             */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+        };
         /** CompanyOut */
         CompanyOut: {
             /**
@@ -1827,6 +2314,26 @@ export interface components {
              */
             source: "company_final_evaluation" | "academic_supervisor";
         };
+        /** ComponentOut */
+        ComponentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name En */
+            name_en: string;
+            /** Name Ar */
+            name_ar: string;
+            /** Weight */
+            weight: string;
+            /** Source */
+            source: string;
+            /** Computed */
+            computed: boolean;
+            /** Score */
+            score: string | null;
+        };
         /** ComponentsIn */
         ComponentsIn: {
             /** Components */
@@ -1845,6 +2352,22 @@ export interface components {
             name_ar: string;
             /** Source */
             source: string;
+        };
+        /** Criterion */
+        Criterion: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name En */
+            name_en: string;
+            /** Name Ar */
+            name_ar: string;
+            /** Levels */
+            levels: {
+                [key: string]: unknown;
+            };
         };
         /** CriterionIO */
         CriterionIO: {
@@ -2041,6 +2564,17 @@ export interface components {
             /** Final Report Due At */
             final_report_due_at?: string | null;
         };
+        /** CycleStats */
+        CycleStats: {
+            /**
+             * Cycle Id
+             * Format: uuid
+             */
+            cycle_id: string;
+            overall: components["schemas"]["Figures"];
+            /** Companies */
+            companies: components["schemas"]["CompanyFigures"][];
+        };
         /** CycleWithWeeks */
         CycleWithWeeks: {
             /**
@@ -2105,6 +2639,26 @@ export interface components {
             enrolled_students: number;
             /** Week List */
             week_list: components["schemas"]["WeekOut"][];
+        };
+        /** Dashboard */
+        Dashboard: {
+            /** Role */
+            role: string;
+            /** Items */
+            items: components["schemas"]["DashboardItem"][];
+        };
+        /** DashboardItem */
+        DashboardItem: {
+            /** Type */
+            type: string;
+            /** Count */
+            count: number;
+            /** Link */
+            link: string;
+            /** Status */
+            status?: string | null;
+            /** Oldest Days */
+            oldest_days?: number | null;
         };
         /** DocumentOut */
         DocumentOut: {
@@ -2183,6 +2737,70 @@ export interface components {
              */
             enrolled_at: string;
         };
+        /** EvaluationDraftIn */
+        EvaluationDraftIn: {
+            /** Scores */
+            scores?: components["schemas"]["ScoreIO"][];
+            /** Overall Comment */
+            overall_comment?: string | null;
+        };
+        /** EvaluationItem */
+        EvaluationItem: {
+            /** Type */
+            type: string;
+            /**
+             * Due At
+             * Format: date-time
+             */
+            due_at: string;
+            evaluation: components["schemas"]["EvaluationOut"] | null;
+            /** Can Edit */
+            can_edit: boolean;
+            /** Can Reopen */
+            can_reopen: boolean;
+        };
+        /** EvaluationOut */
+        EvaluationOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Type */
+            type: string;
+            /** Status */
+            status: string;
+            /** Overall Comment */
+            overall_comment: string | null;
+            /** Mean Score */
+            mean_score: string | null;
+            /** Scores */
+            scores: components["schemas"]["ScoreOut"][];
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Submitted By En */
+            submitted_by_en: string | null;
+            /** Submitted By Ar */
+            submitted_by_ar: string | null;
+            /** Reopen Count */
+            reopen_count: number;
+            /** Reopened At */
+            reopened_at: string | null;
+            /** Reopen Reason */
+            reopen_reason: string | null;
+        };
+        /** EvaluationOverview */
+        EvaluationOverview: {
+            /**
+             * Placement Id
+             * Format: uuid
+             */
+            placement_id: string;
+            /** Rubric */
+            rubric: components["schemas"]["Criterion"][];
+            /** Items */
+            items: components["schemas"]["EvaluationItem"][];
+        };
         /** ExtractedSkill */
         ExtractedSkill: {
             /**
@@ -2196,6 +2814,118 @@ export interface components {
             name_ar: string;
             /** Evidence */
             evidence: string | null;
+        };
+        /** Figures */
+        Figures: {
+            /** Placed */
+            placed: number;
+            /** Reports Due */
+            reports_due: number;
+            /** Reports Submitted */
+            reports_submitted: number;
+            /** Submission Rate */
+            submission_rate: number | null;
+            /** Late Rate */
+            late_rate: number | null;
+            /** Attended Days */
+            attended_days: number;
+            /** Scheduled Days */
+            scheduled_days: number;
+            /** Attendance Rate */
+            attendance_rate: number | null;
+            /** Evaluations Expected */
+            evaluations_expected: number;
+            /** Evaluations Submitted */
+            evaluations_submitted: number;
+            /** Evaluation Completion */
+            evaluation_completion: number | null;
+            /** Enrolled */
+            enrolled?: number | null;
+            /** Unplaced */
+            unplaced?: number | null;
+        };
+        /** GradeCommentIn */
+        GradeCommentIn: {
+            /**
+             * Comment
+             * @default
+             */
+            comment: string;
+        };
+        /** GradeOut */
+        GradeOut: {
+            /** Visible */
+            visible: boolean;
+            /** Status */
+            status: string | null;
+            /** Id */
+            id?: string | null;
+            /** Placement Id */
+            placement_id?: string | null;
+            /**
+             * Components
+             * @default []
+             */
+            components: components["schemas"]["ComponentOut"][];
+            /** Total */
+            total?: string | null;
+            /**
+             * Preconditions
+             * @default []
+             */
+            preconditions: components["schemas"]["Check"][];
+            /** Submitted At */
+            submitted_at?: string | null;
+            /** Approved At */
+            approved_at?: string | null;
+            /** Return Comment */
+            return_comment?: string | null;
+            /** Reopen Reason */
+            reopen_reason?: string | null;
+            /**
+             * Can Edit
+             * @default false
+             */
+            can_edit: boolean;
+            /**
+             * Can Submit
+             * @default false
+             */
+            can_submit: boolean;
+            /**
+             * Can Decide
+             * @default false
+             */
+            can_decide: boolean;
+            /**
+             * Can Reopen
+             * @default false
+             */
+            can_reopen: boolean;
+        };
+        /** GradeRow */
+        GradeRow: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Placement Id
+             * Format: uuid
+             */
+            placement_id: string;
+            /** Status */
+            status: string;
+            /** Total */
+            total: string | null;
+            student: components["schemas"]["Ref"];
+            /** Company Name */
+            company_name: string;
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Approved At */
+            approved_at: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -2257,6 +2987,53 @@ export interface components {
             name_en: string;
             /** Name Ar */
             name_ar: string;
+        };
+        /** MatchDetail */
+        MatchDetail: {
+            vacancy: components["schemas"]["VacancyBrief"];
+            /** Fit Score */
+            fit_score: number;
+            /** Mode */
+            mode: string;
+            parts: components["schemas"]["Parts"];
+            /** Matched Skills */
+            matched_skills: components["schemas"]["SkillRef"][];
+            /** Missing Skills */
+            missing_skills: components["schemas"]["SkillRef"][];
+            /** Already Applied */
+            already_applied: boolean;
+            /** Model Version */
+            model_version: string | null;
+            /** Advisory */
+            advisory: boolean;
+        };
+        /** MatchItem */
+        MatchItem: {
+            vacancy: components["schemas"]["VacancyBrief"];
+            /** Fit Score */
+            fit_score: number;
+            /** Mode */
+            mode: string;
+            parts: components["schemas"]["Parts"];
+            /** Matched Skills */
+            matched_skills: components["schemas"]["SkillRef"][];
+            /** Missing Skills */
+            missing_skills: components["schemas"]["SkillRef"][];
+            /** Already Applied */
+            already_applied: boolean;
+        };
+        /** MatchList */
+        MatchList: {
+            /** Mode */
+            mode: string;
+            /** Model Version */
+            model_version: string | null;
+            /** Advisory */
+            advisory: boolean;
+            /** Total */
+            total: number;
+            /** Items */
+            items: components["schemas"]["MatchItem"][];
         };
         /** MeOut */
         MeOut: {
@@ -2449,6 +3226,15 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** Parts */
+        Parts: {
+            /** Semantic */
+            semantic: number | null;
+            /** Required */
+            required: number;
+            /** Preferred */
+            preferred: number | null;
+        };
         /** PersonOut */
         PersonOut: {
             /**
@@ -2516,6 +3302,51 @@ export interface components {
             /** Cancel Reason */
             cancel_reason: string | null;
             reports: components["schemas"]["app__vacancies__schemas__SlotSummary"];
+            /** Attendance Percent */
+            attendance_percent?: number | null;
+            /** Grade Status */
+            grade_status?: string | null;
+        };
+        /** Plan */
+        Plan: {
+            /**
+             * Vacancy Id
+             * Format: uuid
+             */
+            vacancy_id: string;
+            /** Missing Skills */
+            missing_skills: components["schemas"]["PlanSkill"][];
+            /** Advisory */
+            advisory: boolean;
+        };
+        /** PlanSkill */
+        PlanSkill: {
+            skill: components["schemas"]["SkillRef"];
+            /** Resources */
+            resources: components["schemas"]["Resource"][];
+        };
+        /** PlatformStats */
+        PlatformStats: {
+            /** Universities */
+            universities: number;
+            /** Colleges */
+            colleges: number;
+            /** Colleges With Coordinator */
+            colleges_with_coordinator: number;
+            /** Colleges Without Coordinator */
+            colleges_without_coordinator: number;
+            /** Verified Companies */
+            verified_companies: number;
+            /** Users By Role */
+            users_by_role: {
+                [key: string]: number;
+            };
+            /** Pending Verifications */
+            pending_verifications: number;
+            /** Oldest Pending Days */
+            oldest_pending_days: number | null;
+            /** Published Vacancies */
+            published_vacancies: number;
         };
         /** ProfileOut */
         ProfileOut: {
@@ -2638,6 +3469,17 @@ export interface components {
             /** Purged */
             purged: boolean;
         };
+        /** Resource */
+        Resource: {
+            /** Title */
+            title: string;
+            /** Url */
+            url: string;
+            /** Estimated Effort */
+            estimated_effort: string | null;
+            /** Language */
+            language: string | null;
+        };
         /** ResourceIO */
         ResourceIO: {
             /** Title */
@@ -2684,6 +3526,45 @@ export interface components {
             locked: boolean;
             /** Criteria */
             criteria: components["schemas"]["CriterionIO"][];
+        };
+        /** ScoreIO */
+        ScoreIO: {
+            /**
+             * Criterion Id
+             * Format: uuid
+             */
+            criterion_id: string;
+            /** Score */
+            score: number;
+        };
+        /** ScoreIn */
+        ScoreIn: {
+            /**
+             * Component Id
+             * Format: uuid
+             */
+            component_id: string;
+            /** Score */
+            score: number | string;
+        };
+        /** ScoreOut */
+        ScoreOut: {
+            /**
+             * Criterion Id
+             * Format: uuid
+             */
+            criterion_id: string;
+            /** Score */
+            score: number;
+            /** Name En */
+            name_en: string;
+            /** Name Ar */
+            name_ar: string;
+        };
+        /** ScoresIn */
+        ScoresIn: {
+            /** Component Scores */
+            component_scores: components["schemas"]["ScoreIn"][];
         };
         /** SkillChoice */
         SkillChoice: {
@@ -2904,6 +3785,16 @@ export interface components {
             /** Is Active */
             is_active?: boolean | null;
         };
+        /** UnlockIn */
+        UnlockIn: {
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+            /** Until */
+            until?: string | null;
+        };
         /** UserOut */
         UserOut: {
             /**
@@ -2940,6 +3831,29 @@ export interface components {
             created_at: string;
             /** Last Login At */
             last_login_at: string | null;
+        };
+        /** VacancyBrief */
+        VacancyBrief: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Company */
+            company: string;
+            /** City */
+            city: string;
+            /** Training Type */
+            training_type: string;
+            /**
+             * Application Deadline
+             * Format: date-time
+             */
+            application_deadline: string;
+            /** Seats */
+            seats: number;
         };
         /** VacancyIn */
         VacancyIn: {
@@ -3314,6 +4228,10 @@ export interface components {
             skills: components["schemas"]["Ref"][];
             /** Cv File Id */
             cv_file_id: string | null;
+            /** Fit Score */
+            fit_score?: string | null;
+            /** Match Mode */
+            match_mode?: string | null;
         };
         /** SlotSummary */
         app__vacancies__schemas__SlotSummary: {
@@ -6597,6 +7515,703 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    my_matches_api_v1_students_me_matches_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    my_match_api_v1_students_me_matches__vacancy_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vacancy_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    my_plan_api_v1_students_me_matches__vacancy_id__plan_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vacancy_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Plan"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_attendance_api_v1_placements__placement_id__attendance_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_week_api_v1_placements__placement_id__attendance__week_no__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+                week_no: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttendanceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unlock_week_api_v1_placements__placement_id__attendance__week_no__unlock_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+                week_no: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UnlockIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_evaluations_api_v1_placements__placement_id__evaluations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_evaluation_api_v1_placements__placement_id__evaluations__type__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+                type: "periodic" | "final";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvaluationDraftIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_evaluation_api_v1_placements__placement_id__evaluations__type__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+                type: "periodic" | "final";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reopen_evaluation_api_v1_evaluations__evaluation_id__reopen_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_grade_api_v1_placements__placement_id__grade_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_grade_api_v1_placements__placement_id__grade_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScoresIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_preconditions_api_v1_placements__placement_id__grade_preconditions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Check"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_grade_api_v1_grades__grade_id__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grade_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_grade_api_v1_grades__grade_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grade_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    return_grade_api_v1_grades__grade_id__return_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grade_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GradeCommentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reopen_grade_api_v1_grades__grade_id__reopen_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grade_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_approve_api_v1_grades_bulk_approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_grades_api_v1_grades_get: {
+        parameters: {
+            query?: {
+                cycle_id?: string | null;
+                status?: ("draft" | "submitted" | "final") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeRow"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dashboard_api_v1_dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dashboard"];
+                };
+            };
+        };
+    };
+    get_cycle_stats_api_v1_cycles__cycle_id__stats_get: {
+        parameters: {
+            query?: {
+                company_id?: string | null;
+            };
+            header?: never;
+            path: {
+                cycle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CycleStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_platform_stats_api_v1_platform_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformStats"];
                 };
             };
         };

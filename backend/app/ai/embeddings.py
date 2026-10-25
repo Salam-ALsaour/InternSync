@@ -30,7 +30,7 @@ class ModelEmbedder:
 
         self.model = SentenceTransformer(name, device="cpu")
         self.model.max_seq_length = 512
-        self.version = f"{name}@{_revision(self.model)}"
+        self.version = f"{name}@{_revision(name)}"
 
     def encode(self, texts: list[str]) -> list[list[float]]:
         vectors = self.model.encode(texts, batch_size=16, normalize_embeddings=True, convert_to_numpy=True,
@@ -38,13 +38,15 @@ class ModelEmbedder:
         return [v.astype(float).tolist() for v in vectors]
 
 
-def _revision(model) -> str:
-    """The Hugging Face snapshot (commit) the model was loaded from, when the cache path shows it."""
+def _revision(name: str) -> str:
+    """The Hugging Face snapshot (commit) of the cached model, read offline; "local" when it cannot be found."""
     try:
-        path = Path(model.tokenizer.name_or_path)
+        from huggingface_hub import snapshot_download
+
+        path = Path(snapshot_download(name, local_files_only=True))
         if re.fullmatch(r"[0-9a-f]{40}", path.name):
             return path.name[:12]
-    except AttributeError:
+    except Exception:  # not from the hub, or no cache
         pass
     return "local"
 

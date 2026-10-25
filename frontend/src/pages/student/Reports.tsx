@@ -1,9 +1,10 @@
-/** The student's placement and report list (wireframe `ST_Report` list; FR-REP-01). */
+/** The student's placement: reports, attendance, evaluations, and the Final grade (FR-REP-01, FR-ATT-03, FR-EVL-03,
+ *  FR-WFL-06). */
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api, unwrap } from "../../api/client";
-import { Card, Empty, ErrorBox, Loading, PageHeader, StatusChip } from "../../components/ui";
-import { PlacementSummary, SlotTable } from "../shared/PlacementReports";
+import { Empty, ErrorBox, Loading, PageHeader } from "../../components/ui";
+import { PlacementView } from "../shared/PlacementReports";
 
 export default function StudentReports() {
   const { t } = useTranslation();
@@ -14,16 +15,9 @@ export default function StudentReports() {
   const active = rows.find((p) => p.status === "active") ?? rows[0];
   return (
     <>
-      <PageHeader title={t("report.my_reports")} />
+      <PageHeader title={t("report.my_training")} />
       <ErrorBox error={placements.error} />
-      {!active ? <Empty>{t("report.no_placement")}</Empty> : (
-        <div className="flex flex-col gap-4">
-          <Card title={t("report.my_training")} actions={<StatusChip status={active.status} />}>
-            <PlacementSummary p={active} />
-          </Card>
-          <Card title={t("report.list")}><SlotTable placementId={active.id} /></Card>
-        </div>
-      )}
+      {!active ? <Empty>{t("report.no_placement")}</Empty> : <PlacementView placementId={active.id} header={false} />}
     </>
   );
 }

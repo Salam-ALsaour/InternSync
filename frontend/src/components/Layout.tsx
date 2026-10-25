@@ -25,11 +25,13 @@ export function menuFor(role: string, isCompanyAdmin: boolean, verified: boolean
         { to: "/company/trainees", key: "trainees" },
         ...(isCompanyAdmin ? [{ to: "/company/team", key: "team" }] : []), ...own];
     case "academic_supervisor":
-      return [{ to: "/academic", key: "home", end: true }, { to: "/academic/students", key: "my_students" }];
+      return [{ to: "/academic", key: "home", end: true }, { to: "/academic/students", key: "my_students" },
+        { to: "/academic/grades", key: "grades" }];
     case "coordinator":
       return [{ to: "/coordinator", key: "home", end: true }, { to: "/coordinator/students", key: "students" },
         { to: "/coordinator/supervisors", key: "supervisors" }, { to: "/coordinator/cycles", key: "cycles" },
-        { to: "/coordinator/placements", key: "placements" }, { to: "/coordinator/audit", key: "audit" }, ...own];
+        { to: "/coordinator/placements", key: "placements" }, { to: "/coordinator/grades", key: "grades" },
+        { to: "/coordinator/audit", key: "audit" }, ...own];
     case "platform_admin":
       return [{ to: "/platform", key: "home", end: true }, { to: "/platform/verifications", key: "verifications" },
         { to: "/platform/organizations", key: "organizations" }, { to: "/platform/catalog", key: "catalog" },

@@ -63,7 +63,7 @@ class ScoresIn(BaseModel):
     component_scores: list[ScoreIn] = Field(max_length=10)
 
 
-class CommentIn(BaseModel):
+class GradeCommentIn(BaseModel):
     comment: str = Field("", max_length=2000)
 
 
@@ -156,7 +156,7 @@ def approve_grade(grade_id: uuid.UUID, actor: Actor = Depends(auth("co")), db: S
 
 
 @router.post("/grades/{grade_id}/return", response_model=GradeOut)
-def return_grade(grade_id: uuid.UUID, body: CommentIn, actor: Actor = Depends(auth("co")),
+def return_grade(grade_id: uuid.UUID, body: GradeCommentIn, actor: Actor = Depends(auth("co")),
                  db: Session = Depends(get_db)):
     g, p, relation = _by_id(db, actor, grade_id)
     service.return_grade(db, actor, g, p, body.comment)
