@@ -99,6 +99,8 @@ class ApplicantOut(ApplicationOut):
     gpa: Decimal
     skills: list[Ref]
     cv_file_id: uuid.UUID | None
+    fit_score: Decimal | None = None
+    match_mode: str | None = None
 
 
 class PlacementIn(BaseModel):
@@ -140,6 +142,8 @@ class PlacementOut(BaseModel):
     confirmed_at: datetime
     cancel_reason: str | None
     reports: SlotSummary
+    attendance_percent: float | None = None
+    grade_status: str | None = None
 
 
 class AcceptedApplicant(BaseModel):

@@ -13,6 +13,7 @@ from app.core.errors import ApiError, conflict, field_error, forbidden, not_foun
 from app.models import (
     CycleWeek,
     Enrollment,
+    Grade,
     GradeComponent,
     Major,
     Placement,
@@ -216,6 +217,9 @@ def components_out(db: Session, cycle: TrainingCycle) -> list[dict]:
 
 def replace_components(db: Session, actor: Actor, cycle: TrainingCycle, items: list[dict]) -> None:
     ensure_open(cycle)
+    if db.scalar(select(Grade.id).join(Placement, Placement.id == Grade.placement_id)
+                 .where(Placement.cycle_id == cycle.id, Grade.status != "draft").limit(1)):
+        raise conflict("GRADES_EXIST")  # FR-CYC-02: weights are fixed once a grade is submitted
     total = sum((Decimal(str(i["weight"])) for i in items), Decimal(0))
     if total != Decimal(100):
         raise field_error("weights", "WEIGHTS_NOT_100")

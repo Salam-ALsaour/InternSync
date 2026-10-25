@@ -88,6 +88,20 @@ MESSAGES: dict[str, tuple[str, str]] = {
     "DUPLICATE_NAME": ("This name already exists.", "هذا الاسم موجود مسبقاً."),
     "FILE_PURGED": ("This document was deleted after the retention period.", "حُذف هذا المستند بعد انتهاء مدة الاحتفاظ."),
     "INTERNAL_ERROR": ("Something went wrong. Please try again.", "حدث خطأ. حاول مجدداً."),
+    "SKILLS_NOT_CONFIRMED": ("Confirm your skills first to see recommended vacancies.",
+                             "أكّد مهاراتك أولاً لترى الفرص المقترحة."),
+    "WEEK_NOT_STARTED": ("This week has not started yet.", "هذا الأسبوع لم يبدأ بعد."),
+    "WEEK_LOCKED": ("This week is locked. Ask the coordinator to unlock it.",
+                    "هذا الأسبوع مقفل. اطلب من المنسق فتحه."),
+    "ATTENDED_EXCEEDS_SCHEDULED": ("Attended days cannot exceed the scheduled working days.",
+                                   "لا يمكن أن تتجاوز أيام الحضور أيام العمل المجدولة."),
+    "EVALUATION_INCOMPLETE": ("Rate every criterion and write the overall comment.",
+                              "قيّم كل المعايير واكتب الملاحظة العامة."),
+    "ALREADY_REOPENED": ("This evaluation was already reopened once.", "أُعيد فتح هذا التقييم مرة من قبل."),
+    "PRECONDITIONS_UNMET": ("The grade cannot be submitted yet. Complete the items listed first.",
+                            "لا يمكن إرسال الدرجة بعد. أكمل العناصر المذكورة أولاً."),
+    "GRADE_LOCKED": ("This grade is locked. Only the coordinator can reopen it.",
+                     "هذه الدرجة مقفلة. يعيد فتحها المنسق فقط."),
 }
 
 

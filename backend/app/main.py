@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.attendance.router import router as attendance_router
 from app.audit.router import router as audit_router
 from app.auth.router import router as auth_router
 from app.catalog.router import router as catalog_router
@@ -15,8 +16,12 @@ from app.core.config import get_settings
 from app.core.db import get_db
 from app.core.i18n import language_from_header, set_language
 from app.cycles.router import router as cycles_router
+from app.dashboard.router import router as dashboard_router
 from app.dev.router import router as dev_router
+from app.evaluations.router import router as evaluations_router
 from app.files.router import router as files_router
+from app.grades.router import router as grades_router
+from app.matching.router import router as matching_router
 from app.orgs.router import router as orgs_router
 from app.profiles.router import router as profiles_router
 from app.reports.router import router as reports_router
@@ -68,7 +73,8 @@ def create_app() -> FastAPI:
 
     errors.install(app)
     for r in (system, auth_router, orgs_router, cycles_router, catalog_router, profiles_router, vacancies_router,
-              reports_router, audit_router, files_router):
+              reports_router, audit_router, files_router, matching_router, attendance_router, evaluations_router,
+              grades_router, dashboard_router):
         app.include_router(r, prefix=API)
     if settings.env in ("development", "test"):
         app.include_router(dev_router, prefix=API)

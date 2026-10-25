@@ -29,6 +29,9 @@ class Settings(BaseSettings):
 
     scheduler_enabled: bool = False
 
+    ai_enabled: bool = True
+    embedding_model: str = "intfloat/multilingual-e5-small"
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def split_origins(cls, v):

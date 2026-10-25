@@ -171,13 +171,13 @@ def patch_major(major_id: uuid.UUID, body: MajorIO, actor: Actor = Depends(auth(
     return {"id": major.id, "name_en": major.name_en, "name_ar": major.name_ar}
 
 
-@router.get("/settings", response_model=dict[str, int])
+@router.get("/settings", response_model=dict[str, int | float])
 def get_settings_values(actor: Actor = Depends(auth("pa")), db: Session = Depends(get_db)):
     return settings.all_values(db)
 
 
-@router.patch("/settings", response_model=dict[str, int])
-def patch_settings(body: dict[str, int], actor: Actor = Depends(auth("pa")), db: Session = Depends(get_db)):
+@router.patch("/settings", response_model=dict[str, int | float])
+def patch_settings(body: dict[str, int | float], actor: Actor = Depends(auth("pa")), db: Session = Depends(get_db)):
     clean = settings.validate(body)
     current = settings.all_values(db)
     for key, value in clean.items():

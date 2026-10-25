@@ -8,6 +8,7 @@ from sqlalchemy import delete, select, text
 from sqlalchemy.orm import Session
 
 from app.core import audit, clock, files, settings
+from app.matching.service import embed_missing
 from app.models import (
     AccountToken,
     JobRun,
@@ -22,7 +23,7 @@ from app.models import (
 )
 
 log = logging.getLogger("internsync.jobs")
-LOCK_IDS = {"flag_missing": 7101, "purge_verification_documents": 7102, "cleanup": 7103}
+LOCK_IDS = {"flag_missing": 7101, "purge_verification_documents": 7102, "cleanup": 7103, "embed_missing": 7104}
 
 
 def flag_missing(db: Session) -> int:
@@ -68,7 +69,7 @@ def cleanup(db: Session) -> int:
 
 JOBS: dict[str, Callable[[Session], int]] = {"flag_missing": flag_missing,
                                              "purge_verification_documents": purge_verification_documents,
-                                             "cleanup": cleanup}
+                                             "cleanup": cleanup, "embed_missing": embed_missing}
 
 
 def run(db_factory, name: str) -> None:

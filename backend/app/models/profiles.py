@@ -1,8 +1,9 @@
-"""Student profiles, CVs, and skills (Design 4.3.3). Embedding columns arrive in Increment 2."""
+"""Student profiles, CVs, and skills (Design 4.3.3)."""
 import uuid
 from datetime import datetime
 from decimal import Decimal
 
+from pgvector.sqlalchemy import HALFVEC
 from sqlalchemy import CheckConstraint, ForeignKey, Numeric, SmallInteger, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
@@ -23,6 +24,9 @@ class StudentProfile(Base):
     interests: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, server_default=text("'{}'"),
                                                  default=list)
     skills_confirmed_at: Mapped[datetime | None] = ts()
+    embedding = mapped_column(HALFVEC(384))  # profile text embedding (Design 6.2)
+    embedding_model: Mapped[str | None] = mapped_column(Text)
+    embedded_at: Mapped[datetime | None] = ts()
     updated_at: Mapped[datetime] = updated_at()
     __table_args__ = (
         CheckConstraint("length(student_number) BETWEEN 4 AND 20", name="student_number"),

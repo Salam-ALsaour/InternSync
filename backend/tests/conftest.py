@@ -17,7 +17,8 @@ _STORAGE = tempfile.mkdtemp(prefix="internsync-test-")
 TEST_DB = os.environ.get("TEST_DATABASE_URL",
                          "postgresql+psycopg://internsync:internsync@localhost:5433/internsync_test")
 os.environ.update(ENV="test", DATABASE_URL=TEST_DB, MAIL_BACKEND="memory", LOCAL_STORAGE_DIR=_STORAGE,
-                  SCHEDULER_ENABLED="false", JWT_SECRET="test-secret-0123456789abcdef0123456789abcdef")
+                  SCHEDULER_ENABLED="false", AI_ENABLED="false",
+                  JWT_SECRET="test-secret-0123456789abcdef0123456789abcdef")
 
 
 def _ensure_database() -> None:
@@ -34,6 +35,7 @@ from argon2 import PasswordHasher  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from sqlalchemy import text  # noqa: E402
 
+from app.ai import embeddings  # noqa: E402
 from app.ai import skills as skill_index  # noqa: E402
 from app.auth import service as auth_service  # noqa: E402
 from app.core import clock, mail, security  # noqa: E402
@@ -68,6 +70,7 @@ def clean(schema):
     mail.outbox.clear()
     auth_service._registrations.clear()
     skill_index.refresh_index()
+    embeddings.set_embedder(None)  # basic matching unless a test installs the stand-in embedder
     clock.reset()
     clock.freeze(T0)
     yield

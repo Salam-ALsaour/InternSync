@@ -5,15 +5,18 @@ from datetime import date
 from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session
 
+from app.attendance.service import placement_percent
 from app.core import audit, clock, settings
 from app.core.deps import Actor
 from app.core.errors import ApiError, conflict, field_error, forbidden, not_found
 from app.cycles.service import ensure_open, student_open_enrollment
+from app.matching import service as matching
 from app.models import (
     Application,
     College,
     Company,
     CycleWeek,
+    Grade,
     Major,
     Placement,
     ReportSlot,
@@ -202,6 +205,7 @@ def create(db: Session, actor: Actor, data: dict) -> Vacancy:
     db.add(v)
     db.flush()
     _set_links(db, v, data)
+    matching.embed_vacancy(db, v)
     audit.record(db, actor.user, "create", "vacancy", v.id, company_id=company.id,
                  new={"title": v.title, "seats": v.seats})
     if publish:
@@ -255,6 +259,8 @@ def patch(db: Session, actor: Actor, v: Vacancy, data: dict) -> None:
     old, new = audit.changes(v, fields)
     _set_links(db, v, {k: data[k] for k in ("required_skill_ids", "preferred_skill_ids", "major_ids",
                                             "target_university_ids") if k in data})
+    if new or any(k in data for k in ("required_skill_ids", "preferred_skill_ids")):
+        matching.embed_vacancy(db, v)
     audit.record(db, actor.user, "update", "vacancy", v.id, company_id=v.company_id, old=old,
                  new={**new, **{k: data[k] for k in data if k.endswith("_ids") and data[k] is not None}})
 
@@ -286,6 +292,7 @@ def apply(db: Session, actor: Actor, v: Vacancy) -> Application:
     a = Application(vacancy_id=v.id, student_id=student.id)
     db.add(a)
     db.flush()
+    matching.snapshot(db, student, a, v)
     audit.record(db, student, "apply", "application", a.id, student_id=student.id, college_id=student.college_id,
                  company_id=v.company_id, new={"vacancy_id": v.id})
     return a
@@ -313,7 +320,7 @@ def applicant_out(db: Session, a: Application) -> dict:
     out.update(university_en=uni.name_en, university_ar=uni.name_ar, college_en=college.name_en,
                college_ar=college.name_ar, major_en=major.name_en, major_ar=major.name_ar, gpa=profile.gpa,
                skills=[{k: s[k] for k in ("id", "name_en", "name_ar")} for s in confirmed_skills(db, student.id)],
-               cv_file_id=cv.file_id if cv else None)
+               cv_file_id=cv.file_id if cv else None, fit_score=a.fit_score, match_mode=a.match_mode)
     return out
 
 
@@ -392,6 +399,7 @@ def confirm_placement(db: Session, actor: Actor, application_id: uuid.UUID, acad
     for w in db.scalars(select(CycleWeek).where(CycleWeek.cycle_id == cycle.id).order_by(CycleWeek.week_no)):
         db.add(ReportSlot(placement_id=p.id, kind="weekly", week_no=w.week_no, due_at=w.report_due_at))
     db.add(ReportSlot(placement_id=p.id, kind="final", week_no=None, due_at=cycle.final_report_due_at))
+    db.add(Grade(placement_id=p.id))
     a.status = "placed"
     for other in db.scalars(select(Application).where(Application.student_id == student.id, Application.id != a.id,
                                                       Application.status.in_(ACTIVE))):
@@ -420,7 +428,8 @@ def placement_out(db: Session, p: Placement) -> dict:
             "company_name": db.get(Company, v.company_id).name,
             "company_supervisor": ref(db.get(User, p.company_supervisor_id)),
             "academic_supervisor": ref(db.get(User, p.academic_supervisor_id)), "confirmed_at": p.confirmed_at,
-            "cancel_reason": p.cancel_reason, "reports": summary}
+            "cancel_reason": p.cancel_reason, "reports": summary, "attendance_percent": placement_percent(db, p),
+            "grade_status": db.scalar(select(Grade.status).where(Grade.placement_id == p.id))}
 
 
 def placements_query(actor: Actor, f: dict):
