@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sys
+from math import comb
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -62,27 +63,52 @@ def matching(profiles, vacancies, embedder) -> dict:
     if embedder is not None:
         pv = embedder.encode([profile_text(p) for p in profiles])
         vv = embedder.encode([vacancy_text(v) for v in vacancies])
-    rows = []
+    rows, alone = [], []
     for i, p in enumerate(profiles):
         eligible = [(j, v) for j, v in enumerate(vacancies) if p["major"] in v["majors"]]
-        scored = []
+        scored, by_text = [], []
         for j, v in eligible:
             cosine = sum(a * b for a, b in zip(pv[i], vv[j], strict=True)) if embedder is not None else None
             fit = score(p["skills"], v["required"], v["preferred"], cosine, w)
             scored.append((fit.score, fit.required, v["id"]))
+            by_text.append((cosine or 0.0, 0, v["id"]))
         scored.sort(key=lambda x: (-x[0], -x[1]))
-        ranked = [vid for _, _, vid in scored]
-        top = ranked[:TOP]
-        first = next((k for k, vid in enumerate(ranked, start=1) if vid in p["relevant"]), None)
-        rows.append({"id": p["id"], "lang": p["lang"], "hit": bool(set(top) & set(p["relevant"])), "top": top,
-                     "relevant": p["relevant"], "top1": ranked[:1] != [] and ranked[0] in p["relevant"],
-                     "rr": 1 / first if first else 0.0, "pool": len(ranked)})
+        rows.append(_row(p, [vid for _, _, vid in scored]))
+        if embedder is not None:  # the model's own contribution: rank by text similarity only
+            by_text.sort(key=lambda x: -x[0])
+            alone.append(_row(p, [vid for _, _, vid in by_text]))
 
     def rate(rs, key="hit"):
         return sum(r[key] for r in rs) / len(rs)
-    return {"hit_rate": rate(rows), "top1": rate(rows, "top1"), "mrr": rate(rows, "rr"),
-            "pool": sum(r["pool"] for r in rows) / len(rows),
-            "by_lang": {lang: rate([r for r in rows if r["lang"] == lang]) for lang in ("en", "ar")}, "rows": rows}
+
+    def summary(rs):
+        return {"hit_rate": rate(rs), "top1": rate(rs, "top1"), "mrr": rate(rs, "rr")}
+    return {**summary(rows), "pool": sum(r["pool"] for r in rows) / len(rows),
+            "by_lang": {lang: rate([r for r in rows if r["lang"] == lang]) for lang in ("en", "ar")}, "rows": rows,
+            "text_alone": summary(alone) if alone else None}
+
+
+def chance(profiles, vacancies) -> dict:
+    """What a random order of each profile's eligible vacancies would score, on average: the bar a ranking has to
+    clear on this set."""
+    hit = top1 = rr = 0.0
+    for p in profiles:
+        n = sum(1 for v in vacancies if p["major"] in v["majors"])
+        r = sum(1 for v in vacancies if p["major"] in v["majors"] and v["id"] in p["relevant"])
+        if r == 0:
+            continue
+        hit += 1 - comb(n - r, TOP) / comb(n, TOP) if n >= TOP else 1.0
+        top1 += r / n
+        rr += sum(comb(n - k, r - 1) / comb(n, r) / k for k in range(1, n - r + 2))  # first relevant at rank k
+    return {"hit_rate": hit / len(profiles), "top1": top1 / len(profiles), "mrr": rr / len(profiles)}
+
+
+def _row(p, ranked: list[str]) -> dict:
+    top = ranked[:TOP]
+    first = next((k for k, vid in enumerate(ranked, start=1) if vid in p["relevant"]), None)
+    return {"id": p["id"], "lang": p["lang"], "hit": bool(set(top) & set(p["relevant"])), "top": top,
+            "relevant": p["relevant"], "top1": ranked[:1] != [] and ranked[0] in p["relevant"],
+            "rr": 1 / first if first else 0.0, "pool": len(ranked)}
 
 
 def main() -> int:
@@ -94,8 +120,9 @@ def main() -> int:
     embedder = None if args.basic else ModelEmbedder(get_settings().embedding_model)
     ext = extraction(skills, profiles)
     mat = matching(profiles, vacancies, embedder)
+    base = chance(profiles, vacancies)
     if args.json:
-        print(json.dumps({"extraction": ext, "matching": mat}, ensure_ascii=False, indent=1))
+        print(json.dumps({"extraction": ext, "matching": mat, "chance": base}, ensure_ascii=False, indent=1))
         return 0
     mode = "basic" if embedder is None else embedder.version
     print(f"Set: {len(profiles)} profiles (10 Arabic, 10 English), {len(vacancies)} vacancies")
@@ -111,6 +138,12 @@ def main() -> int:
     for r in mat["rows"]:
         if not r["hit"]:
             print(f"  {r['id']} top {r['top']} relevant {r['relevant']}")
+    print(f"A random order would score: top-{TOP} {base['hit_rate']:.1%}, top-1 {base['top1']:.1%}, "
+          f"mean reciprocal rank {base['mrr']:.3f}")
+    if mat["text_alone"]:
+        t = mat["text_alone"]
+        print(f"Text similarity alone (no skill rules): top-{TOP} {t['hit_rate']:.1%}, top-1 {t['top1']:.1%}, "
+              f"mean reciprocal rank {t['mrr']:.3f}")
     return 0
 
 

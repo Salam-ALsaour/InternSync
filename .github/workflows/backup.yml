@@ -1,0 +1,73 @@
+# Nightly backup of the hosted database and uploaded files (Design 3.5, NFR-REL-02; Increment 2 design, Section 10).
+# Both copies are encrypted with BACKUP_PASSPHRASE and kept as artifacts of this private repository: the database for
+# 30 days, the files for 7 days (artifact storage is limited on the free plan). Until the secrets exist, it only
+# notes that there is nothing to back up. docs/Deployment.md shows how to restore.
+name: Backup
+
+on:
+  schedule:
+    - cron: "0 23 * * *" # 02:00 in Riyadh
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DB_URL: ${{ secrets.DATABASE_URL_BACKUP }}
+      PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+    steps:
+      - name: Check the backup settings
+        id: ready
+        run: |
+          echo "stamp=$(date -u +%Y%m%dT%H%MZ)" >> "$GITHUB_OUTPUT"
+          if [ -n "$DB_URL" ] && [ -n "$PASSPHRASE" ]; then
+            echo "database=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::DATABASE_URL_BACKUP or BACKUP_PASSPHRASE is not set, so there is nothing to back up."
+          fi
+          if [ -n "$PASSPHRASE" ] && [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_KEY" ]; then
+            echo "files=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Dump and encrypt the database
+        if: steps.ready.outputs.database == 'true'
+        run: |
+          # pg_dump 17 reads servers up to version 17.
+          docker run --rm -e DB_URL postgres:17-alpine \
+            sh -c 'pg_dump --format=custom --no-owner --no-privileges --dbname="$DB_URL"' > internsync.dump
+          test -s internsync.dump
+          gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --symmetric --cipher-algo AES256 \
+            --output "internsync-${{ steps.ready.outputs.stamp }}.dump.gpg" internsync.dump <<< "$PASSPHRASE"
+          rm internsync.dump
+      - uses: actions/upload-artifact@v4
+        if: steps.ready.outputs.database == 'true'
+        with:
+          name: database-backup
+          path: internsync-*.dump.gpg
+          retention-days: 30
+          if-no-files-found: error
+
+      - uses: actions/checkout@v4
+        if: steps.ready.outputs.files == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.ready.outputs.files == 'true'
+        with:
+          python-version: "3.11"
+      - name: Copy and encrypt the files
+        if: steps.ready.outputs.files == 'true'
+        run: |
+          pip install httpx==0.28.1
+          python backend/scripts/backup_files.py files.tar
+          gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --symmetric --cipher-algo AES256 \
+            --output "files-${{ steps.ready.outputs.stamp }}.tar.gpg" files.tar <<< "$PASSPHRASE"
+          rm files.tar
+      - uses: actions/upload-artifact@v4
+        if: steps.ready.outputs.files == 'true'
+        with:
+          name: files-backup
+          path: files-*.tar.gpg
+          retention-days: 7
+          if-no-files-found: error

@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.ai import embeddings
 from app.attendance.router import router as attendance_router
 from app.audit.router import router as audit_router
 from app.auth.router import router as auth_router
@@ -39,18 +40,23 @@ def health(deep: bool = False, db: Session = Depends(get_db)) -> dict:
     if deep:
         db.execute(text("SELECT 1"))
         last = db.execute(text("SELECT max(finished_at) FROM job_runs")).scalar()
-        out.update(database="ok", scheduler_last_run=last.isoformat() if last else None)
+        embedder = embeddings.loaded()
+        out.update(database="ok", scheduler_last_run=last.isoformat() if last else None,
+                   model=embedder.version if embedder else None)
     return out
 
 
 @system.get("/version")
 def version() -> dict:
-    return {"version": get_settings().app_version, "embedding_model": None}
+    embedder = embeddings.loaded()
+    return {"version": get_settings().app_version, "embedding_model": embedder.version if embedder else None}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler = None
+    if get_settings().env != "test":
+        embeddings.warm_up()
     if get_settings().scheduler_enabled:
         from app.jobs.scheduler import start
         scheduler = start()

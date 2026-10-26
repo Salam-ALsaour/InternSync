@@ -3,20 +3,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api, unwrap } from "../../api/client";
 import { Button, Card, Checkbox, Empty, ErrorBox, Loading, Notice, PageHeader, StatusChip, Table, Tabs, Td } from "../../components/ui";
 import { useMe } from "../../lib/auth";
 import { formatDateTime, nameOf } from "../../lib/format";
 
 type Status = "submitted" | "draft" | "final";
+const STATUSES: Status[] = ["submitted", "draft", "final"];
 
 export default function Grades() {
   const { t, i18n } = useTranslation();
   const me = useMe();
   const coordinator = me.role === "coordinator";
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState<Status>(coordinator ? "submitted" : "draft");
+  const [params] = useSearchParams(); // dashboard links open a tab: ?status=draft
+  const asked = STATUSES.find((s) => s === params.get("status"));
+  const [status, setStatus] = useState<Status>(asked ?? (coordinator ? "submitted" : "draft"));
   const [picked, setPicked] = useState<string[]>([]);
   const list = useQuery({ queryKey: ["grades", status], queryFn: () =>
     unwrap(api.GET("/api/v1/grades", { params: { query: { status } } })) });

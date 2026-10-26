@@ -9,13 +9,30 @@ import { formatDateTime, nameOf } from "../../lib/format";
 
 type GradeOut = S<"GradeOut">;
 
-function checkLabel(c: S<"Check">, t: (k: string, o?: Record<string, unknown>) => string, components: GradeOut["components"], lang: string) {
-  if (c.item === "weekly_report") return t("grade.check_weekly", { n: c.week_no });
+type T = (k: string, o?: Record<string, unknown>) => string;
+
+function checkLabel(c: S<"Check">, t: T, components: GradeOut["components"], lang: string) {
   if (c.item === "component") {
     const comp = components.find((x) => x.id === c.component_id);
     return t("grade.check_component", { name: comp ? nameOf(comp, lang) : "" });
   }
   return t(`grade.check_${c.item}`);
+}
+
+/** One line per condition, except the weekly reports: they share one line that lists the weeks still open. */
+function checkLines(g: GradeOut, t: T, lang: string) {
+  const open = g.preconditions.filter((c) => c.item === "weekly_report" && !c.ok).map((c) => c.week_no);
+  const lines: { ok: boolean; label: string }[] = [];
+  let weekly = false;
+  for (const c of g.preconditions) {
+    if (c.item !== "weekly_report") lines.push({ ok: c.ok, label: checkLabel(c, t, g.components, lang) });
+    else if (!weekly) {
+      weekly = true;
+      lines.push({ ok: open.length === 0, label: open.length === 0 ? t("grade.check_weekly_all")
+        : t("grade.check_weekly_open", { weeks: open.join(lang === "ar" ? "، " : ", ") }) });
+    }
+  }
+  return lines;
 }
 
 export default function Grade({ placementId }: { placementId: string }) {
@@ -80,8 +97,8 @@ export default function Grade({ placementId }: { placementId: string }) {
           <div>
             <p className="mb-2 text-sm font-semibold">{t("grade.preconditions")}</p>
             <ul className="grid gap-1 text-sm sm:grid-cols-2">
-              {g.preconditions.map((c, i) => (
-                <li key={i} className={c.ok ? "text-[#1E6B34]" : "text-[#A61B1B]"}>{c.ok ? "✓" : "✗"} {checkLabel(c, t, g.components, i18n.language)}</li>
+              {checkLines(g, t, i18n.language).map((c, i) => (
+                <li key={i} className={c.ok ? "text-[#1E6B34]" : "text-[#A61B1B]"}>{c.ok ? "✓" : "✗"} {c.label}</li>
               ))}
             </ul>
           </div>

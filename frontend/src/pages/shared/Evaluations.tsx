@@ -116,7 +116,8 @@ export default function Evaluations({ placementId }: { placementId: string }) {
         <Card key={item.type} title={t(`evaluation.${item.type}`)}
           actions={<>
             <span className="text-xs text-ink-muted">{t("evaluation.due")}: <span dir="ltr">{formatDateTime(item.due_at)}</span></span>
-            <StatusChip status={item.evaluation?.status ?? "draft"} label={item.evaluation ? undefined : t("evaluation.not_started")} />
+            <StatusChip status={item.evaluation?.status ?? "draft"}
+              label={item.evaluation ? t(`evaluation.status_${item.evaluation.status}`) : t("evaluation.not_started")} />
           </>}>
           {item.can_edit ? <EvaluationForm placementId={placementId} item={item} rubric={o.rubric} onSaved={saved} />
             : <EvaluationView item={item} rubric={o.rubric} />}

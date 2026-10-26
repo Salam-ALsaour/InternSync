@@ -87,7 +87,8 @@ export function PlacementView({ placementId, header = true }: { placementId: str
           <PlacementSummary p={p} />
           <div className="mt-3 flex flex-wrap gap-2 text-sm">
             <Chip tone="info">{t("attendance.percent")}: <span dir="ltr" className="ms-1">{p.attendance_percent === null || p.attendance_percent === undefined ? "—" : `${p.attendance_percent}%`}</span></Chip>
-            {p.grade_status && me.role !== "company_supervisor" && <Chip tone={p.grade_status === "final" ? "success" : "neutral"}>{t("grade.title")}: {t(`grade.status_${p.grade_status}`)}</Chip>}
+            {p.grade_status && me.role !== "company_supervisor" && (me.role !== "student" || p.grade_status === "final") &&
+              <Chip tone={p.grade_status === "final" ? "success" : "neutral"}>{t("grade.title")}: {t(`grade.status_${p.grade_status}`)}</Chip>}
           </div>
         </Card>
         <Tabs value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })}

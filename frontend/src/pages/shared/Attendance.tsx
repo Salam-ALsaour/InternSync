@@ -13,7 +13,7 @@ const TONE: Record<string, "neutral" | "info" | "success" | "warning" | "danger"
   upcoming: "neutral", open: "info", pending: "warning", overdue: "danger", recorded: "success",
 };
 
-function WeekEditor({ week, onSave, busy }: { week: Week; busy: boolean;
+function WeekEditor({ week, onSave, onCancel, busy }: { week: Week; busy: boolean; onCancel: () => void;
   onSave: (body: { full?: boolean; attended_days?: number; note?: string }) => void }) {
   const { t } = useTranslation();
   const [days, setDays] = useState(String(week.attended_days ?? week.scheduled_days));
@@ -27,6 +27,7 @@ function WeekEditor({ week, onSave, busy }: { week: Week; busy: boolean;
         onChange={(e) => setDays(e.target.value)} hint={t("attendance.of_scheduled", { n: week.scheduled_days })} />
       <TextArea label={t("attendance.note")} rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
       <Button tone="secondary" busy={busy} onClick={() => onSave({ attended_days: Number(days), note })}>{t("common.save")}</Button>
+      <Button tone="ghost" onClick={onCancel}>{t("common.cancel")}</Button>
     </div>
   );
 }
@@ -92,7 +93,7 @@ export default function Attendance({ placementId }: { placementId: string }) {
       </Table>
       {a.can_record && <div className="mt-3"><Notice>{t("attendance.window_note")}</Notice></div>}
       <Dialog open={!!editing} title={t("attendance.week_title", { n: editing?.week_no })} onClose={() => setEditing(null)}>
-        {editing && <WeekEditor week={editing} busy={record.isPending} onSave={(body) => record.mutate({ week: editing.week_no, body })} />}
+        {editing && <WeekEditor week={editing} busy={record.isPending} onCancel={() => setEditing(null)} onSave={(body) => record.mutate({ week: editing.week_no, body })} />}
         <ErrorBox error={record.error} />
       </Dialog>
       <Dialog open={!!unlocking} title={t("attendance.unlock_title", { n: unlocking?.week_no })} onClose={() => setUnlocking(null)}>

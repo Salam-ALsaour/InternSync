@@ -1,4 +1,5 @@
-# Local development and the M3 demo (Design 3.3). `docker compose up` starts everything.
+# Local development and the demos (Design 3.3). `docker compose up` starts everything; the API image includes the
+# embedding model (build with `--build-arg WITH_AI=0` for basic matching only).
 services:
   db:
     image: pgvector/pgvector:pg16

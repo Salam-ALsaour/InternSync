@@ -22,7 +22,6 @@ SPECS: dict[str, tuple[Number, Number, Number]] = {
     "files.attachment_max_mb": (10, 1, 50),
     "reports.max_attachments": (3, 1, 10),
     "verification.document_retention_days": (30, 1, 365),
-    "files.signed_url_seconds": (60, 10, 3600),
     "attendance.edit_days": (7, 1, 60),
     "attendance.pending_after_days": (3, 0, 30),
     "matching.weight_semantic": (0.5, 0.0, 1.0),

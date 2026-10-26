@@ -1,0 +1,51 @@
+# Deploy the API to the Hugging Face Space (Increment 2 design, Section 10). Runs after a change to backend/ reaches
+# main. Until the HF_TOKEN secret and the HF_SPACE variable exist, it only notes that there is nothing to deploy
+# (docs/Deployment.md).
+name: Deploy API
+
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/deploy-api.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_SPACE: ${{ vars.HF_SPACE }}
+    steps:
+      - name: Check the deployment settings
+        id: ready
+        run: |
+          if [ -n "$HF_TOKEN" ] && [ -n "$HF_SPACE" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::HF_TOKEN or HF_SPACE is not set, so there is nothing to deploy (docs/Deployment.md)."
+          fi
+      - uses: actions/checkout@v4
+        if: steps.ready.outputs.go == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.ready.outputs.go == 'true'
+        with:
+          python-version: "3.11"
+      - name: Upload to the Space
+        if: steps.ready.outputs.go == 'true'
+        working-directory: backend
+        env:
+          WEB_URL: ${{ vars.WEB_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: |
+          pip install huggingface_hub==2.3.0
+          python scripts/deploy_space.py

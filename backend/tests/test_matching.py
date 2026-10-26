@@ -218,4 +218,14 @@ def test_at_per_02_ranking_1000_vacancies_within_5_seconds(model, client, w, f, 
             times.append(time.perf_counter() - start)
         assert body["total"] == 1001 and body["mode"] == mode
         p95 = statistics.quantiles(times, n=20)[18]
+        print(f"NFR-PER-02 {mode}: median {statistics.median(times):.2f} s, p95 {p95:.2f} s")  # for the test report
         assert p95 < 5, (mode, p95)
+
+
+def test_version_and_health_name_the_loaded_model(client):
+    assert client.get(f"{API}/version").json()["embedding_model"] is None
+    health = client.get(f"{API}/health?deep=true").json()
+    assert health["database"] == "ok" and health["model"] is None
+    embeddings.set_embedder(HashEmbedder())
+    assert client.get(f"{API}/version").json()["embedding_model"] == "test-hash@1"
+    assert client.get(f"{API}/health?deep=true").json()["model"] == "test-hash@1"

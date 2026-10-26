@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 
 from app.attendance.service import week_end
 from app.catalog.router import match_terms
-from app.core import clock
+from app.core import clock, files
 from app.core.config import get_settings
 from app.core.db import SessionLocal
 from app.core.deps import Actor
@@ -264,6 +264,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.demo and get_settings().env == "production":
         print("Demo accounts are not allowed when ENV=production.", file=sys.stderr)
         return 2
+    files.storage().prepare()
     with SessionLocal() as db:
         added = seed_reference(db)
         print("reference:", ", ".join(f"{k} +{v}" for k, v in added.items()))

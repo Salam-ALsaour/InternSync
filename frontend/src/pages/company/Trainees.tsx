@@ -1,4 +1,4 @@
-/** The company's trainees and their reports, read-only (FR-REP-06). */
+/** The company's trainees: report counts and attendance; each row opens the placement page (FR-REP-06, FR-ATT-01). */
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -20,7 +20,7 @@ export function PlacementTable({ title }: { title: string }) {
       <Card>
         {rows.length === 0 ? <Empty /> : (
           <Table head={[t("field.student"), t("field.company"), t("field.cycle"), t("report.accepted"),
-            t("report.waiting"), t("status.late"), t("status.missing"), ""]}>
+            t("report.waiting"), t("status.late"), t("status.missing"), t("attendance.percent"), ""]}>
             {rows.map((p) => (
               <tr key={p.id}>
                 <Td className="font-semibold">{nameOf(p.student, i18n.language)}{p.status !== "active" && <div className="mt-1"><StatusChip status={p.status} /></div>}</Td>
@@ -30,7 +30,8 @@ export function PlacementTable({ title }: { title: string }) {
                 <Td>{p.reports.submitted}</Td>
                 <Td>{p.reports.late}</Td>
                 <Td>{p.reports.missing}</Td>
-                <Td><Link to={`/placements/${p.id}`}>{t("report.open_reports")}</Link></Td>
+                <Td><span dir="ltr">{p.attendance_percent == null ? "—" : `${p.attendance_percent}%`}</span></Td>
+                <Td><Link to={`/placements/${p.id}`}>{t("common.open")}</Link></Td>
               </tr>
             ))}
           </Table>

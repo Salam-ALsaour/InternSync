@@ -28,7 +28,10 @@ class ModelEmbedder:
     def __init__(self, name: str):
         from sentence_transformers import SentenceTransformer
 
-        self.model = SentenceTransformer(name, device="cpu")
+        try:  # the cached copy (baked into the image) first, so loading needs no network
+            self.model = SentenceTransformer(name, device="cpu", local_files_only=True)
+        except Exception:
+            self.model = SentenceTransformer(name, device="cpu")
         self.model.max_seq_length = 512
         self.version = f"{name}@{_revision(name)}"
 
@@ -71,6 +74,17 @@ def get_embedder() -> Embedder | None:
                 except Exception:  # missing package, no network at build time, broken cache
                     log.exception("embedding model not available; basic matching only")
     return _embedder
+
+
+def loaded() -> Embedder | None:
+    """The embedder if it is already loaded; never starts loading it."""
+    return _embedder
+
+
+def warm_up() -> None:
+    """Load the model in the background at startup, so the first student does not wait for it."""
+    if get_settings().ai_enabled and not _tried:
+        threading.Thread(target=get_embedder, name="embedder-warm-up", daemon=True).start()
 
 
 def set_embedder(embedder: Embedder | None) -> None:

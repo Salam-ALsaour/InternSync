@@ -98,8 +98,8 @@ def _academic(db: Session, actor: Actor) -> list[dict]:
         if g.return_comment:
             returned += 1
     return [_item("reports_to_review", to_review, "/academic/students"),
-            _item("grades_to_submit", ready, "/academic/students"),
-            _item("grades_returned", returned, "/academic/students")]
+            _item("grades_to_submit", ready, "/academic/grades?status=draft"),
+            _item("grades_returned", returned, "/academic/grades?status=draft")]
 
 
 def _coordinator(db: Session, actor: Actor) -> list[dict]:
@@ -114,7 +114,7 @@ def _coordinator(db: Session, actor: Actor) -> list[dict]:
                            .where(Placement.student_id.in_(students), Grade.status == "submitted"))
     return [_item("students_to_verify", verify, "/coordinator/students"),
             _item("placements_to_confirm", to_place, "/coordinator/placements"),
-            _item("grades_to_approve", to_approve, "/coordinator/grades")]
+            _item("grades_to_approve", to_approve, "/coordinator/grades?status=submitted")]
 
 
 def _platform(db: Session) -> list[dict]:

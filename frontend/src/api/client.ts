@@ -63,12 +63,16 @@ function headers(): Record<string, string> {
   return h;
 }
 
-async function toError(response: Response): Promise<ApiError> {
+/** `parsed` is the error body when the typed client has already read it (a body can be read only once). */
+async function toError(response: Response, parsed?: unknown): Promise<ApiError> {
   let body: Record<string, unknown> = {};
-  try {
-    body = await response.clone().json();
-  } catch {
-    /* not JSON */
+  if (parsed && typeof parsed === "object") body = parsed as Record<string, unknown>;
+  else {
+    try {
+      body = await response.clone().json();
+    } catch {
+      /* not JSON, or already read */
+    }
   }
   const { code, detail, errors, title, status, type, ...extra } = body as Record<string, never>;
   void title;
@@ -88,19 +92,23 @@ const auth: Middleware = {
   },
 };
 
-export const api = createClient<paths>({ baseUrl: "" });
+/** Empty in development and the local demo, where the dev server proxies /api; the API's address when the web app
+ *  is hosted apart from it (`VITE_API_URL` at build time, Increment 2 design, Section 10). */
+export const API_ORIGIN = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
+
+export const api = createClient<paths>({ baseUrl: API_ORIGIN });
 api.use(auth);
 
 /** Await an openapi-fetch call and return its data, or throw ApiError. */
 export async function unwrap<T>(call: Promise<{ data?: T; error?: unknown; response: Response }>): Promise<T> {
   const { data, error, response } = await call;
-  if (error !== undefined || !response.ok) throw await toError(response);
+  if (error !== undefined || !response.ok) throw await toError(response, error);
   return data as T;
 }
 
 /** Multipart requests (registration, uploads), which the typed client does not build for us. */
 export async function sendForm<T>(method: "POST" | "PUT", path: string, form: FormData): Promise<T> {
-  const response = await fetch(path, { method, body: form, headers: headers() });
+  const response = await fetch(API_ORIGIN + path, { method, body: form, headers: headers() });
   if (response.status === 401) onUnauthorized();
   if (!response.ok) throw await toError(response);
   return (await response.json()) as T;
@@ -108,7 +116,7 @@ export async function sendForm<T>(method: "POST" | "PUT", path: string, form: Fo
 
 /** A file served by the API (permission-checked), opened in a new tab. */
 export async function openFile(fileId: string): Promise<void> {
-  const response = await fetch(`/api/v1/files/${fileId}`, { headers: headers() });
+  const response = await fetch(`${API_ORIGIN}/api/v1/files/${fileId}`, { headers: headers() });
   if (!response.ok) throw await toError(response);
   const url = URL.createObjectURL(await response.blob());
   window.open(url, "_blank", "noopener");
@@ -117,7 +125,7 @@ export async function openFile(fileId: string): Promise<void> {
 
 /** Development-only demo clock (not part of the typed API; mounted only when ENV is development). */
 export async function demoClock(hours?: number): Promise<{ now: string; offset_hours: number } | null> {
-  const response = await fetch(hours ? "/api/v1/dev/clock/advance" : "/api/v1/dev/clock", {
+  const response = await fetch(API_ORIGIN + (hours ? "/api/v1/dev/clock/advance" : "/api/v1/dev/clock"), {
     method: hours ? "POST" : "GET",
     headers: { "Content-Type": "application/json" },
     body: hours ? JSON.stringify({ hours }) : undefined,

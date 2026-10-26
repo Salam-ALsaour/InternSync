@@ -4,6 +4,7 @@ import hashlib
 import io
 import uuid
 import zipfile
+from functools import lru_cache
 from pathlib import Path
 
 import filetype
@@ -72,9 +73,24 @@ class LocalStorage:
     def delete(self, key: str) -> None:
         self._path(key).unlink(missing_ok=True)
 
+    def prepare(self) -> None:
+        self.base.mkdir(parents=True, exist_ok=True)
 
-def storage() -> LocalStorage:
-    return LocalStorage(get_settings().local_storage_dir)
+
+@lru_cache
+def _supabase():
+    from app.core.storage_supabase import SupabaseStorage
+
+    s = get_settings()
+    return SupabaseStorage(s.supabase_url, s.supabase_service_key, s.storage_bucket)
+
+
+def storage():
+    """`local` (a directory, for development and the local demo) or `supabase` (the reference deployment)."""
+    settings = get_settings()
+    if settings.storage_backend == "supabase":
+        return _supabase()
+    return LocalStorage(settings.local_storage_dir)
 
 
 def store(db: Session, data: bytes, original_name: str, purpose: str, allowed: set[str],
