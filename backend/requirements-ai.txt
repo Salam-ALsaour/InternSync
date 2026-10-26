@@ -1,0 +1,5 @@
+# The embedding model (Increment 2 design, Section 4). Installed in the API image only; without these packages the
+# API runs in basic matching mode (FR-MAT-04). CPU build of PyTorch.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1
+sentence-transformers==6.2.0

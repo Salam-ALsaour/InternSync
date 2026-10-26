@@ -1,9 +1,11 @@
-"""Vacancies, applications, and placements (Design 4.3.4). match_scores arrives in Increment 2."""
+"""Vacancies, applications, placements, and match scores (Design 4.3.4)."""
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
 
+from pgvector.sqlalchemy import HALFVEC
 from sqlalchemy import CheckConstraint, Date, ForeignKey, Index, Numeric, SmallInteger, Text, UniqueConstraint, text
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
@@ -28,6 +30,9 @@ class Vacancy(Base):
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default="draft", default="draft")
     published_at: Mapped[datetime | None] = ts()
     closed_at: Mapped[datetime | None] = ts()
+    embedding = mapped_column(HALFVEC(384))  # vacancy text embedding (Design 6.2)
+    embedding_model: Mapped[str | None] = mapped_column(Text)
+    embedded_at: Mapped[datetime | None] = ts()
     created_at: Mapped[datetime] = created_at()
     updated_at: Mapped[datetime] = updated_at()
     __table_args__ = (
@@ -105,3 +110,21 @@ class Placement(Base):
         Index("uq_placements_student_cycle", "student_id", "cycle_id", unique=True,
               postgresql_where=text("status <> 'cancelled'")),
     )
+
+
+class MatchScore(Base):
+    """Last computed fit per student and vacancy (FR-MAT-01 – 05, NFR-AI-02)."""
+    __tablename__ = "match_scores"
+    student_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    vacancy_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("vacancies.id"), primary_key=True)
+    fit_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
+    semantic: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
+    required_ratio: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
+    preferred_ratio: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
+    mode: Mapped[str] = mapped_column(Text, nullable=False)
+    matched_skill_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)), nullable=False)
+    missing_skill_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)), nullable=False)
+    model_version: Mapped[str | None] = mapped_column(Text)
+    computed_at: Mapped[datetime] = ts(nullable=False)
+    __table_args__ = (CheckConstraint("mode IN ('semantic','basic')", name="mode"),
+                      Index("ix_match_scores_student_fit", "student_id", "fit_score"))

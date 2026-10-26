@@ -193,3 +193,72 @@ def test_majors_and_settings(client, w, f):
     assert r.json()["applications.max_active"] == 3
     r = client.patch(f"{API}/settings", headers=pa, json={"applications.max_active": 999, "nope": 1})
     assert r.status_code == 422 and {e["field"] for e in r.json()["errors"]} == {"applications.max_active", "nope"}
+
+
+def test_unit_attached_arabic_particles_are_matched():
+    from app.ai.skills import find, variants
+
+    assert variants("والتواصل") == ["والتواصل", "التواصل"]
+    assert "التعلم" in variants("بالتعلم") and "الحوادث" in variants("للحوادث")
+    index = {"التواصل": "Communication", "التعلم العميق": "Deep Learning", "جافاسكربت": "JavaScript"}
+    found = find(index, "أتقن العرض والتواصل، ولدي معرفة بالتعلم العميق ورياكت وجافاسكربت")
+    assert set(found) == {"Communication", "Deep Learning", "JavaScript"}
+    assert find({"الصحة": "health"}, "وزارة") == {}
+
+
+def test_nfr_per_03_skills_from_a_5_mb_cv_within_30_seconds(client, w, f):
+    import time
+
+    from app.ai import embeddings
+    from tests.factories import HashEmbedder
+
+    embeddings.set_embedder(HashEmbedder())  # the profile is embedded in the same request, as with the model
+    lines = [f"{i}. " + EN_CV[i % len(EN_CV)] for i in range(50_000)]
+    data = pdf(*lines)
+    assert 4.5 * 1024 * 1024 < len(data) < 5 * 1024 * 1024
+    started = time.perf_counter()
+    r = upload(client, f.headers(w.stA), data)
+    elapsed = time.perf_counter() - started
+    assert r.status_code == 201 and r.json()["text_status"] == "ok"
+    assert {s["name_en"] for s in r.json()["extracted_skills"]} == {"Python", "JavaScript"}  # the test catalog
+    assert elapsed < 30, elapsed
+
+
+def _compressed_pdf(lines: int) -> bytes:
+    """One page whose instructions are compressed: a small file that unpacks to megabytes."""
+    import zlib
+
+    body = "".join(f"BT /F1 11 Tf 72 700 Td (Python and Docker line {i}) Tj ET\n" for i in range(lines)).encode()
+    packed = zlib.compress(body, 9)
+    objs = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R "
+            b"/Resources << /Font << /F1 5 0 R >> >> >>",
+            b"<< /Length " + str(len(packed)).encode() + b" /Filter /FlateDecode >>\nstream\n" + packed
+            + b"\nendstream", b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+    out, offsets = b"%PDF-1.4\n", []
+    for i, obj in enumerate(objs, start=1):
+        offsets.append(len(out))
+        out += str(i).encode() + b" 0 obj\n" + obj + b"\nendobj\n"
+    xref = len(out)
+    out += f"xref\n0 {len(objs) + 1}\n0000000000 65535 f \n".encode()
+    out += b"".join(f"{off:010d} 00000 n \n".encode() for off in offsets)
+    return out + f"trailer\n<< /Size {len(objs) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode()
+
+
+def test_unit_text_extraction_work_is_bounded():
+    import io
+    import time
+    import zipfile
+
+    data = _compressed_pdf(1_000_000)  # about 50 MB of instructions in an upload under the 5 MB limit
+    assert len(data) < 5 * 1024 * 1024
+    started = time.perf_counter()
+    text, status = extract_text(data, PDF)
+    assert status == "ok" and text.startswith("Python and Docker line 0")
+    assert time.perf_counter() - started < 10
+    bomb = io.BytesIO()
+    with zipfile.ZipFile(bomb, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("[Content_Types].xml", "<Types/>")
+        z.writestr("word/document.xml", "<w:document>" + " " * (60 * 1024 * 1024) + "</w:document>")
+    assert len(bomb.getvalue()) < 1024 * 1024
+    assert extract_text(bomb.getvalue(), DOCX) == ("", "failed")

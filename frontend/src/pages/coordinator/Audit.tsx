@@ -9,7 +9,7 @@ import { useMe } from "../../lib/auth";
 import { formatDateTime, fromRiyadhInput } from "../../lib/format";
 
 const COLLEGE_TYPES = ["user", "verification_request", "training_cycle", "cycle_week", "student_profile", "cv", "application",
-  "placement", "report_slot"];
+  "placement", "report_slot", "attendance_week", "evaluation", "grade"];
 const PLATFORM_TYPES = ["user", "university", "college", "company", "verification_request", "skill", "major", "settings"];
 
 function short(value: unknown): string {

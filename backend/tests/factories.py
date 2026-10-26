@@ -1,6 +1,8 @@
 """Factories for test data (Increment 1 design, Section 11). They write straight to the database or call the
 services, never the HTTP API, so each test exercises only the endpoint it is about."""
+import hashlib
 import io
+import math
 import zipfile
 from datetime import date, time, timedelta
 from decimal import Decimal
@@ -8,6 +10,7 @@ from types import SimpleNamespace
 
 from sqlalchemy.orm import Session
 
+from app.ai.text import tokens
 from app.catalog.router import match_terms
 from app.core import clock
 from app.core.deps import Actor
@@ -17,7 +20,10 @@ from app.models import (
     College,
     Company,
     Enrollment,
+    GradeComponent,
     Major,
+    ReportSlot,
+    RubricCriterion,
     Skill,
     StudentProfile,
     TrainingCycle,
@@ -29,6 +35,25 @@ from app.models import (
 from app.vacancies import service as vacancies
 
 PW = "Passw0rd-test"
+
+
+class HashEmbedder:
+    """Stand-in for the embedding model in tests: words hashed into 384 dimensions, so texts that share words are
+    closer. Deterministic, fast, and needs no download (Increment 2 design, Section 11)."""
+    version = "test-hash@1"
+
+    def encode(self, texts: list[str]) -> list[list[float]]:
+        out = []
+        for text in texts:
+            v = [0.0] * 384
+            for t in tokens(text):
+                if t in ("query", "passage"):
+                    continue
+                h = int(hashlib.md5(t.encode()).hexdigest(), 16)
+                v[h % 384] += 1.0 if (h >> 9) & 1 else -1.0
+            norm = math.sqrt(sum(x * x for x in v)) or 1.0
+            out.append([x / norm for x in v] if any(v) else [1.0] + [0.0] * 383)
+        return out
 CYCLE_START = date(2026, 10, 25)  # a Sunday
 
 
@@ -247,3 +272,36 @@ class Factory:
         self.commit()
         w.h = self.headers
         return w
+
+    # Increment 2: rubric, grade components, and a placement ready for its grade
+    def rubric(self, cycle: TrainingCycle, n: int = 3) -> list[RubricCriterion]:
+        levels = {str(k): {"en": f"Level {k}", "ar": f"مستوى {k}"} for k in range(1, 6)}
+        rows = [RubricCriterion(cycle_id=cycle.id, name_en=f"Criterion {i}", name_ar=f"معيار {i}", levels=levels,
+                                position=i) for i in range(1, n + 1)]
+        self.db.add_all(rows)
+        self.db.flush()
+        return rows
+
+    def components(self, cycle: TrainingCycle, weights=(40, 30, 30)) -> list[GradeComponent]:
+        rows = [GradeComponent(cycle_id=cycle.id, name_en=f"Component {i}", name_ar=f"مكون {i}", weight=Decimal(w),
+                               source="company_final_evaluation" if i == 1 else "academic_supervisor", position=i)
+                for i, w in enumerate(weights, start=1)]
+        self.db.add_all(rows)
+        self.db.flush()
+        return rows
+
+    def evaluation(self, placement, company_user: User, type_: str, scores: list[int], comment: str = "Good work"):
+        from app.evaluations import service as evaluations
+
+        criteria = evaluations.criteria(self.db, placement.cycle_id)
+        actor = Actor(company_user, None)
+        evaluations.save(self.db, actor, placement, type_,
+                         [{"criterion_id": c.id, "score": s} for c, s in zip(criteria, scores, strict=True)], comment)
+        evaluations.submit(self.db, actor, placement, type_)
+        self.db.flush()
+
+    def finish_reports(self, placement) -> None:
+        for slot in self.db.query(ReportSlot).filter_by(placement_id=placement.id):
+            slot.status = "accepted"
+        self.db.flush()
+

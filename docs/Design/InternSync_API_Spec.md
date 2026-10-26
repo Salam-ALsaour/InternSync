@@ -1,17 +1,18 @@
 # InternSync – API Specification
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Task T2 (System design) · Milestone M2 · Version 1.2 · October 24, 2026
+Task T2 (System design) · Milestone M2 · Version 1.3 · October 26, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
 | 1.0 | Oct 13, 2026 | First version for Milestone M2. | Salam Alsaour |
 | 1.1 | Oct 20, 2026 | CR-05: registration, email confirmation, invitations, verification requests, universities and colleges, company team, Platform Admin endpoints and scope; vacancy review endpoints and CSV import removed. | Salam Alsaour |
 | 1.2 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `GET /admin/universities`, `GET /placements/candidates`, and the development-only demo clock added; endpoints usable before consent listed; registration rate limit; `company_id` filter on placements; audit filters named `date_from` and `date_to`; error codes `STUDENT_NUMBER_TAKEN`, `DUPLICATE_NAME`, `FILE_PURGED`, `SEATS_BELOW_PLACEMENTS`, `ACADEMIC_SUPERVISOR_INVALID`, `COMPANY_SUPERVISOR_INVALID`, and `INTERNAL_ERROR` added; Section 6 describes the permission matrix and the contract check as built. | Salam Alsaour |
+| 1.3 | Oct 26, 2026 | CR-08 (Increment 2 implementation): files are always streamed by the API; `can_*` flags on attendance and grades; reopening a final evaluation needs a `draft` grade; `/version` and the deep health check name the loaded model; dashboard links open the grades page; payloads of Sections 4.5, 4.6, 4.9, and 4.10 as built. Sections 3.7, 3.11, 3.12, 3.19, 3.20, and 4 updated. | Salam Alsaour |
 
 This document is the API contract agreed before implementation (SPMP risk "integration problems"). During development, FastAPI generates the OpenAPI 3.1 document from the code at `/api/v1/openapi.json` (NFR-MNT-02), and the frontend client is generated from it. The generated document must match this specification; any difference is either a bug or a change that is recorded here first.
 
-Related: [System Design Document](InternSync_Design.md) (data model, state machines, security) and [SRS 1.4](../RSR/InternSync_SRS.md).
+Related: [System Design Document](InternSync_Design.md) (data model, state machines, security) and [SRS 1.5](../RSR/InternSync_SRS.md).
 
 ## Table of Contents
 
@@ -190,7 +191,7 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
 | POST | `/vacancies/{id}/applications` | ST | Apply; stores the fit-score snapshot | FR-VAC-04 |
-| GET | `/vacancies/{id}/applications` | CS (own vacancy), CA | Applicants with university, college, profile summary, confirmed skills, fit snapshot | FR-VAC-06 |
+| GET | `/vacancies/{id}/applications` | CS (own vacancy), CA | Applicants with university, college, profile summary, confirmed skills, fit snapshot (`fit_score`, `match_mode`) | FR-VAC-06 |
 | GET | `/applications` | ST (own), CO (students of the college) | `?status&cycle_id&placed=false` (CO: accepted applicants waiting for a placement) | FR-VAC-04, FR-VAC-07 |
 | GET | `/applications/{id}` | ST (own), CS (own vacancy), CA, CO | One application | FR-VAC-06 |
 | POST | `/applications/{id}/withdraw` | ST (own) | `submitted` → `withdrawn` | FR-VAC-05 |
@@ -198,7 +199,7 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 | POST | `/applications/{id}/decline` | CS (own vacancy), CA | `submitted` → `declined` | FR-VAC-06 |
 | GET | `/placements/candidates` | CO | Accepted applicants of the college waiting for a placement, each with the vacancy's supervisor (the default company supervisor) and the company's other supervisors | FR-VAC-07 |
 | POST | `/placements` | CO (the student's college) | `{application_id, academic_supervisor_id, company_supervisor_id?}`: confirm in the student's cycle; creates report slots and the draft grade | FR-VAC-07, FR-REP-01 |
-| GET | `/placements` | ST (own), CS (assigned), CA, AS (assigned), CO | `?cycle_id&company_id&academic_supervisor_id&status` | FR-VAC-07 |
+| GET | `/placements` | ST (own), CS (assigned), CA, AS (assigned), CO | `?cycle_id&company_id&academic_supervisor_id&status`; each item with report counts, `attendance_percent`, and `grade_status` | FR-VAC-07 |
 | GET | `/placements/{id}` | Same as list | Overview: student, vacancy, supervisors, status, attendance %, report summary, grade status | FR-VAC-07, FR-ATT-03 |
 | PATCH | `/placements/{id}/academic-supervisor` | CO | `{academic_supervisor_id, reason}` | FR-VAC-08 |
 | POST | `/placements/{id}/cancel` | CO | `{reason}` | FR-VAC-08 |
@@ -240,8 +241,8 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| GET | `/placements/{id}/attendance` | ST (own), CS, AS (assigned), CO | Weeks with recorded days, pending or locked state, and the percentage | FR-ATT-03, FR-ATT-04 |
-| PUT | `/placements/{id}/attendance/{week_no}` | CS (assigned) | `{attended_days, note}` or `{full: true}`; refused before the week starts or when locked | FR-ATT-01, FR-ATT-02 |
+| GET | `/placements/{id}/attendance` | ST (own), CS, AS (assigned), CO | Weeks with recorded days, state (`upcoming`, `open`, `pending`, `overdue`, `recorded`) and `locked`, the percentage, and `can_record` and `can_unlock` for the caller | FR-ATT-03, FR-ATT-04 |
+| PUT | `/placements/{id}/attendance/{week_no}` | CS (assigned) | `{attended_days, note}` or `{full: true}`; refused before the week starts (`409 WEEK_NOT_STARTED`), when locked (`409 WEEK_LOCKED`), or with more days than scheduled (`422 ATTENDED_EXCEEDS_SCHEDULED`) | FR-ATT-01, FR-ATT-02 |
 | POST | `/placements/{id}/attendance/{week_no}/unlock` | CO | `{reason, until}` (default: 7 days from now) | FR-ATT-02 |
 
 ### 3.12 Evaluations
@@ -251,7 +252,7 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 | GET | `/placements/{id}/evaluations` | CS, AS (assigned), CO; ST (own: periodic when submitted, final only when the grade is Final) | Evaluations with scores | FR-EVL-03 |
 | PUT | `/placements/{id}/evaluations/{type}` | CS (assigned) | Save a draft: `{scores: [{criterion_id, score}], overall_comment}`; `type` is `periodic` or `final` | FR-EVL-01 |
 | POST | `/placements/{id}/evaluations/{type}/submit` | CS (assigned) | Submit; every criterion and the comment are required; locks the rubric | FR-EVL-01, FR-CYC-03 |
-| POST | `/evaluations/{id}/reopen` | CO | `{reason}`; once per evaluation | FR-EVL-04 |
+| POST | `/evaluations/{id}/reopen` | CO | `{reason}`; once per evaluation (`409 ALREADY_REOPENED`); a final evaluation only while its grade is `draft` (`409 INVALID_TRANSITION`) | FR-EVL-04 |
 | GET | `/placements/{id}/company-evaluation` | ST (own), CO | The student's evaluation of the training entity | FR-EVL-05 |
 | PUT | `/placements/{id}/company-evaluation` | ST (own) | Submit it once the placement has ended | FR-EVL-05 |
 | GET | `/cycles/{id}/company-evaluations` | CO | Averages per company | FR-EVL-05 |
@@ -323,14 +324,14 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| GET | `/files/{id}` | Anyone allowed to view the record that owns the file; for verification documents only the uploader and the reviewer | `302` to a signed link valid for 60 s (or the file itself with local storage); `403` otherwise; `410` for a purged verification document | NFR-SEC-04, FR-ORG-08 |
+| GET | `/files/{id}` | Anyone allowed to view the record that owns the file; for verification documents only the uploader and the reviewer | The file itself, streamed by the API from either storage with `Cache-Control: private, no-store`; no link to the bucket is ever given out. `403` otherwise; `410` for a purged verification document | NFR-SEC-04, FR-ORG-08 |
 
 ### 3.20 System
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| GET | `/health` | Public | `{status}`; with `?deep=true` also database, model, and scheduler status (keep-alive and uptime log) | NFR-REL-01 |
-| GET | `/version` | Public | Application version and embedding model version | NFR-AI-02 |
+| GET | `/health` | Public | `{status}`; with `?deep=true` also `database`, `model` (the loaded model version, `null` while it loads or when it is off), and `scheduler_last_run` (keep-alive and uptime log) | NFR-REL-01 |
+| GET | `/version` | Public | `{version, embedding_model}`: the application version and the loaded model version (`null` while it loads or when it is off) | NFR-AI-02 |
 | GET | `/openapi.json`, `/docs` | Public | Generated OpenAPI document and its viewer | NFR-MNT-02 |
 | GET | `/dev/clock` | Public, development only | The server's current time and the demo offset | – |
 | POST | `/dev/clock/advance` | Public, development only | `{hours}`: move the server clock forward for the M3 demo (late and missing reports) | – |
@@ -452,11 +453,13 @@ With `text_status: "no_text"` the list is empty and the client shows the FR-PRF-
   "mode": "semantic",
   "model_version": "intfloat/multilingual-e5-small@<revision>",
   "advisory": true,
+  "total": 1,
   "items": [
     {
       "vacancy": { "id": "51f0…", "title": "Junior Data Analyst", "company": "Example Co.", "city": "Dammam",
                    "application_deadline": "2026-09-01T20:59:00Z" },
       "fit_score": 82.40,
+      "mode": "semantic",
       "parts": { "semantic": 0.78, "required": 1.0, "preferred": 0.5 },
       "matched_skills": [ { "id": "7a8b…", "name_en": "SQL", "name_ar": "إس كيو إل" } ],
       "missing_skills": [],
@@ -466,7 +469,7 @@ With `text_status: "no_text"` the list is empty and the client shows the FR-PRF-
 }
 ```
 
-In basic mode `mode` is `"basic"`, `parts.semantic` is `null`, and the client shows the "Basic matching" label (FR-MAT-04).
+In basic mode `mode` is `"basic"`, `parts.semantic` is `null`, and the client shows the "Basic matching" label (FR-MAT-04). Each item has its own `mode`: a vacancy without an embedding is scored in basic mode, and the list's `mode` is then `"mixed"`. `parts.preferred` is `null` when the vacancy lists no preferred skill; its weight then moves to the required part. `matched_skills` and `missing_skills` compare the confirmed skills with the vacancy's required skills (FR-MAT-05).
 
 ### 4.6 Development Plan
 
@@ -479,11 +482,13 @@ In basic mode `mode` is `"basic"`, `parts.semantic` is `null`, and the client sh
     { "skill": { "id": "c0d1…", "name_en": "Power BI", "name_ar": "باور بي آي" },
       "resources": [ { "title": "Power BI for beginners", "url": "https://…", "estimated_effort": "8 hours", "language": "en" } ] },
     { "skill": { "id": "f9e8…", "name_en": "Statistics", "name_ar": "الإحصاء" },
-      "resources": [], "message": "No resource available yet" }
+      "resources": [] }
   ],
   "advisory": true
 }
 ```
+
+An empty `resources` list is shown by the client as "No resource available yet" in the user's language.
 
 ### 4.7 Report Slot
 
@@ -534,14 +539,18 @@ For the Coordinator, `source` also includes `"author": {"id": "…", "name_en": 
 ```json
 {
   "status": 409, "code": "PRECONDITIONS_UNMET",
-  "title": "The grade cannot be submitted yet",
-  "detail": "Complete the items below first.",
+  "title": "The grade cannot be submitted yet. Complete the items listed first.",
+  "detail": "لا يمكن إرسال الدرجة بعد. أكمل العناصر المذكورة أولاً.",
+  "errors": [],
   "missing": [
-    { "item": "final_evaluation", "message": "The final evaluation is not submitted." },
-    { "item": "report_slot", "week_no": 7, "message": "Week 7 report is not accepted or closed as missing." }
+    { "item": "final_evaluation", "week_no": null, "component_id": null },
+    { "item": "weekly_report", "week_no": 7, "component_id": null },
+    { "item": "component", "week_no": null, "component_id": "3c4d…" }
   ]
 }
 ```
+
+`item` is `final_evaluation`, `final_report`, `weekly_report` (with `week_no`), or `component` (an academic component without a score, with `component_id`). The client words each item in the user's language; `GET /placements/{id}/grade/preconditions` returns the same items with `ok`.
 
 ### 4.10 Dashboard
 
@@ -551,12 +560,14 @@ For the Coordinator, `source` also includes `"author": {"id": "…", "name_en": 
 {
   "role": "academic_supervisor",
   "items": [
-    { "type": "reports_to_review", "count": 6, "link": "/academic?filter=to_review" },
-    { "type": "open_similarity_flags", "count": 1, "link": "/academic?filter=similarity" },
-    { "type": "grades_to_submit", "count": 2, "link": "/academic/grades?status=draft" }
+    { "type": "reports_to_review", "count": 6, "link": "/academic/students" },
+    { "type": "grades_to_submit", "count": 2, "link": "/academic/grades?status=draft" },
+    { "type": "grades_returned", "count": 0, "link": "/academic/grades?status=draft" }
   ]
 }
 ```
+
+The item types of each role are listed in the [Increment 2 design, Section 8](../Increments/Increment_2/02_Design.md); later increments add theirs (for example `open_similarity_flags` with similarity detection). An item may carry extra fields: `status` on the student's `verification` item, `oldest_days` on the Platform Admin's `verifications_pending`.
 
 ### 4.11 Public Certificate Verification
 

@@ -4,10 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, type S, unwrap } from "../../api/client";
-import { Button, Card, Chip, ErrorBox, Input, Loading, Notice, PageHeader, Select } from "../../components/ui";
+import { Button, Card, Chip, ErrorBox, Input, Loading, Notice, PageHeader, Select, Tabs } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { formatDate, formatDateTime, nameOf } from "../../lib/format";
 import { useMajors } from "../public/Register";
+import Recommended from "./Recommended";
 
 type Vacancy = S<"VacancyOut">;
 
@@ -71,7 +72,7 @@ function VacancyCard({ v }: { v: Vacancy }) {
   );
 }
 
-export default function Vacancies() {
+function Browse() {
   const { t, i18n } = useTranslation();
   const { me } = useAuth();
   const majors = useMajors();
@@ -89,7 +90,6 @@ export default function Vacancies() {
   const pages = list.data ? Math.max(1, Math.ceil(list.data.total / 10)) : 1;
   return (
     <>
-      <PageHeader title={t("vacancy.browse_title")} subtitle={t("vacancy.browse_subtitle")} />
       {me?.verification_status !== "verified" && <div className="mb-4"><Notice tone="warning">{t("vacancy.pending_note")}</Notice></div>}
       <Card className="mb-4">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -114,6 +114,21 @@ export default function Vacancies() {
           <Button tone="secondary" disabled={page >= pages} onClick={() => setPage(page + 1)}>{t("common.next")}</Button>
         </div>
       )}
+    </>
+  );
+}
+
+export default function Vacancies() {
+  const { t } = useTranslation();
+  const { me } = useAuth();
+  const verified = me?.verification_status === "verified";
+  const [tab, setTab] = useState<"recommended" | "browse">(verified ? "recommended" : "browse");
+  return (
+    <>
+      <PageHeader title={t("vacancy.browse_title")} subtitle={t("vacancy.browse_subtitle")} />
+      {verified && <Tabs value={tab} onChange={setTab} items={[{ value: "recommended", label: t("match.tab") },
+        { value: "browse", label: t("match.tab_browse") }]} />}
+      {tab === "recommended" && verified ? <Recommended /> : <Browse />}
     </>
   );
 }

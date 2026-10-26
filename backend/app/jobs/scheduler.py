@@ -15,6 +15,8 @@ def start() -> BackgroundScheduler:
     scheduler = BackgroundScheduler(timezone=RIYADH)
     scheduler.add_job(run, IntervalTrigger(minutes=15), args=[SessionLocal, "flag_missing"], id="flag_missing",
                       max_instances=1, coalesce=True, next_run_time=datetime.now(RIYADH) + timedelta(seconds=30))
+    scheduler.add_job(run, IntervalTrigger(minutes=15), args=[SessionLocal, "embed_missing"], id="embed_missing",
+                      max_instances=1, coalesce=True, next_run_time=datetime.now(RIYADH) + timedelta(seconds=60))
     scheduler.add_job(run, CronTrigger(hour=3, minute=0), args=[SessionLocal, "purge_verification_documents"],
                       id="purge_verification_documents", max_instances=1, coalesce=True)
     scheduler.add_job(run, CronTrigger(hour=3, minute=30), args=[SessionLocal, "cleanup"], id="cleanup",

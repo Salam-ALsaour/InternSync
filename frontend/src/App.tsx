@@ -13,6 +13,7 @@ import VacancyEditor from "./pages/company/VacancyEditor";
 import AuditLog from "./pages/coordinator/Audit";
 import CycleDetail from "./pages/coordinator/CycleDetail";
 import Cycles from "./pages/coordinator/Cycles";
+import Grades from "./pages/coordinator/Grades";
 import Placements from "./pages/coordinator/Placements";
 import CoordinatorStudents from "./pages/coordinator/Students";
 import Supervisors from "./pages/coordinator/Supervisors";
@@ -93,12 +94,14 @@ export default function App() {
         <Route path="/company/team" element={<Guard roles={CS}><CompanyTeam /></Guard>} />
         <Route path="/academic" element={<Guard roles={AS}><Home /></Guard>} />
         <Route path="/academic/students" element={<Guard roles={AS}><AcademicStudents /></Guard>} />
+        <Route path="/academic/grades" element={<Guard roles={AS}><Grades /></Guard>} />
         <Route path="/coordinator" element={<Guard roles={CO}><Home /></Guard>} />
         <Route path="/coordinator/students" element={<Guard roles={CO}><CoordinatorStudents /></Guard>} />
         <Route path="/coordinator/supervisors" element={<Guard roles={CO}><Supervisors /></Guard>} />
         <Route path="/coordinator/cycles" element={<Guard roles={CO}><Cycles /></Guard>} />
         <Route path="/coordinator/cycles/:cycleId" element={<Guard roles={CO}><CycleDetail /></Guard>} />
         <Route path="/coordinator/placements" element={<Guard roles={CO}><Placements /></Guard>} />
+        <Route path="/coordinator/grades" element={<Guard roles={CO}><Grades /></Guard>} />
         <Route path="/coordinator/audit" element={<Guard roles={CO}><AuditLog /></Guard>} />
         <Route path="/platform" element={<Guard roles={PA}><Home /></Guard>} />
         <Route path="/platform/verifications" element={<Guard roles={PA}><PlatformVerifications /></Guard>} />

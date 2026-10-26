@@ -2892,7 +2892,14 @@
        "application/json": {
         "schema": {
          "additionalProperties": {
-          "type": "integer"
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "number"
+           }
+          ]
          },
          "type": "object",
          "title": "Response Get Settings Values Api V1 Settings Get"
@@ -2913,7 +2920,14 @@
       "application/json": {
        "schema": {
         "additionalProperties": {
-         "type": "integer"
+         "anyOf": [
+          {
+           "type": "integer"
+          },
+          {
+           "type": "number"
+          }
+         ]
         },
         "type": "object",
         "title": "Body"
@@ -2929,7 +2943,14 @@
        "application/json": {
         "schema": {
          "additionalProperties": {
-          "type": "integer"
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "number"
+           }
+          ]
          },
          "type": "object",
          "title": "Response Patch Settings Api V1 Settings Patch"
@@ -5058,6 +5079,1077 @@
      }
     }
    }
+  },
+  "/api/v1/students/me/matches": {
+   "get": {
+    "tags": [
+     "matching"
+    ],
+    "summary": "My Matches",
+    "operationId": "my_matches_api_v1_students_me_matches_get",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "minimum": 1,
+       "default": 20,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MatchList"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/students/me/matches/{vacancy_id}": {
+   "get": {
+    "tags": [
+     "matching"
+    ],
+    "summary": "My Match",
+    "operationId": "my_match_api_v1_students_me_matches__vacancy_id__get",
+    "parameters": [
+     {
+      "name": "vacancy_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Vacancy Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MatchDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/students/me/matches/{vacancy_id}/plan": {
+   "get": {
+    "tags": [
+     "matching"
+    ],
+    "summary": "My Plan",
+    "operationId": "my_plan_api_v1_students_me_matches__vacancy_id__plan_get",
+    "parameters": [
+     {
+      "name": "vacancy_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Vacancy Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Plan"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/attendance": {
+   "get": {
+    "tags": [
+     "attendance"
+    ],
+    "summary": "Get Attendance",
+    "operationId": "get_attendance_api_v1_placements__placement_id__attendance_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AttendanceOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/attendance/{week_no}": {
+   "put": {
+    "tags": [
+     "attendance"
+    ],
+    "summary": "Record Week",
+    "operationId": "record_week_api_v1_placements__placement_id__attendance__week_no__put",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     },
+     {
+      "name": "week_no",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Week No"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AttendanceIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AttendanceOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/attendance/{week_no}/unlock": {
+   "post": {
+    "tags": [
+     "attendance"
+    ],
+    "summary": "Unlock Week",
+    "operationId": "unlock_week_api_v1_placements__placement_id__attendance__week_no__unlock_post",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     },
+     {
+      "name": "week_no",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Week No"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UnlockIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AttendanceOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/evaluations": {
+   "get": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "List Evaluations",
+    "operationId": "list_evaluations_api_v1_placements__placement_id__evaluations_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EvaluationOverview"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/evaluations/{type}": {
+   "put": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Save Evaluation",
+    "operationId": "save_evaluation_api_v1_placements__placement_id__evaluations__type__put",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     },
+     {
+      "name": "type",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "enum": [
+        "periodic",
+        "final"
+       ],
+       "type": "string",
+       "title": "Type"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EvaluationDraftIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EvaluationOverview"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/evaluations/{type}/submit": {
+   "post": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Submit Evaluation",
+    "operationId": "submit_evaluation_api_v1_placements__placement_id__evaluations__type__submit_post",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     },
+     {
+      "name": "type",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "enum": [
+        "periodic",
+        "final"
+       ],
+       "type": "string",
+       "title": "Type"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EvaluationOverview"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/evaluations/{evaluation_id}/reopen": {
+   "post": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Reopen Evaluation",
+    "operationId": "reopen_evaluation_api_v1_evaluations__evaluation_id__reopen_post",
+    "parameters": [
+     {
+      "name": "evaluation_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Evaluation Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReasonIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EvaluationOverview"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/grade": {
+   "get": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Get Grade",
+    "operationId": "get_grade_api_v1_placements__placement_id__grade_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/GradeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Put Grade",
+    "operationId": "put_grade_api_v1_placements__placement_id__grade_put",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ScoresIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/GradeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/grade/preconditions": {
+   "get": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Get Preconditions",
+    "operationId": "get_preconditions_api_v1_placements__placement_id__grade_preconditions_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Check"
+         },
+         "title": "Response Get Preconditions Api V1 Placements  Placement Id  Grade Preconditions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/grades/{grade_id}/submit": {
+   "post": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Submit Grade",
+    "operationId": "submit_grade_api_v1_grades__grade_id__submit_post",
+    "parameters": [
+     {
+      "name": "grade_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Grade Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/GradeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/grades/{grade_id}/approve": {
+   "post": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Approve Grade",
+    "operationId": "approve_grade_api_v1_grades__grade_id__approve_post",
+    "parameters": [
+     {
+      "name": "grade_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Grade Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/GradeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/grades/{grade_id}/return": {
+   "post": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Return Grade",
+    "operationId": "return_grade_api_v1_grades__grade_id__return_post",
+    "parameters": [
+     {
+      "name": "grade_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Grade Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GradeCommentIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/GradeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/grades/{grade_id}/reopen": {
+   "post": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Reopen Grade",
+    "operationId": "reopen_grade_api_v1_grades__grade_id__reopen_post",
+    "parameters": [
+     {
+      "name": "grade_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Grade Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReasonIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/GradeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/grades/bulk-approve": {
+   "post": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "Bulk Approve",
+    "operationId": "bulk_approve_api_v1_grades_bulk_approve_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/BulkIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/BulkResult"
+         },
+         "type": "array",
+         "title": "Response Bulk Approve Api V1 Grades Bulk Approve Post"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/grades": {
+   "get": {
+    "tags": [
+     "grades"
+    ],
+    "summary": "List Grades",
+    "operationId": "list_grades_api_v1_grades_get",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cycle Id"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "draft",
+          "submitted",
+          "final"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/GradeRow"
+         },
+         "title": "Response List Grades Api V1 Grades Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/dashboard": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Dashboard",
+    "operationId": "get_dashboard_api_v1_dashboard_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Dashboard"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/cycles/{cycle_id}/stats": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Cycle Stats",
+    "operationId": "get_cycle_stats_api_v1_cycles__cycle_id__stats_get",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cycle Id"
+      }
+     },
+     {
+      "name": "company_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Company Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CycleStats"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/platform/stats": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Platform Stats",
+    "operationId": "get_platform_stats_api_v1_platform_stats_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PlatformStats"
+        }
+       }
+      }
+     }
+    }
+   }
   }
  },
  "components": {
@@ -5303,6 +6395,210 @@
      "size_bytes"
     ],
     "title": "AttachmentOut"
+   },
+   "AttendanceIn": {
+    "properties": {
+     "full": {
+      "type": "boolean",
+      "title": "Full",
+      "default": false
+     },
+     "attended_days": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 7.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Attended Days"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "title": "AttendanceIn"
+   },
+   "AttendanceOut": {
+    "properties": {
+     "placement_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Placement Id"
+     },
+     "weeks": {
+      "items": {
+       "$ref": "#/components/schemas/AttendanceWeekOut"
+      },
+      "type": "array",
+      "title": "Weeks"
+     },
+     "attended_days": {
+      "type": "integer",
+      "title": "Attended Days"
+     },
+     "scheduled_days": {
+      "type": "integer",
+      "title": "Scheduled Days"
+     },
+     "percent": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Percent"
+     },
+     "can_record": {
+      "type": "boolean",
+      "title": "Can Record"
+     },
+     "can_unlock": {
+      "type": "boolean",
+      "title": "Can Unlock"
+     }
+    },
+    "type": "object",
+    "required": [
+     "placement_id",
+     "weeks",
+     "attended_days",
+     "scheduled_days",
+     "percent",
+     "can_record",
+     "can_unlock"
+    ],
+    "title": "AttendanceOut"
+   },
+   "AttendanceWeekOut": {
+    "properties": {
+     "week_no": {
+      "type": "integer",
+      "title": "Week No"
+     },
+     "starts_on": {
+      "type": "string",
+      "format": "date",
+      "title": "Starts On"
+     },
+     "ends_on": {
+      "type": "string",
+      "format": "date",
+      "title": "Ends On"
+     },
+     "scheduled_days": {
+      "type": "integer",
+      "title": "Scheduled Days"
+     },
+     "attended_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Attended Days"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "state": {
+      "type": "string",
+      "title": "State"
+     },
+     "locked": {
+      "type": "boolean",
+      "title": "Locked"
+     },
+     "recorded_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recorded At"
+     },
+     "recorded_by_en": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recorded By En"
+     },
+     "recorded_by_ar": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recorded By Ar"
+     },
+     "unlocked_until": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unlocked Until"
+     }
+    },
+    "type": "object",
+    "required": [
+     "week_no",
+     "starts_on",
+     "ends_on",
+     "scheduled_days",
+     "attended_days",
+     "note",
+     "state",
+     "locked",
+     "recorded_at",
+     "recorded_by_en",
+     "recorded_by_ar",
+     "unlocked_until"
+    ],
+    "title": "AttendanceWeekOut"
    },
    "AuditOut": {
     "properties": {
@@ -5838,6 +7134,99 @@
     ],
     "title": "Body_upload_cv_api_v1_students_me_cvs_post"
    },
+   "BulkIn": {
+    "properties": {
+     "grade_ids": {
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "type": "array",
+      "maxItems": 200,
+      "minItems": 1,
+      "title": "Grade Ids"
+     }
+    },
+    "type": "object",
+    "required": [
+     "grade_ids"
+    ],
+    "title": "BulkIn"
+   },
+   "BulkResult": {
+    "properties": {
+     "grade_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Grade Id"
+     },
+     "ok": {
+      "type": "boolean",
+      "title": "Ok"
+     },
+     "code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Code"
+     }
+    },
+    "type": "object",
+    "required": [
+     "grade_id",
+     "ok",
+     "code"
+    ],
+    "title": "BulkResult"
+   },
+   "Check": {
+    "properties": {
+     "item": {
+      "type": "string",
+      "title": "Item"
+     },
+     "ok": {
+      "type": "boolean",
+      "title": "Ok"
+     },
+     "week_no": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Week No"
+     },
+     "component_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Component Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "item",
+     "ok",
+     "week_no",
+     "component_id"
+    ],
+    "title": "Check"
+   },
    "CollegeDetail": {
     "properties": {
      "id": {
@@ -6059,6 +7448,130 @@
     ],
     "title": "CommentOut"
    },
+   "CompanyFigures": {
+    "properties": {
+     "placed": {
+      "type": "integer",
+      "title": "Placed"
+     },
+     "reports_due": {
+      "type": "integer",
+      "title": "Reports Due"
+     },
+     "reports_submitted": {
+      "type": "integer",
+      "title": "Reports Submitted"
+     },
+     "submission_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Submission Rate"
+     },
+     "late_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Late Rate"
+     },
+     "attended_days": {
+      "type": "integer",
+      "title": "Attended Days"
+     },
+     "scheduled_days": {
+      "type": "integer",
+      "title": "Scheduled Days"
+     },
+     "attendance_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Attendance Rate"
+     },
+     "evaluations_expected": {
+      "type": "integer",
+      "title": "Evaluations Expected"
+     },
+     "evaluations_submitted": {
+      "type": "integer",
+      "title": "Evaluations Submitted"
+     },
+     "evaluation_completion": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Evaluation Completion"
+     },
+     "enrolled": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enrolled"
+     },
+     "unplaced": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unplaced"
+     },
+     "company_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Company Id"
+     },
+     "company_name": {
+      "type": "string",
+      "title": "Company Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "placed",
+     "reports_due",
+     "reports_submitted",
+     "submission_rate",
+     "late_rate",
+     "attended_days",
+     "scheduled_days",
+     "attendance_rate",
+     "evaluations_expected",
+     "evaluations_submitted",
+     "evaluation_completion",
+     "company_id",
+     "company_name"
+    ],
+    "title": "CompanyFigures"
+   },
    "CompanyOut": {
     "properties": {
      "id": {
@@ -6270,6 +7783,57 @@
     ],
     "title": "ComponentIO"
    },
+   "ComponentOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name_en": {
+      "type": "string",
+      "title": "Name En"
+     },
+     "name_ar": {
+      "type": "string",
+      "title": "Name Ar"
+     },
+     "weight": {
+      "type": "string",
+      "title": "Weight"
+     },
+     "source": {
+      "type": "string",
+      "title": "Source"
+     },
+     "computed": {
+      "type": "boolean",
+      "title": "Computed"
+     },
+     "score": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Score"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name_en",
+     "name_ar",
+     "weight",
+     "source",
+     "computed",
+     "score"
+    ],
+    "title": "ComponentOut"
+   },
    "ComponentsIn": {
     "properties": {
      "components": {
@@ -6316,6 +7880,36 @@
      "source"
     ],
     "title": "ConfirmedSkill"
+   },
+   "Criterion": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "name_en": {
+      "type": "string",
+      "title": "Name En"
+     },
+     "name_ar": {
+      "type": "string",
+      "title": "Name Ar"
+     },
+     "levels": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Levels"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name_en",
+     "name_ar",
+     "levels"
+    ],
+    "title": "Criterion"
    },
    "CriterionIO": {
     "properties": {
@@ -6807,6 +8401,32 @@
     "type": "object",
     "title": "CyclePatch"
    },
+   "CycleStats": {
+    "properties": {
+     "cycle_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Cycle Id"
+     },
+     "overall": {
+      "$ref": "#/components/schemas/Figures"
+     },
+     "companies": {
+      "items": {
+       "$ref": "#/components/schemas/CompanyFigures"
+      },
+      "type": "array",
+      "title": "Companies"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cycle_id",
+     "overall",
+     "companies"
+    ],
+    "title": "CycleStats"
+   },
    "CycleWithWeeks": {
     "properties": {
      "id": {
@@ -6939,6 +8559,72 @@
      "week_list"
     ],
     "title": "CycleWithWeeks"
+   },
+   "Dashboard": {
+    "properties": {
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/DashboardItem"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "role",
+     "items"
+    ],
+    "title": "Dashboard"
+   },
+   "DashboardItem": {
+    "properties": {
+     "type": {
+      "type": "string",
+      "title": "Type"
+     },
+     "count": {
+      "type": "integer",
+      "title": "Count"
+     },
+     "link": {
+      "type": "string",
+      "title": "Link"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     },
+     "oldest_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Oldest Days"
+     }
+    },
+    "type": "object",
+    "required": [
+     "type",
+     "count",
+     "link"
+    ],
+    "title": "DashboardItem"
    },
    "DocumentOut": {
     "properties": {
@@ -7172,6 +8858,225 @@
     ],
     "title": "EnrollmentOut"
    },
+   "EvaluationDraftIn": {
+    "properties": {
+     "scores": {
+      "items": {
+       "$ref": "#/components/schemas/ScoreIO"
+      },
+      "type": "array",
+      "maxItems": 30,
+      "title": "Scores"
+     },
+     "overall_comment": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 4000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Overall Comment"
+     }
+    },
+    "type": "object",
+    "title": "EvaluationDraftIn"
+   },
+   "EvaluationItem": {
+    "properties": {
+     "type": {
+      "type": "string",
+      "title": "Type"
+     },
+     "due_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Due At"
+     },
+     "evaluation": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/EvaluationOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "can_edit": {
+      "type": "boolean",
+      "title": "Can Edit"
+     },
+     "can_reopen": {
+      "type": "boolean",
+      "title": "Can Reopen"
+     }
+    },
+    "type": "object",
+    "required": [
+     "type",
+     "due_at",
+     "evaluation",
+     "can_edit",
+     "can_reopen"
+    ],
+    "title": "EvaluationItem"
+   },
+   "EvaluationOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "type": {
+      "type": "string",
+      "title": "Type"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "overall_comment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Overall Comment"
+     },
+     "mean_score": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mean Score"
+     },
+     "scores": {
+      "items": {
+       "$ref": "#/components/schemas/ScoreOut"
+      },
+      "type": "array",
+      "title": "Scores"
+     },
+     "submitted_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Submitted At"
+     },
+     "submitted_by_en": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Submitted By En"
+     },
+     "submitted_by_ar": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Submitted By Ar"
+     },
+     "reopen_count": {
+      "type": "integer",
+      "title": "Reopen Count"
+     },
+     "reopened_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reopened At"
+     },
+     "reopen_reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reopen Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "type",
+     "status",
+     "overall_comment",
+     "mean_score",
+     "scores",
+     "submitted_at",
+     "submitted_by_en",
+     "submitted_by_ar",
+     "reopen_count",
+     "reopened_at",
+     "reopen_reason"
+    ],
+    "title": "EvaluationOut"
+   },
+   "EvaluationOverview": {
+    "properties": {
+     "placement_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Placement Id"
+     },
+     "rubric": {
+      "items": {
+       "$ref": "#/components/schemas/Criterion"
+      },
+      "type": "array",
+      "title": "Rubric"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/EvaluationItem"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "placement_id",
+     "rubric",
+     "items"
+    ],
+    "title": "EvaluationOverview"
+   },
    "ExtractedSkill": {
     "properties": {
      "id": {
@@ -7207,6 +9112,345 @@
      "evidence"
     ],
     "title": "ExtractedSkill"
+   },
+   "Figures": {
+    "properties": {
+     "placed": {
+      "type": "integer",
+      "title": "Placed"
+     },
+     "reports_due": {
+      "type": "integer",
+      "title": "Reports Due"
+     },
+     "reports_submitted": {
+      "type": "integer",
+      "title": "Reports Submitted"
+     },
+     "submission_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Submission Rate"
+     },
+     "late_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Late Rate"
+     },
+     "attended_days": {
+      "type": "integer",
+      "title": "Attended Days"
+     },
+     "scheduled_days": {
+      "type": "integer",
+      "title": "Scheduled Days"
+     },
+     "attendance_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Attendance Rate"
+     },
+     "evaluations_expected": {
+      "type": "integer",
+      "title": "Evaluations Expected"
+     },
+     "evaluations_submitted": {
+      "type": "integer",
+      "title": "Evaluations Submitted"
+     },
+     "evaluation_completion": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Evaluation Completion"
+     },
+     "enrolled": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enrolled"
+     },
+     "unplaced": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unplaced"
+     }
+    },
+    "type": "object",
+    "required": [
+     "placed",
+     "reports_due",
+     "reports_submitted",
+     "submission_rate",
+     "late_rate",
+     "attended_days",
+     "scheduled_days",
+     "attendance_rate",
+     "evaluations_expected",
+     "evaluations_submitted",
+     "evaluation_completion"
+    ],
+    "title": "Figures"
+   },
+   "GradeCommentIn": {
+    "properties": {
+     "comment": {
+      "type": "string",
+      "maxLength": 2000,
+      "title": "Comment",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "title": "GradeCommentIn"
+   },
+   "GradeOut": {
+    "properties": {
+     "visible": {
+      "type": "boolean",
+      "title": "Visible"
+     },
+     "status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status"
+     },
+     "id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Id"
+     },
+     "placement_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Placement Id"
+     },
+     "components": {
+      "items": {
+       "$ref": "#/components/schemas/ComponentOut"
+      },
+      "type": "array",
+      "title": "Components",
+      "default": []
+     },
+     "total": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total"
+     },
+     "preconditions": {
+      "items": {
+       "$ref": "#/components/schemas/Check"
+      },
+      "type": "array",
+      "title": "Preconditions",
+      "default": []
+     },
+     "submitted_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Submitted At"
+     },
+     "approved_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Approved At"
+     },
+     "return_comment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Return Comment"
+     },
+     "reopen_reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reopen Reason"
+     },
+     "can_edit": {
+      "type": "boolean",
+      "title": "Can Edit",
+      "default": false
+     },
+     "can_submit": {
+      "type": "boolean",
+      "title": "Can Submit",
+      "default": false
+     },
+     "can_decide": {
+      "type": "boolean",
+      "title": "Can Decide",
+      "default": false
+     },
+     "can_reopen": {
+      "type": "boolean",
+      "title": "Can Reopen",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "visible",
+     "status"
+    ],
+    "title": "GradeOut"
+   },
+   "GradeRow": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "placement_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Placement Id"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "total": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total"
+     },
+     "student": {
+      "$ref": "#/components/schemas/Ref"
+     },
+     "company_name": {
+      "type": "string",
+      "title": "Company Name"
+     },
+     "submitted_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Submitted At"
+     },
+     "approved_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Approved At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "placement_id",
+     "status",
+     "total",
+     "student",
+     "company_name",
+     "submitted_at",
+     "approved_at"
+    ],
+    "title": "GradeRow"
    },
    "HTTPValidationError": {
     "properties": {
@@ -7358,6 +9602,160 @@
      "name_ar"
     ],
     "title": "MajorIO"
+   },
+   "MatchDetail": {
+    "properties": {
+     "vacancy": {
+      "$ref": "#/components/schemas/VacancyBrief"
+     },
+     "fit_score": {
+      "type": "number",
+      "title": "Fit Score"
+     },
+     "mode": {
+      "type": "string",
+      "title": "Mode"
+     },
+     "parts": {
+      "$ref": "#/components/schemas/Parts"
+     },
+     "matched_skills": {
+      "items": {
+       "$ref": "#/components/schemas/SkillRef"
+      },
+      "type": "array",
+      "title": "Matched Skills"
+     },
+     "missing_skills": {
+      "items": {
+       "$ref": "#/components/schemas/SkillRef"
+      },
+      "type": "array",
+      "title": "Missing Skills"
+     },
+     "already_applied": {
+      "type": "boolean",
+      "title": "Already Applied"
+     },
+     "model_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model Version"
+     },
+     "advisory": {
+      "type": "boolean",
+      "title": "Advisory"
+     }
+    },
+    "type": "object",
+    "required": [
+     "vacancy",
+     "fit_score",
+     "mode",
+     "parts",
+     "matched_skills",
+     "missing_skills",
+     "already_applied",
+     "model_version",
+     "advisory"
+    ],
+    "title": "MatchDetail"
+   },
+   "MatchItem": {
+    "properties": {
+     "vacancy": {
+      "$ref": "#/components/schemas/VacancyBrief"
+     },
+     "fit_score": {
+      "type": "number",
+      "title": "Fit Score"
+     },
+     "mode": {
+      "type": "string",
+      "title": "Mode"
+     },
+     "parts": {
+      "$ref": "#/components/schemas/Parts"
+     },
+     "matched_skills": {
+      "items": {
+       "$ref": "#/components/schemas/SkillRef"
+      },
+      "type": "array",
+      "title": "Matched Skills"
+     },
+     "missing_skills": {
+      "items": {
+       "$ref": "#/components/schemas/SkillRef"
+      },
+      "type": "array",
+      "title": "Missing Skills"
+     },
+     "already_applied": {
+      "type": "boolean",
+      "title": "Already Applied"
+     }
+    },
+    "type": "object",
+    "required": [
+     "vacancy",
+     "fit_score",
+     "mode",
+     "parts",
+     "matched_skills",
+     "missing_skills",
+     "already_applied"
+    ],
+    "title": "MatchItem"
+   },
+   "MatchList": {
+    "properties": {
+     "mode": {
+      "type": "string",
+      "title": "Mode"
+     },
+     "model_version": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model Version"
+     },
+     "advisory": {
+      "type": "boolean",
+      "title": "Advisory"
+     },
+     "total": {
+      "type": "integer",
+      "title": "Total"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/MatchItem"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "mode",
+     "model_version",
+     "advisory",
+     "total",
+     "items"
+    ],
+    "title": "MatchList"
    },
    "MeOut": {
     "properties": {
@@ -7905,6 +10303,43 @@
     ],
     "title": "Page[VerificationRequestOut]"
    },
+   "Parts": {
+    "properties": {
+     "semantic": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Semantic"
+     },
+     "required": {
+      "type": "number",
+      "title": "Required"
+     },
+     "preferred": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Preferred"
+     }
+    },
+    "type": "object",
+    "required": [
+     "semantic",
+     "required",
+     "preferred"
+    ],
+    "title": "Parts"
+   },
    "PersonOut": {
     "properties": {
      "id": {
@@ -8030,6 +10465,28 @@
      },
      "reports": {
       "$ref": "#/components/schemas/app__vacancies__schemas__SlotSummary"
+     },
+     "attendance_percent": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Attendance Percent"
+     },
+     "grade_status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade Status"
      }
     },
     "type": "object",
@@ -8050,6 +10507,116 @@
      "reports"
     ],
     "title": "PlacementOut"
+   },
+   "Plan": {
+    "properties": {
+     "vacancy_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Vacancy Id"
+     },
+     "missing_skills": {
+      "items": {
+       "$ref": "#/components/schemas/PlanSkill"
+      },
+      "type": "array",
+      "title": "Missing Skills"
+     },
+     "advisory": {
+      "type": "boolean",
+      "title": "Advisory"
+     }
+    },
+    "type": "object",
+    "required": [
+     "vacancy_id",
+     "missing_skills",
+     "advisory"
+    ],
+    "title": "Plan"
+   },
+   "PlanSkill": {
+    "properties": {
+     "skill": {
+      "$ref": "#/components/schemas/SkillRef"
+     },
+     "resources": {
+      "items": {
+       "$ref": "#/components/schemas/Resource"
+      },
+      "type": "array",
+      "title": "Resources"
+     }
+    },
+    "type": "object",
+    "required": [
+     "skill",
+     "resources"
+    ],
+    "title": "PlanSkill"
+   },
+   "PlatformStats": {
+    "properties": {
+     "universities": {
+      "type": "integer",
+      "title": "Universities"
+     },
+     "colleges": {
+      "type": "integer",
+      "title": "Colleges"
+     },
+     "colleges_with_coordinator": {
+      "type": "integer",
+      "title": "Colleges With Coordinator"
+     },
+     "colleges_without_coordinator": {
+      "type": "integer",
+      "title": "Colleges Without Coordinator"
+     },
+     "verified_companies": {
+      "type": "integer",
+      "title": "Verified Companies"
+     },
+     "users_by_role": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Users By Role"
+     },
+     "pending_verifications": {
+      "type": "integer",
+      "title": "Pending Verifications"
+     },
+     "oldest_pending_days": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Oldest Pending Days"
+     },
+     "published_vacancies": {
+      "type": "integer",
+      "title": "Published Vacancies"
+     }
+    },
+    "type": "object",
+    "required": [
+     "universities",
+     "colleges",
+     "colleges_with_coordinator",
+     "colleges_without_coordinator",
+     "verified_companies",
+     "users_by_role",
+     "pending_verifications",
+     "oldest_pending_days",
+     "published_vacancies"
+    ],
+    "title": "PlatformStats"
    },
    "ProfileOut": {
     "properties": {
@@ -8445,6 +11012,48 @@
     ],
     "title": "RequestDocOut"
    },
+   "Resource": {
+    "properties": {
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "url": {
+      "type": "string",
+      "title": "Url"
+     },
+     "estimated_effort": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Estimated Effort"
+     },
+     "language": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Language"
+     }
+    },
+    "type": "object",
+    "required": [
+     "title",
+     "url",
+     "estimated_effort",
+     "language"
+    ],
+    "title": "Resource"
+   },
    "ResourceIO": {
     "properties": {
      "title": {
@@ -8582,6 +11191,103 @@
      "criteria"
     ],
     "title": "RubricOut"
+   },
+   "ScoreIO": {
+    "properties": {
+     "criterion_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Criterion Id"
+     },
+     "score": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Score"
+     }
+    },
+    "type": "object",
+    "required": [
+     "criterion_id",
+     "score"
+    ],
+    "title": "ScoreIO"
+   },
+   "ScoreIn": {
+    "properties": {
+     "component_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Component Id"
+     },
+     "score": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 100.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "string"
+       }
+      ],
+      "title": "Score"
+     }
+    },
+    "type": "object",
+    "required": [
+     "component_id",
+     "score"
+    ],
+    "title": "ScoreIn"
+   },
+   "ScoreOut": {
+    "properties": {
+     "criterion_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Criterion Id"
+     },
+     "score": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Score"
+     },
+     "name_en": {
+      "type": "string",
+      "title": "Name En"
+     },
+     "name_ar": {
+      "type": "string",
+      "title": "Name Ar"
+     }
+    },
+    "type": "object",
+    "required": [
+     "criterion_id",
+     "score",
+     "name_en",
+     "name_ar"
+    ],
+    "title": "ScoreOut"
+   },
+   "ScoresIn": {
+    "properties": {
+     "component_scores": {
+      "items": {
+       "$ref": "#/components/schemas/ScoreIn"
+      },
+      "type": "array",
+      "maxItems": 10,
+      "title": "Component Scores"
+     }
+    },
+    "type": "object",
+    "required": [
+     "component_scores"
+    ],
+    "title": "ScoresIn"
    },
    "SkillChoice": {
     "properties": {
@@ -9217,6 +11923,30 @@
     "type": "object",
     "title": "UniversityPatch"
    },
+   "UnlockIn": {
+    "properties": {
+     "reason": {
+      "type": "string",
+      "maxLength": 1000,
+      "title": "Reason",
+      "default": ""
+     },
+     "until": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Until"
+     }
+    },
+    "type": "object",
+    "title": "UnlockIn"
+   },
    "UserOut": {
     "properties": {
      "id": {
@@ -9320,6 +12050,51 @@
      "last_login_at"
     ],
     "title": "UserOut"
+   },
+   "VacancyBrief": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "company": {
+      "type": "string",
+      "title": "Company"
+     },
+     "city": {
+      "type": "string",
+      "title": "City"
+     },
+     "training_type": {
+      "type": "string",
+      "title": "Training Type"
+     },
+     "application_deadline": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Application Deadline"
+     },
+     "seats": {
+      "type": "integer",
+      "title": "Seats"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "title",
+     "company",
+     "city",
+     "training_type",
+     "application_deadline",
+     "seats"
+    ],
+    "title": "VacancyBrief"
    },
    "VacancyIn": {
     "properties": {
@@ -10457,6 +13232,28 @@
        }
       ],
       "title": "Cv File Id"
+     },
+     "fit_score": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fit Score"
+     },
+     "match_mode": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Match Mode"
      }
     },
     "type": "object",

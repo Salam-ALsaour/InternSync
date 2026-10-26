@@ -2,10 +2,14 @@
 import { useQuery } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api, type S, unwrap } from "../../api/client";
-import { Card, Chip, DefList, ErrorBox, Loading, PageHeader, StatusChip, Table, Td } from "../../components/ui";
+import { Card, Chip, DefList, ErrorBox, Loading, PageHeader, StatusChip, Table, Tabs, Td } from "../../components/ui";
+import { useMe } from "../../lib/auth";
 import { formatDate, formatDateTime, nameOf } from "../../lib/format";
+import Attendance from "./Attendance";
+import Evaluations from "./Evaluations";
+import Grade from "./Grade";
 
 export function SlotStatus({ slot }: { slot: { status: string; is_late: boolean; is_missing: boolean } }) {
   const { t } = useTranslation();
@@ -57,22 +61,48 @@ export function SlotTable({ placementId }: { placementId: string }) {
   );
 }
 
-export default function PlacementReports() {
+type Tab = "reports" | "attendance" | "evaluations" | "grade";
+
+/** Everything about one trainee in tabs: reports, attendance, evaluations, and the grade (not for the company). */
+export function PlacementView({ placementId, header = true }: { placementId: string; header?: boolean }) {
   const { t, i18n } = useTranslation();
-  const { placementId = "" } = useParams();
+  const me = useMe();
+  const [params, setParams] = useSearchParams();
   const placement = useQuery({ queryKey: ["placement", placementId], queryFn: () =>
     unwrap(api.GET("/api/v1/placements/{placement_id}", { params: { path: { placement_id: placementId } } })) });
   if (placement.isLoading) return <Loading />;
   if (placement.error || !placement.data) return <ErrorBox error={placement.error} />;
   const p = placement.data;
+  const tabs: Tab[] = me.role === "company_supervisor" ? ["reports", "attendance", "evaluations"]
+    : ["reports", "attendance", "evaluations", "grade"];
+  const tab = (tabs as string[]).includes(params.get("tab") ?? "") ? (params.get("tab") as Tab) : "reports";
   return (
     <>
-      <PageHeader title={nameOf(p.student, i18n.language)} subtitle={`${p.company_name} — ${p.vacancy_title}`}
-        actions={<StatusChip status={p.status} />} />
+      {header && (
+        <PageHeader title={nameOf(p.student, i18n.language)} subtitle={`${p.company_name} — ${p.vacancy_title}`}
+          actions={<StatusChip status={p.status} />} />
+      )}
       <div className="flex flex-col gap-4">
-        <Card><PlacementSummary p={p} /></Card>
-        <Card title={t("report.list")}><SlotTable placementId={p.id} /></Card>
+        <Card>
+          <PlacementSummary p={p} />
+          <div className="mt-3 flex flex-wrap gap-2 text-sm">
+            <Chip tone="info">{t("attendance.percent")}: <span dir="ltr" className="ms-1">{p.attendance_percent === null || p.attendance_percent === undefined ? "—" : `${p.attendance_percent}%`}</span></Chip>
+            {p.grade_status && me.role !== "company_supervisor" && (me.role !== "student" || p.grade_status === "final") &&
+              <Chip tone={p.grade_status === "final" ? "success" : "neutral"}>{t("grade.title")}: {t(`grade.status_${p.grade_status}`)}</Chip>}
+          </div>
+        </Card>
+        <Tabs value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })}
+          items={tabs.map((x) => ({ value: x, label: t(`placement.tab_${x}`) }))} />
+        {tab === "reports" && <Card title={t("report.list")}><SlotTable placementId={p.id} /></Card>}
+        {tab === "attendance" && <Attendance placementId={p.id} />}
+        {tab === "evaluations" && <Evaluations placementId={p.id} />}
+        {tab === "grade" && <Grade placementId={p.id} />}
       </div>
     </>
   );
+}
+
+export default function PlacementReports() {
+  const { placementId = "" } = useParams();
+  return <PlacementView placementId={placementId} />;
 }

@@ -1,7 +1,7 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.3 · October 24, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.4 · October 26, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -9,6 +9,7 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.3 · Oc
 | 1.1 | Oct 13, 2026 | Section 8: wireframes (task T3), their mapping to SRS Table 6.1, and the design system. | Salam Alsaour |
 | 1.2 | Oct 20, 2026 | CR-05: organizations (universities, colleges, companies), self-registration and verification, Platform Admin; companies publish vacancies directly; CSV import removed. Sections 1, 2, 4, 5, 6, 7, 8, 9, and 10 updated; ERD redrawn in four parts (49 tables). | Salam Alsaour |
 | 1.3 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `PATCH /me` usable before consent; purged verification documents keep their file reference; jobs use transaction-level advisory locks; supervisors see the cycles of their placements; permission test described as built. Sections 2, 4, 5, and 7 updated. | Salam Alsaour |
+| 1.4 | Oct 26, 2026 | CR-08 (Increment 2 implementation): matching weights as three numeric settings; downloads always streamed by the API, so `files.signed_url_seconds` is removed; attendance rows may hold only an unlock; a final evaluation cannot be reopened while its grade is submitted or Final; row level security on every table; backup retention and GitHub Actions limits for a private repository. Sections 3.2, 3.4, 3.5, 4.3.2, 4.3.6, 5.1, and 5.5 updated. | Salam Alsaour |
 
 **Related documents**
 
@@ -154,11 +155,11 @@ The SRS v1.0 assumed one Linux VM, and the first diagram pack recommended Railwa
 |:---|:---|:---|:---|
 | PWA (static build) | Vercel, Hobby | Personal, non-commercial projects | Auto-deploys from `main`; preview deployment per pull request; HTTPS and CDN. |
 | API container (FastAPI, embedding model, scheduler) | Hugging Face Spaces, Docker SDK, CPU Basic | 2 vCPU, 16 GB RAM, 50 GB disk that is **not persistent**; sleeps after 48 h without visits; must be a public Space | Port 7860. The container keeps no state on disk: data in Supabase, files in Supabase Storage. Secrets are stored as Space secrets. |
-| Database | Supabase, Free | 500 MB database (read-only above that); pauses after 7 days of low activity | PostgreSQL with `vector` and `pg_trgm`. The Data API is disabled; the API connects with its own role through the session pooler over TLS. |
-| File storage | Supabase Storage, Free (private bucket) | 1 GB of files | Accessed only by the API with the service key; downloads use signed links valid for 60 s. |
+| Database | Supabase, Free | 500 MB database (read-only above that); pauses after 7 days of low activity | PostgreSQL with `vector` and `pg_trgm`. The Data API is disabled, and row level security is on for every table as a second guard; the API connects as the owner of the tables through the session pooler over TLS. |
+| File storage | Supabase Storage, Free (private bucket) | 1 GB of files | Accessed only by the API with the service key; the API streams each download after the permission check, so no bucket link reaches a browser. |
 | Email | Gmail SMTP with an app password | About 500 messages per day | A dedicated project Gmail account. |
 | Push | Browser push services with VAPID keys | — | Payload holds the event title and a link only (NFR-PRV-03). |
-| CI, backups, keep-alive | GitHub Actions | Free minutes for public repositories | See Section 3.5. |
+| CI, backups, keep-alive | GitHub Actions | 2,000 minutes a month and 500 MB of artifact storage for a private repository | See Section 3.5. |
 
 **Why the limits are acceptable:** the demonstration uses synthetic data for 2 universities and 4 colleges, about 400 students in total (C-09). With `halfvec(384)`, one embedding takes about 0.8 KB. 400 students × 13 reports × about 15 passages is about 78,000 passage vectors, about 60 MB plus about 80 MB of index, so the whole database stays well under 500 MB. Even the 10,000-report test of NFR-PER-04 (about 150,000 passages) fits in about 250 MB. Demo files are kept small (CVs about 100 KB) so storage stays under 1 GB.
 
@@ -180,7 +181,7 @@ All configuration comes from environment variables. Secrets never enter the repo
 | **Variable** | **Purpose** |
 |:---|:---|
 | `DATABASE_URL` | PostgreSQL connection string (TLS required in the reference deployment) |
-| `JWT_SECRET` | Signing key for access tokens (32 random bytes or more) |
+| `JWT_SECRET` | Signing key for access tokens (32 random bytes or more); with `ENV=production` the API refuses to start without one |
 | `FRONTEND_BASE_URL`, `CORS_ORIGINS` | Links in emails and QR codes; allowed browser origins |
 | `STORAGE_BACKEND`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `STORAGE_BUCKET`, `LOCAL_STORAGE_DIR` | File storage |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Email |
@@ -188,15 +189,17 @@ All configuration comes from environment variables. Secrets never enter the repo
 | `EMBEDDING_MODEL` | Model name; default `intfloat/multilingual-e5-small` |
 | `AI_ENABLED` | `false` forces the rule-based fallback (FR-MAT-04 test) |
 | `SCHEDULER_ENABLED` | `false` in tests and in a second instance |
+| `ENV` | `development`, `test`, or `production`; development-only routes and demo accounts are refused in production |
+| `PORT`, `FORWARDED_ALLOW_IPS` | Listening port (7860 on the Space) and the proxies whose forwarded client address is trusted (read by uvicorn) |
 
 ### 3.5 CI/CD, Backups, and Keep-alive
 
 | **Workflow** | **Trigger** | **Steps** |
 |:---|:---|:---|
 | `ci.yml` | Every pull request and push | Backend: `ruff`, `pytest` with coverage gate of 70% on business-logic modules (NFR-MNT-01), permission-matrix completeness test. Frontend: `eslint`, `vitest`, `vite build`, i18n missing-key check (FR-LOC-02), and a check that the generated API client matches the server's OpenAPI document. |
-| `deploy-api.yml` | Push to `main` after CI passes | Pushes `backend/` with its `Dockerfile` to the Hugging Face Space repository using `HF_TOKEN`. The container runs `alembic upgrade head` before starting `uvicorn`. |
+| `deploy-api.yml` | Push to `main` that changes `backend/` (merged pull requests have passed CI), or by hand | Copies the settings and secrets into the Hugging Face Space and pushes the files the image is built from, using `HF_TOKEN`. The image already holds the embedding model. The container runs `alembic upgrade head` before starting `uvicorn`. Skipped while the secrets are missing ([Deployment](../Deployment.md)). |
 | Vercel Git integration | Push to `main`; pull requests | Builds and deploys `frontend/`. |
-| `backup.yml` | Nightly at 02:00 Asia/Riyadh | `pg_dump` of the database plus a download of the storage bucket, encrypted with a symmetric key from GitHub secrets, kept as a workflow artifact for 30 days (NFR-REL-02). A restore test is run once before M6. |
+| `backup.yml` | Nightly at 02:00 Asia/Riyadh | `pg_dump` of the database plus a download of the storage bucket, each encrypted with a symmetric key from GitHub secrets and kept as a workflow artifact: the database for 30 days, the files for 7 days, to stay within the artifact storage (NFR-REL-02). A restore test is run once before M6. |
 | `keepalive.yml` | Every 6 hours | Calls `GET /api/v1/health?deep=true`, which runs `SELECT 1` and reports the scheduler's last run. This keeps the Space awake and Supabase active (D-05) and serves as the uptime log (NFR-REL-01). |
 
 ## 4. Data Design
@@ -464,14 +467,13 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 | `attendance.edit_days` / `attendance.pending_after_days` | 7 / 3 | FR-ATT-02, FR-ATT-04 |
 | `notifications.reminder_hours_before` | 24 | FR-NOT-02 |
 | `notifications.escalation_days` | 3 | FR-NOT-04 |
-| `matching.weights` | `{"semantic": 0.5, "required": 0.4, "preferred": 0.1}` | FR-MAT-02, Figure 8 |
+| `matching.weight_semantic` / `matching.weight_required` / `matching.weight_preferred` | 0.5 / 0.4 / 0.1 | FR-MAT-02, Figure 8 |
 | `matching.semantic_floor` / `matching.semantic_ceiling` | 0.70 / 0.95 | Section 6.2 (tuned on the labelled set) |
 | `similarity.threshold` | 0.30 | FR-SIM-02 |
 | `similarity.passage_cosine` / `similarity.ngram_size` / `similarity.ngram_containment` | 0.90 / 5 / 0.5 | Section 6.3 |
 | `dashboard.leniency_min_evaluations` / `dashboard.leniency_delta` | 5 / 0.8 | FR-DSH-04 |
 | `verification.document_retention_days` | 30 | FR-ORG-08 |
 | `auth.registrations_per_ip_hour` | 5 | Section 7.1 |
-| `files.signed_url_seconds` | 60 | NFR-SEC-04 |
 
 #### 4.3.3 Students and CVs
 
@@ -727,7 +729,7 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 
 #### 4.3.6 Attendance and evaluations
 
-**`attendance_weeks`** (FR-ATT-01 – 04). A row exists once the week is recorded; an ended week without a row is pending.
+**`attendance_weeks`** (FR-ATT-01 – 04). A row exists once the week is recorded or unlocked; an ended week without recorded days is pending. A check keeps `attended_days`, `recorded_by`, and `recorded_at` all set or all null, so a row may hold only an unlock.
 
 | **Column** | **Type** | **Constraints** | **Notes** |
 |:---|:---|:---|:---|
@@ -735,10 +737,11 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 | placement_id | uuid | NN, FK; UQ (placement_id, week_no) | |
 | week_no | smallint | NN | |
 | scheduled_days | smallint | NN, CHECK 0–7 | From `cycle_weeks` |
-| attended_days | smallint | NN, CHECK 0 ≤ attended ≤ scheduled | |
+| attended_days | smallint | CHECK 0 ≤ attended ≤ scheduled | Null until recorded |
 | note | text | | Absence note |
-| recorded_by | uuid | NN, FK `users` | |
-| recorded_at, updated_at | timestamptz | NN | |
+| recorded_by | uuid | FK `users` | Null until recorded |
+| recorded_at | timestamptz | | Null until recorded |
+| updated_at | timestamptz | NN | |
 | unlocked_until | timestamptz | | Set by the Coordinator (FR-ATT-02) |
 | unlocked_by | uuid | FK `users` | |
 | unlock_reason | text | | |
@@ -969,7 +972,7 @@ Saving a draft creates or updates the single draft version and does not change t
 
 | **Record** | **Transitions** | **SRS** |
 |:---|:---|:---|
-| Evaluation | `draft` → `submitted` (CS; every criterion rated, comment present; locks the cycle rubric); `submitted` → `draft` (CO reopen, reason required, once only) | FR-EVL-01, FR-EVL-04, FR-CYC-03 |
+| Evaluation | `draft` → `submitted` (CS; every criterion rated, comment present; locks the cycle rubric); `submitted` → `draft` (CO reopen, reason required, once only; a final evaluation only while its grade is `draft`) | FR-EVL-01, FR-EVL-04, FR-CYC-03 |
 | Attendance week | record or edit (CS) while `now ≤ end of week + attendance.edit_days` or `now ≤ unlocked_until`; unlock (CO, reason required) | FR-ATT-01, FR-ATT-02 |
 | Certificate | issue (CO; grade `final`) → `valid`; revoke (CO; reason required) → `revoked` | FR-CER-01, FR-CER-03 |
 | Training cycle | `open` → `closed` (CO); `closed` → `open` (CO; reason required). While closed, every write to the cycle's records returns `409 CYCLE_CLOSED` | FR-CYC-05 |
@@ -1034,7 +1037,7 @@ All jobs run inside the API process under APScheduler. Each job runs in one tran
 2. **Type check:** the type is detected from the first bytes. PDF (`%PDF-`), PNG, and JPEG are recognized by magic bytes. DOCX must be a ZIP containing `[Content_Types].xml` and `word/document.xml`. Anything else is rejected with `415`, so an executable renamed to `.pdf` is refused.
 3. **Store:** the file is written to storage under a random key, then the `files` row is inserted.
 4. **Report submission:** attachments are uploaded to the draft one by one. `submit` checks the limits and changes the state in one transaction, so a failed upload never leaves a half-submitted report.
-5. **Download:** `GET /files/{id}` finds the record that owns the file, applies that record's permission rule, and returns `302` to a signed link valid for 60 seconds (Supabase), or streams the file (local storage). Without permission it returns `403`.
+5. **Download:** `GET /files/{id}` finds the record that owns the file, applies that record's permission rule, and streams the file from either storage (Supabase or local) with `Cache-Control: private, no-store` and `X-Content-Type-Options: nosniff`. No link to the bucket reaches a browser. Without permission it returns `403`.
 
 ### 5.6 Exports and Certificates (FR-EXP, FR-CER)
 

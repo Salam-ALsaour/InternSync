@@ -18,6 +18,7 @@ from app.core.deps import Actor, auth
 from app.core.errors import conflict, field_error, forbidden, not_found
 from app.core.scope import can_see_student
 from app.cycles.service import student_open_enrollment
+from app.matching.service import embed_profile
 from app.models import (
     College,
     Cv,
@@ -176,6 +177,8 @@ def patch_my_profile(body: ProfilePatch, actor: Actor = Depends(auth("st", unver
     if new:
         audit.record(db, user, "update", "student_profile", user.id, student_id=user.id, college_id=user.college_id,
                      old=old, new=new)
+    if "interests" in new:
+        embed_profile(db, user.id)
     db.commit()
     return profile_out(db, user)
 
@@ -203,6 +206,7 @@ def upload_cv(file: UploadFile = File(...), actor: Actor = Depends(auth("st", un
         db.add(CvExtractedSkill(cv_id=cv.id, skill_id=m.skill_id, evidence=m.evidence))
     audit.record(db, user, "upload_cv", "cv", cv.id, student_id=user.id, college_id=user.college_id,
                  new={"version_no": version, "text_status": status, "extracted": len(matches)})
+    embed_profile(db, user.id)
     db.commit()
     names = {k.id: k for k in db.scalars(select(Skill).where(Skill.id.in_([m.skill_id for m in matches])))}
     extracted = [{"id": m.skill_id, "name_en": names[m.skill_id].name_en, "name_ar": names[m.skill_id].name_ar,
@@ -235,6 +239,7 @@ def confirm_skills(body: SkillsIn, actor: Actor = Depends(auth("st", unverified=
     after = [s["name_en"] for s in confirmed_skills(db, user.id)]
     audit.record(db, user, "confirm_skills", "student_profile", user.id, student_id=user.id,
                  college_id=user.college_id, old={"skills": before}, new={"skills": after})
+    embed_profile(db, user.id)
     db.commit()
     return confirmed_skills(db, user.id)
 

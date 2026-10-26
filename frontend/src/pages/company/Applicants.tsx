@@ -44,7 +44,12 @@ export default function Applicants() {
                   </p>
                   <p className="text-xs text-ink-muted">{t("applications.applied_at")}: <span dir="ltr">{formatDateTime(a.created_at)}</span></p>
                 </div>
-                <StatusChip status={a.status} />
+                <div className="flex flex-col items-end gap-1">
+                  <StatusChip status={a.status} />
+                  {a.fit_score !== null && a.fit_score !== undefined && (
+                    <span className="text-xs text-advisory-fg">{t(a.match_mode === "basic" ? "company.fit_basic" : "company.fit")}: <b dir="ltr">{Math.round(Number(a.fit_score))}%</b></span>
+                  )}
+                </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {a.skills.map((s) => <span key={s.id} className="rounded-full bg-ground px-3 py-1 text-xs">{nameOf(s, lang)}</span>)}
