@@ -1,0 +1,17 @@
+alembic==1.20.1
+APScheduler==3.11.3
+argon2-cffi==25.1.0
+email-validator==2.3.0
+fastapi==0.161.1
+filetype==1.2.0
+Jinja2==3.1.6
+psycopg[binary]==3.3.6
+pydantic==2.14.1
+pydantic-settings==2.16.1
+PyJWT==2.15.1
+pypdf==6.21.2
+python-docx==1.2.0
+python-multipart==0.0.32
+SQLAlchemy==2.1.6
+tzdata==2026.5
+uvicorn[standard]==0.54.0

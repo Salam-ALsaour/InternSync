@@ -1,0 +1,33 @@
+[project]
+name = "internsync-api"
+version = "0.1.0"
+description = "InternSync API: cooperative training coordination and tracking"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["B008"]  # FastAPI dependencies in argument defaults
+
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]  # the alembic/ folder is not a first-party package
+
+[tool.ruff.lint.per-file-ignores]
+"app/core/i18n.py" = ["E501"]  # message table
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning", "ignore:Using `httpx` with `starlette.testclient`"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/seed.py", "app/cli.py", "app/jobs/scheduler.py", "app/main.py"]
+
+[tool.coverage.report]
+show_missing = false
+skip_covered = true
