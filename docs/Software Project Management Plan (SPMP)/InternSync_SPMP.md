@@ -4,7 +4,7 @@
 CSC 305 – Semester 1 – 2026/2027
 
 **Project title:** InternSync – Cooperative Training Coordination and Tracking System  
-Version 1.3 · October 2026
+Version 1.4 · October 2026
 
 > This Markdown file is the maintained version of the SPMP. `InternSync_SPMP-1.pdf` in this folder is version 1.0 as submitted on Oct 3, 2026. Changes after 1.0 are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
 
@@ -27,6 +27,7 @@ Version 1.3 · October 2026
 | 1.1 | Oct 13, 2026 | CR-01: zero-cost hosting in the resource plan and a new free-tier risk. Milestone status updated (M1 done, M2 in progress). | Salam Alsaour |
 | 1.2 | Oct 20, 2026 | CR-05: one platform for many universities and companies. Registration with verification and the Platform Admin added to Increment 1 (T4); CSV import and coordinator review of vacancies removed. M2 status updated; new risk for the larger Increment 1; the permission risk now covers organizations. | Salam Alsaour |
 | 1.3 | Oct 24, 2026 | Milestone status updated: Increment 1 built and tested (M3 demo on Nov 1). | Salam Alsaour |
+| 1.4 | Oct 26, 2026 | Milestone status updated: Increment 2 built and tested early (M4 demo on Nov 15). CR-08: the development plan (FR-MAT-06) moved from T6 to T5. | Salam Alsaour |
 
 ## 1. Project Organization
 
@@ -80,7 +81,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | T3 | UI/UX design (Claude Design + Figma Make wireframes) | Oct 4 | Oct 15 | 12 days | T1 | Rakan, Ali |
 | T4 | Increment 1: registration and verification (universities, colleges, companies, Platform Admin), authentication, profiles and CV upload, vacancies, weekly reports, bilingual interface foundation | Oct 16 | Nov 1 | 17 days | T2, T3 | All developers |
 | T5 | Increment 2: matching, attendance, evaluations, approval workflow, dashboards (all Must functions) | Nov 2 | Nov 15 | 14 days | T4 | All developers |
-| T6 | Increment 3: explanation and skill gaps, similarity detection, notifications, exports, PWA (Should functions) | Nov 16 | Nov 25 | 10 days | T5 | All developers |
+| T6 | Increment 3: similarity detection, notifications, exports, PWA (Should functions); the explanation and skill gaps were delivered in T5 (CR-08) | Nov 16 | Nov 25 | 10 days | T5 | All developers |
 | T7 | Testing and bug fixing (unit, integration, user acceptance); Could functions if time allows | Nov 26 | Dec 10 | 15 days | T6 | Abdullah, all |
 | T8 | Final documentation and presentation | Dec 11 | Dec 15 | 5 days | T7 | Abdullah, Salam |
 | T9 | Project management and monitoring (weekly meetings, tracking, change and risk control) | Sep 25 | Dec 15 | 82 days | – | Salam |
@@ -92,7 +93,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | M1: Requirements baseline | SRS approved by the team and requirements frozen | Oct 3 | Done (SRS v1.0 on Oct 10) |
 | M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | Done Oct 23 (8 days late after CR-05): design document 1.2, API specification 1.1, ERD in four parts, 32 wireframes, SRS 1.3 submitted; merged to main |
 | M3: Increment 1 delivered | Demo of F1, F2, F3, F5, F10 foundation; automated tests pass | Nov 1 | In progress: built and tested Oct 24 ([test report](../Increments/Increment_1/04_Test_Report.md)); demo on Nov 1 |
-| M4: Increment 2 delivered (all Must functions) | Demo of F4, F6, F7, F8, F9; every Must function passes its tests | Nov 15 | Planned |
+| M4: Increment 2 delivered (all Must functions) | Demo of F4, F6, F7, F8, F9; every Must function passes its tests | Nov 15 | In progress: built and tested Oct 26, ahead of plan ([test report](../Increments/Increment_2/04_Test_Report.md)); demo on Nov 15 |
 | M5: Increment 3 delivered | Demo of F11–F15; Should functions pass their tests | Nov 25 | Planned |
 | M6: Testing complete | Test report; user acceptance testing with at least 8 participants, 80% or more of scenarios completed without help | Dec 10 | Planned |
 | M7: Final delivery | Final system, documentation, and presentation | Dec 15 | Planned |

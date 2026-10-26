@@ -11,6 +11,7 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 | CR-05 | Oct 20, 2026 | One platform for many universities and companies: open registration with verification, Platform Admin, direct vacancy publishing, no CSV import | Approved |
 | CR-06 | Oct 23, 2026 | Training type part of eligibility | Approved |
 | CR-07 | Oct 24, 2026 | Increment 1 implementation adjustments to the design and the API | Approved |
+| CR-08 | Oct 26, 2026 | Increment 2 implementation adjustments to the design, the API, and the deployment | Approved |
 
 ## CR-01 – Zero-cost reference deployment
 
@@ -107,3 +108,38 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 - **Affected:** design document 2.3, 4 (data dictionary), 5.3, and 7.2 (version 1.3); API specification 3.1, 3.2, 3.7, 3.18, 3.20, 5, and 6 (version 1.2); Increment 1 design, Section 12.
 - **Effect on schedule:** none.
 - **Decision:** approved. Design 1.3, API specification 1.2.
+
+## CR-08 – Increment 2 implementation adjustments
+
+- **Requested by:** Salam Alsaour, Oct 26, 2026 (found while building and testing Increment 2).
+- **Change:** no requirement changes. The design, the API contract, and the deployment follow what the build and the tests showed was needed:
+  - **Matching settings:** the JSON setting `matching.weights` becomes three numeric settings (`matching.weight_semantic`, `matching.weight_required`, `matching.weight_preferred`), so every setting has the same range check. Settings may be decimals.
+  - **Downloads:** `GET /files/{id}` streams the file after the permission check with both storage backends instead of redirecting to a signed link, so no link to the bucket ever leaves the API. The unused setting `files.signed_url_seconds` is removed. NFR-SEC-04 is unchanged; one line of SRS Section 4.3 describes the interface.
+  - **Attendance:** an `attendance_weeks` row may hold only an unlock (`attended_days`, `recorded_by`, and `recorded_at` null together), so the coordinator can unlock a week that was never recorded. The week's `locked` flag is reported apart from its state.
+  - **Evaluations:** a final evaluation is reopened only while its grade is `draft` (`409 INVALID_TRANSITION` otherwise).
+  - **Payloads:**
+    - The ranking has `total` and a `mode` per item.
+    - The development plan has no `message`; the client shows "No resource available yet".
+    - The `missing` items of `PRECONDITIONS_UNMET` carry no text.
+    - Attendance and grades carry `can_*` flags for the caller.
+    - Placements carry `attendance_percent` and `grade_status`.
+    - Dashboard items may carry `status` or `oldest_days`; the grade items link to the grades page.
+    - `/version` and the deep health check name the loaded model.
+  - **Schema names:** unique names in the OpenAPI document (`AttendanceWeekOut`, `DashboardItem`, `EvaluationItem`, `EvaluationDraftIn`, `EvaluationOverview`, `GradeCommentIn`).
+  - **Deployment:**
+    - Row level security on every table (migration `0003`); the skill synonyms added in this increment reach older databases once (migration `0004`), since the seed never changes existing skills.
+    - The API refuses to start in production without a real `JWT_SECRET`.
+    - The model is downloaded into the image and read offline.
+    - The backup keeps the database for 30 days and the files for 7 days, because artifact storage of a private repository is limited to 500 MB.
+    - The GitHub Actions limits are those of a private repository.
+    - The Supabase and Vercel projects are created when the deployment is switched on, after the owner's Hugging Face steps ([Deployment](Deployment.md)).
+  - **Schedule:** the development plan (FR-MAT-06), a stretch item planned for Increment 3, was delivered in Increment 2.
+- **Reason:** each item either closes a defect found by the tests or the browser check, or records behaviour the screens and the deployment need.
+- **Affected:**
+  - Design document 3.2, 3.4, 3.5, 4.3.2 (Table 4.1), 4.3.6, 5.1, and 5.5 (version 1.4).
+  - API specification 3.7, 3.11, 3.12, 3.19, 3.20, 4.5, 4.6, 4.9, and 4.10 (version 1.3).
+  - SRS 4.3 (version 1.5).
+  - SPMP Sections 4 and 5 (version 1.4).
+  - Increment 2 design, Sections 2, 4, 8, 10, 11, and 12.
+- **Effect on schedule:** none; FR-MAT-06 is delivered earlier than planned.
+- **Decision:** approved. Design 1.4, API specification 1.3, SRS 1.5, SPMP 1.4.

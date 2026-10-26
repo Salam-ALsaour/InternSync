@@ -35,6 +35,7 @@ CSC 305 – Software Engineering \| Semester 1 – 2026/2027 \| Section 5MA1 \| 
 | 1.2 | Oct 20, 2026 | CR-05: one platform for many universities and companies. Five roles with a Platform Admin; self-registration with verification of coordinators, companies, and students (new Section 4.17, FR-ORG-01 – 09); one coordinator per college; companies publish vacancies directly (FR-VAC-01 – 03 rewritten); CSV import removed (FR-PRF-01 deleted, Section 6.3.1 removed); FR-DSH-05 added; Table 2.3 rewritten. | Salam Alsaour |
 | 1.3 | Oct 23, 2026 | Restructured to the course SRS template (IEEE 830 adapted): sections 1 – 6 renumbered (old Sections 7 – 10 and Appendix A are now 2.5, 2.6, 6.3, 6.4, and 6.5); reader guide (1.3), product functions (2.2), use case specifications (3.2), wireframe figures (4.1), glossary (6.1), and supporting diagrams (6.2) added; NFR-MNT-03 and the glossary name the Platform Admin for platform defaults and the skill vocabulary (CR-05). No requirement added or removed. | Salam Alsaour |
 | 1.4 | Oct 23, 2026 | CR-06: the vacancy's training type must equal the type of the student's cycle (FR-VAC-04, FR-MAT-03). Version 1.3 is the submitted version. | Salam Alsaour |
+| 1.5 | Oct 26, 2026 | CR-08: the file storage interface (4.3) streams downloads through the API after the permission check instead of issuing signed links. No requirement changed. | Salam Alsaour |
 
 ## Table of Contents
 
@@ -975,7 +976,7 @@ InternSync has no direct hardware interface. Users work from standard desktops, 
 | **Interface** | **Purpose** | **Data exchanged** | **Notes** |
 |:---|:---|:---|:---|
 | PostgreSQL 16 or later with pgvector (Supabase in the reference deployment) | Store relational data and text embeddings | SQL over TLS | Reached only by the API with a dedicated database role; the Supabase auto-generated Data API is disabled. |
-| File storage (Supabase Storage private bucket; a local volume under Docker Compose) | Store CVs, report attachments, verification documents, exports, and certificates | Files in and out | Reached only by the API; downloads use short-lived signed links issued after a permission check (NFR-SEC-04). |
+| File storage (Supabase Storage private bucket; a local volume under Docker Compose) | Store CVs, report attachments, verification documents, exports, and certificates | Files in and out | Reached only by the API; each download is streamed by the API after a permission check, so no storage link is given out (NFR-SEC-04). |
 | Multilingual embedding model (e.g., multilingual-e5-small via sentence-transformers) | Embeddings for matching and similarity | Text in, vector out | Runs on the server (NFR-PRV-02); fallback in FR-MAT-04. |
 | PDF/DOCX text extraction library | Read CV and report text | File in, text out | Image-only files handled by FR-PRF-05. |
 | Email provider (SMTP over TLS) | Activation, password reset, notifications | Outgoing email messages | Free provider (Gmail SMTP with an app password in the reference deployment); sending limits are dependency D-03. |

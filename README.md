@@ -6,7 +6,9 @@ CSC 305 – Software Engineering, Imam Abdulrahman Bin Faisal University, Semest
 
 ## Status
 
-Increment 1 (accounts and verification, organizations, training cycles, profiles with CV skill extraction, vacancies and placements, weekly and final reports, audit log) is built and tested; see the [test report](docs/Increments/Increment_1/04_Test_Report.md). Matching, dashboards, attendance, and evaluations follow in Increment 2.
+- **Increment 1** is built and tested ([test report](docs/Increments/Increment_1/04_Test_Report.md)): accounts and verification, organizations, training cycles, profiles with CV skill extraction, vacancies and placements, weekly and final reports, and the audit log.
+- **Increment 2** is built and tested ([test report](docs/Increments/Increment_2/04_Test_Report.md)): AI matching of students to vacancies with a development plan, weekly attendance, company evaluations, grades with approval, and dashboards for every role.
+- **Deployment:** the zero-cost reference deployment is prepared and is switched on from a checklist ([docs/Deployment.md](docs/Deployment.md)).
 
 ## Run Locally
 
@@ -23,6 +25,8 @@ docker compose exec api python -m app.seed --demo
 | API and its documentation | http://localhost:8000/api/v1/docs |
 | Mailpit (every email sent by the app lands here) | http://localhost:8025 |
 | PostgreSQL | `localhost:5433`, user, password, and database `internsync` |
+
+The first build downloads the embedding model into the API image (the image is about 3 GB). For a smaller image without it, which uses basic matching, build with `docker compose build --build-arg WITH_AI=0 api`.
 
 The demo command adds one account per role, all with the password `Demo-2026-pass` (local use only; refused when `ENV=production`):
 
@@ -59,7 +63,14 @@ docker compose up -d db mailpit
 .venv/Scripts/pytest --cov=app
 ```
 
-The tests use their own database, `internsync_test`, created on first use.
+The tests use their own database, `internsync_test`, created on first use. They use a small stand-in for the embedding model. To run the API with the real model, also install `requirements-ai.txt` (CPU PyTorch and sentence-transformers); without it the API uses basic matching.
+
+The AI evaluation (skill extraction and matching on a labelled synthetic set) runs from the repository root with the backend's Python:
+
+```bash
+backend/.venv/Scripts/python ai-eval/evaluate.py            # with the model
+backend/.venv/Scripts/python ai-eval/evaluate.py --basic    # rules only
+```
 
 Frontend (Node 22, from `frontend/`):
 
@@ -84,5 +95,7 @@ CI (GitHub Actions) runs the same checks on every pull request.
 |:---|:---|
 | `backend/` | FastAPI application, Alembic migrations, seed data, tests (with the permission matrix), scripts |
 | `frontend/` | React, TypeScript, and Tailwind web app with Arabic and English texts |
+| `ai-eval/` | Labelled synthetic profiles and vacancies, and the evaluation script |
+| `.github/workflows/` | CI, and the deployment, keep-alive, and backup workflows ([docs/Deployment.md](docs/Deployment.md)) |
 | `docs/` | Project documents in Markdown and their submitted snapshots |
 | `docker-compose.yml` | Database, API, web app, and Mailpit for local use and the demo |

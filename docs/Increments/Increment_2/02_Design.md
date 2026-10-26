@@ -1,6 +1,6 @@
 # Increment 2 – Design
 
-**Status:** Approved for implementation · Oct 25, 2026 · Author: Salam Alsaour  
+**Status:** Approved for implementation · Oct 25, 2026; implemented Oct 26, 2026 (changes in Section 12) · Author: Salam Alsaour  
 **Input:** [01_Requirements.md](01_Requirements.md), [Design 1.3](../../Design/InternSync_Design.md), [API 1.2](../../Design/InternSync_API_Spec.md), [Increment 1 design](../Increment_1/02_Design.md)
 
 This document narrows the system design to what Increment 2 builds and records the decisions the system design leaves open. Where it says nothing, the system design, the API specification, and the Increment 1 design apply unchanged.
@@ -16,6 +16,7 @@ backend/app/
   grades/               service and router (3.13)
   dashboard/            service and router (3.14: /dashboard, /cycles/{id}/stats, /platform/stats)
   core/storage_supabase.py   Supabase Storage adapter for the reference deployment
+backend/scripts/        deploy_space.py (the Space), backup_files.py (nightly copy of the bucket)
 ai-eval/                synthetic labelled set and evaluate.py (NFR-AI-03)
 ```
 
@@ -35,6 +36,8 @@ The matching score functions are pure (vectors and skill sets in, parts and scor
 
 The design's single JSON setting `matching.weights` becomes three numeric settings, so the settings page and its range checks treat every setting the same way (recorded as CR-08). Settings may now be decimals; each key keeps a minimum and a maximum.
 
+Migration `0003` turns on row level security for every table, for the hosted database (Section 10), and removes the unused setting `files.signed_url_seconds` (Section 12). Migration `0004` adds the six skill synonyms of this increment to databases created earlier: the seed adds missing skills but never changes existing ones, so that the Platform Admin's edits stay.
+
 The company evaluation by students and the outcome survey (FR-EVL-05, FR-DSH-03, Could) and certificates (Increment 3) get their tables in the increment that builds them.
 
 ## 3. Endpoints Built
@@ -43,13 +46,13 @@ All of API Sections 3.8, 3.11, 3.13, and these parts of 3.12 and 3.14:
 
 - 3.12: `GET /placements/{id}/evaluations`, `PUT` and `POST …/submit` per type, `POST /evaluations/{id}/reopen`.
 - 3.14: `GET /dashboard`, `GET /cycles/{id}/stats`, `GET /platform/stats`.
-- 3.8: the development plan (`…/plan`, FR-MAT-06) only if the stretch item is reached.
+- 3.8: the development plan (`…/plan`, FR-MAT-06) only if the stretch item is reached. It was reached and is built.
 
 `GET /placements/{id}` gains `attendance_percent` and `grade_status`. `POST /vacancies/{id}/applications` stores the fit-score snapshot (`fit_score`, `match_mode`, `model_version`), which the applicant list shows to the company.
 
 ## 4. Matching
 
-1. **Embedder.** `get_embedder()` returns the model when `AI_ENABLED=true` and `sentence-transformers` can load `EMBEDDING_MODEL`; otherwise `None`, and every caller takes the basic path. The model is loaded once, on first use, under a lock. The version string is `<model>@<revision>` from the model's config, or the model name if no revision is known. Tests install a stand-in embedder that hashes tokens into 384 dimensions, which is deterministic and makes texts with shared words closer.
+1. **Embedder.** `get_embedder()` returns the model when `AI_ENABLED=true` and `sentence-transformers` can load `EMBEDDING_MODEL`; otherwise `None`, and every caller takes the basic path. The model is loaded once, under a lock: in the background when the API starts, or by the first request that needs it if that comes first. It is read from the local copy (the image holds it; `HF_HUB_OFFLINE=1`), so loading needs no network. The version string is `<model>@<revision>`, the first 12 characters of the cached snapshot, or `<model>@local` when there is none; `/version` and the deep health check show it. Tests install a stand-in embedder that hashes tokens into 384 dimensions, which is deterministic and makes texts with shared words closer.
 2. **Texts (Design 6.2).** Profile: confirmed skill names in both languages, interests, and the first 2,000 characters of the current CV text, with `query: `. Vacancy: title, description, required and preferred skill names, with `passage: `.
 3. **Embedding on write (RQ-3).** After the student confirms skills, edits interests, or uploads a CV, and after a vacancy is created or edited, the record is embedded in the same request when the model is loaded; if embedding fails, the request still succeeds and the `embed_missing` job (every 15 minutes) fills the gap.
 4. **Ranking.** One query selects the eligible vacancies (the Increment 1 eligibility rules, now as SQL) with `1 − (embedding <=> profile)` as the cosine when both vectors exist; one query loads their skills. Scores are computed in Python, sorted by fit, then the required part, then the earlier deadline, and written to `match_scores` with one bulk upsert. The response is the API Section 4.5 shape; `mode` is `basic` when the profile has no embedding or the model is off, and per item when a vacancy has no embedding.
@@ -93,6 +96,8 @@ All of API Sections 3.8, 3.11, 3.13, and these parts of 3.12 and 3.14:
 | Coordinator | `students_to_verify`, `placements_to_confirm`, `grades_to_approve` |
 | Platform Admin | `verifications_pending` (with the oldest age in days) |
 
+Each item has a `link` to the page where the action is taken; the grade items open the grades page on the right tab (`/academic/grades?status=draft`, `/coordinator/grades?status=submitted`).
+
 `GET /cycles/{id}/stats?company_id` returns, overall and per company: enrolled, placed, and unplaced students; report submission rate and late rate over slots whose deadline has passed; attendance rate over recorded weeks; evaluation completion over evaluations that are due. `GET /platform/stats` returns the counts of FR-DSH-05 and nothing about students' records.
 
 ## 9. Frontend
@@ -112,19 +117,57 @@ The placement page (`/placements/:id`) becomes the single place for one trainee:
 
 | **Part** | **Prepared in this increment** | **Owner step** |
 |:---|:---|:---|
-| Database | Supabase project (free) with `vector` and `pg_trgm`; migrations run by the API on start; Data API off, RLS on every table | – (through the connected account) |
-| File storage | `STORAGE_BACKEND=supabase` adapter: private bucket, uploads and signed links of 60 s | Copy the service key into the Space secrets |
-| API | `backend/Dockerfile` with the model baked in, port from `PORT` (7860 on Spaces); `deploy-api.yml` pushes `backend/` to the Space when `HF_TOKEN` is set | Create the Hugging Face account, the Space, and the token |
-| Web app | Vercel project for `frontend/`, `VITE_API_URL` pointing at the Space, SPA rewrites in `vercel.json` | – (through the connected account) |
-| Email | Gmail SMTP settings | Create the app password |
-| Operations | `keepalive.yml` (every 6 hours) and `backup.yml` (nightly, encrypted `pg_dump`), both skipped while their secrets are missing | Add the secrets |
+| Database | Supabase project (free) with `vector` and `pg_trgm`; migrations run by the API on start; Data API off, row level security on every table (migration `0003`); `postgresql://` addresses accepted as they are | – (through the connected account, at switch-on) |
+| File storage | `STORAGE_BACKEND=supabase` adapter: private bucket `internsync-files`, created by the seed at start; downloads streamed by the API after the permission check, as with local storage (CR-08) | Copy the service key into the secrets |
+| API | `backend/Dockerfile` with the model downloaded at build time (`WITH_AI=1`), port from `PORT` (7860 on Spaces); `deploy-api.yml` runs `scripts/deploy_space.py`, which creates the Space, copies settings and secrets, and uploads the build files when `HF_TOKEN` and `HF_SPACE` are set; the API refuses to start in production without a real `JWT_SECRET` | Create the Hugging Face account and the token |
+| Web app | Vercel project for `frontend/`, `VITE_API_URL` pointing at the Space (the client prefixes every call with it), SPA rewrites and security headers in `vercel.json` | – (through the connected account, at switch-on) |
+| Email | Gmail SMTP settings (STARTTLS on 587) set on the Space by the script | Create the app password |
+| Operations | `keepalive.yml` (every 6 hours) and `backup.yml` (nightly: encrypted `pg_dump` kept 30 days and an encrypted copy of the bucket kept 7 days), both doing nothing while their secrets are missing | Add the secrets |
 
-The checklist with the exact values goes to `docs/Deployment.md`.
+The checklist with the exact values is in [docs/Deployment.md](../../Deployment.md). The Supabase and Vercel projects are created at switch-on, not before: a database without an API would be paused after 7 days without use, and a web app without an API cannot be used.
 
 ## 11. Test Design
 
 - **Stand-in embedder** in `conftest.py`; one test runs with `AI_ENABLED=false` semantics (no embedder) for the basic mode.
-- **Factories:** `f.complete_placement(...)` builds a placement whose reports are all accepted, its attendance recorded, and both evaluations submitted, so grade tests start from the point they need.
-- **Timed test** (NFR-PER-02): 1,000 published vacancies with embeddings, 20 ranking requests, 95th percentile under 5 s; marked `slow` and run in CI.
+- **Factories:** `f.rubric(cycle)`, `f.components(cycle)`, `f.evaluation(placement, supervisor, type, scores)`, and `f.finish_reports(placement)` (every report accepted) bring a placement to the point a grade test needs.
+- **Timed test** (NFR-PER-02): 1,000 published vacancies with embeddings, 20 ranking requests, 95th percentile under 5 s, in both modes; part of the normal suite, so it runs in CI.
 - **Permission matrix:** the new routes are added; the module suites check scope (the other company, the other college, the other student).
 - **Evaluation script:** `python ai-eval/evaluate.py` with the real model prints extraction recall and the top-5 hit rate; the numbers go into the test report.
+- **Deployment parts** without the services: the storage adapter and the bucket copy against a stand-in of the Storage API (`httpx.MockTransport`), the Space script's staging, and the production configuration checks.
+
+## 12. Changes During Implementation
+
+Recorded as [CR-08](../../Change_Requests.md); the system design (1.4), the API specification (1.3), and one line of the SRS (1.5) were updated in the same pull request. The test results are in [04_Test_Report.md](04_Test_Report.md).
+
+| **Change** | **Why** |
+|:---|:---|
+| Matching weights as three numeric settings | The settings page and its range checks treat every setting the same way |
+| `attendance_weeks` rows may hold only an unlock | The coordinator can unlock a week that was never recorded (FR-ATT-02) |
+| A final evaluation is reopened only while its grade is `draft` | Otherwise a submitted or Final grade would rest on an evaluation that is being changed |
+| Downloads streamed by the API with both storage backends; `files.signed_url_seconds` removed | Simpler and stricter: no link to the bucket ever leaves the API, and the web app needs no access to Supabase. NFR-SEC-04 is unchanged |
+| Row level security on every table (migration `0003`) | A second guard if the hosted database's Data API is ever turned on |
+| Model loaded at start in the background, from the local copy; `/version` and the deep health check name it | The first ranking request waited about 90 seconds for the model and contacted the Hugging Face Hub |
+| `JWT_SECRET` required in production; `postgresql://` addresses accepted | Fail fast on a missing secret; hosted databases show plain addresses |
+| Backup kept 30 days for the database and 7 days for the files | Artifact storage of a private repository is limited to 500 MB |
+| Payloads as built: `total` and per-item `mode` in the ranking; no `message` in the plan; `missing` items of `PRECONDITIONS_UNMET` without text; `can_*` flags; `attendance_percent` and `grade_status` on placements | The client words every message in the user's language and shows actions by flag |
+| Unique schema names (`AttendanceWeekOut`, `DashboardItem`, `EvaluationItem`, `EvaluationDraftIn`, `EvaluationOverview`, `GradeCommentIn`) | Generic names such as `Item` collided in the OpenAPI document |
+
+Defects found by the tests, the AI evaluation, and the browser check, and fixed before the pull request:
+
+- The attendance state treated a week past its edit window as locked even when it was never recorded, so it was missing from the company's overdue count. The state and the lock are now separate.
+- Arabic skill extraction found 67.7% of the labelled skills: attached particles (و، ف، ب، ل، ك، لل) hid words, and some common terms had no synonym. With both fixed it finds 96.9%. Migration `0004` brings the new synonyms to databases created before this increment.
+- The model version showed `@local` for a model from the Hub; it is now read from the cached snapshot.
+- The web app lost the server's error message on every typed call, because the body was read twice, so pages showed the bare status text ("Conflict"). This existed since Increment 1. The message is now taken from the body the client has already read; a unit test covers it.
+- The first ranking after a restart waited for the model (see the table above).
+- Reading the text of a 5 MB PDF packed with text took 89 seconds, above the 30 seconds of NFR-PER-03: the time grows faster than the size of a page's drawing instructions, and a compressed file can unpack to megabytes. Text is now read from at most 20 pages, 512 KB of instructions per page, and 2 MB per file (far above any CV), and a DOCX is refused for reading above 50 MB unzipped; the same file now takes about 2 seconds. Found by the new timed test of NFR-PER-03.
+- The API image stopped at start outside Docker Compose, because its default file folder was not writable by the image's user; the image now defaults to `/data/storage`.
+- Wording and display found in the browser check:
+  - the vacancies page still said ranking "comes later";
+  - the company's trainee page was described as read-only;
+  - the student saw "Grade: Draft" before the grade was Final;
+  - a submitted evaluation showed "awaiting review";
+  - the matched-skills label did not say "required";
+  - the preconditions listed twelve weekly lines instead of one;
+  - "3 طالب" in Arabic;
+  - the attendance dialog had no Cancel button;
+  - the dashboard's grade links opened the students page.
