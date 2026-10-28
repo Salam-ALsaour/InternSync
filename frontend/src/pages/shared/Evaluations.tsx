@@ -1,16 +1,19 @@
 /** Periodic and final evaluations on the cycle rubric (wireframe `CS_Evaluation`, FR-EVL-01 – 04). The company
  *  supervisor rates every criterion 1–5 against its level descriptions; others read what is visible to them. */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, type S, unwrap } from "../../api/client";
-import { Button, Card, Dialog, ErrorBox, Loading, Notice, StatusChip, TextArea } from "../../components/ui";
+import { Button, Card, Dialog, DraftNotice, ErrorBox, Loading, Notice, StatusChip, TextArea } from "../../components/ui";
+import { useMe } from "../../lib/auth";
 import { formatDateTime, nameOf } from "../../lib/format";
+import { draftKey, useLocalDraft } from "../../lib/offline";
 import { History } from "./History";
 
 type Overview = S<"EvaluationOverview">;
 type Item = S<"EvaluationItem">;
 type Criterion = S<"Criterion">;
+type Form = { scores: Record<string, number>; comment: string };
 
 function levelText(c: Criterion, score: number, lang: string): string {
   const level = (c.levels as Record<string, { en: string; ar: string }>)[String(score)];
@@ -20,24 +23,33 @@ function levelText(c: Criterion, score: number, lang: string): string {
 function EvaluationForm({ placementId, item, rubric, onSaved }: { placementId: string; item: Item; rubric: Criterion[];
   onSaved: (o: Overview) => void }) {
   const { t, i18n } = useTranslation();
-  const [scores, setScores] = useState<Record<string, number>>({});
-  const [comment, setComment] = useState("");
-  useEffect(() => {
-    const e = item.evaluation;
-    setScores(Object.fromEntries((e?.scores ?? []).map((s) => [s.criterion_id, s.score])));
-    setComment(e?.overall_comment ?? "");
-  }, [item.evaluation]);
+  const me = useMe();
+  const e = item.evaluation;
+  const server: Form = { scores: Object.fromEntries((e?.scores ?? []).map((s) => [s.criterion_id, s.score])),
+    comment: e?.overall_comment ?? "" };
   const params = { params: { path: { placement_id: placementId, type: item.type as "periodic" | "final" } } };
-  const body = () => ({ scores: Object.entries(scores).map(([criterion_id, score]) => ({ criterion_id, score })),
-    overall_comment: comment });
-  const save = useMutation({ mutationFn: () => unwrap(api.PUT("/api/v1/placements/{placement_id}/evaluations/{type}",
-    { ...params, body: body() })), onSuccess: onSaved });
+  const body = (f: Form) => ({ scores: Object.entries(f.scores).map(([criterion_id, score]) => ({ criterion_id, score })),
+    overall_comment: f.comment });
+  const put = (f: Form) => unwrap(api.PUT("/api/v1/placements/{placement_id}/evaluations/{type}",
+    { ...params, body: body(f) })).then((o) => {
+    onSaved(o);
+    return o;
+  });
+  // Kept on the device until saved, and saved when the connection returns (CR-10).
+  const local = useLocalDraft(draftKey(me.id, `evaluation-${item.type}`, placementId), server, put);
+  const { scores, comment } = local.values;
+  const setScores = (next: Record<string, number>) => local.setValues((v) => ({ ...v, scores: next }));
+  const setComment = (next: string) => local.setValues((v) => ({ ...v, comment: next }));
+  const save = useMutation({ mutationFn: () => put(local.values), onSuccess: local.saved });
   const submit = useMutation({
     mutationFn: async () => {
-      await unwrap(api.PUT("/api/v1/placements/{placement_id}/evaluations/{type}", { ...params, body: body() }));
+      await put(local.values);
       return unwrap(api.POST("/api/v1/placements/{placement_id}/evaluations/{type}/submit", params));
     },
-    onSuccess: onSaved,
+    onSuccess: (o) => {
+      local.saved();
+      onSaved(o);
+    },
   });
   return (
     <div className="flex flex-col gap-4">
@@ -57,8 +69,9 @@ function EvaluationForm({ placementId, item, rubric, onSaved }: { placementId: s
         </fieldset>
       ))}
       <TextArea label={t("evaluation.comment")} value={comment} rows={4} onChange={(e) => setComment(e.target.value)} />
+      <DraftNotice status={local.status} onKeepMine={local.keepMine} onKeepSaved={local.keepSaved} />
       <ErrorBox error={save.error ?? submit.error} />
-      {save.isSuccess && <Notice tone="success">{t("common.saved")}</Notice>}
+      {save.isSuccess && local.status === "server" && <Notice tone="success">{t("common.saved")}</Notice>}
       <div className="flex flex-wrap items-center gap-2">
         <Button tone="secondary" busy={save.isPending} onClick={() => save.mutate()}>{t("evaluation.save_draft")}</Button>
         <Button busy={submit.isPending} onClick={() => submit.mutate()}>{t("evaluation.submit")}</Button>

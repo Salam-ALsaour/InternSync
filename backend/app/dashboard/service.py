@@ -2,13 +2,15 @@
 Increment 3 design, Section 5). Counts are queries, so they always equal the database."""
 import uuid
 from datetime import timedelta
+from decimal import ROUND_HALF_UP, Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.attendance.service import overdue_weeks
-from app.core import clock
+from app.core import clock, settings
 from app.core.deps import Actor
+from app.evaluations import feedback
 from app.evaluations.service import TYPES, due_at
 from app.grades import service as grades
 from app.models import (
@@ -56,7 +58,8 @@ def _student(db: Session, actor: Actor) -> list[dict]:
               _item("revisions_requested", revisions, "/student/reports"),
               _item("applications_submitted", apps.get("submitted", 0), "/student/applications"),
               _item("applications_accepted", apps.get("accepted", 0), "/student/applications"),
-              _item("grade_final", final, "/student/reports")]
+              _item("grade_final", final, "/student/reports"),
+              _item("feedback_due", feedback.due(db, me.id), "/student/feedback")]
     return items
 
 
@@ -121,10 +124,13 @@ def _coordinator(db: Session, actor: Actor) -> list[dict]:
         Application.student_id.in_(students), Application.status == "accepted"))
     to_approve = db.scalar(select(func.count()).select_from(Grade).join(Placement, Placement.id == Grade.placement_id)
                            .where(Placement.student_id.in_(students), Grade.status == "submitted"))
+    alerts = sum(len(leniency_alerts(db, c)) for c in db.scalars(
+        select(TrainingCycle).where(TrainingCycle.college_id == college, TrainingCycle.status == "open")))
     return [_item("students_to_verify", verify, "/coordinator/students"),
             _item("placements_to_confirm", to_place, "/coordinator/placements"),
             _item("grades_to_approve", to_approve, "/coordinator/grades?status=submitted"),
-            _item("escalations", len(overdue_items(db, college)), "/coordinator/escalations")]
+            _item("escalations", len(overdue_items(db, college)), "/coordinator/escalations"),
+            _item("leniency_alerts", alerts, "/coordinator/cycles")]
 
 
 def _platform(db: Session) -> list[dict]:
@@ -191,6 +197,40 @@ def cycle_stats(db: Session, cycle: TrainingCycle, company_id: uuid.UUID | None)
         companies.append({"company_id": cid, "company_name": db.get(Company, cid).name,
                           **_figures(db, cycle, items, None)})
     return {"cycle_id": cycle.id, "overall": _figures(db, cycle, placements, enrolled), "companies": companies}
+
+
+# ---------------------------------------------------------------- leniency alerts (FR-DSH-04)
+def _mean(values) -> Decimal | None:
+    values = [Decimal(v) for v in values]
+    return (sum(values, Decimal(0)) / len(values)).quantize(Decimal("0.001"), ROUND_HALF_UP) if values else None
+
+
+def leniency(db: Session, cycle: TrainingCycle) -> dict:
+    """Mean of the submitted final evaluations per company against the cycle mean; an alert for a company with at
+    least `dashboard.leniency_min_evaluations` of them and a mean at least `dashboard.leniency_delta` higher."""
+    rows = db.execute(select(Evaluation.mean_score, Vacancy.company_id)
+                      .join(Placement, Placement.id == Evaluation.placement_id)
+                      .join(Vacancy, Vacancy.id == Placement.vacancy_id)
+                      .where(Placement.cycle_id == cycle.id, Placement.status != "cancelled",
+                             Evaluation.type == "final", Evaluation.status == "submitted")).all()
+    minimum = settings.get(db, "dashboard.leniency_min_evaluations")
+    delta = Decimal(str(settings.get(db, "dashboard.leniency_delta")))
+    cycle_mean = _mean(m for m, _ in rows)
+    by_company: dict[uuid.UUID, list] = {}
+    for m, cid in rows:
+        by_company.setdefault(cid, []).append(m)
+    companies = []
+    for cid, scores in by_company.items():
+        mean = _mean(scores)
+        companies.append({"company_id": cid, "company_name": db.get(Company, cid).name, "evaluations": len(scores),
+                          "mean": mean, "difference": mean - cycle_mean,
+                          "alert": len(scores) >= minimum and mean - cycle_mean >= delta})
+    return {"cycle_id": cycle.id, "cycle_mean": cycle_mean, "evaluations": len(rows), "min_evaluations": minimum,
+            "delta": delta, "companies": sorted(companies, key=lambda c: (-c["difference"], c["company_name"]))}
+
+
+def leniency_alerts(db: Session, cycle: TrainingCycle) -> list[dict]:
+    return [c for c in leniency(db, cycle)["companies"] if c["alert"]]
 
 
 # ---------------------------------------------------------------- platform figures (FR-DSH-05)

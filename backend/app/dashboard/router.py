@@ -1,6 +1,7 @@
-"""API 3.14 – Dashboards, statistics, and escalations (FR-DSH-01, FR-DSH-02, FR-DSH-05, FR-NOT-04)."""
+"""API 3.14 – Dashboards, statistics, and escalations (FR-DSH-01 – 05, FR-NOT-04)."""
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Query
@@ -13,6 +14,7 @@ from app.core.db import get_db
 from app.core.deps import Actor, auth
 from app.core.errors import forbidden
 from app.dashboard import service
+from app.evaluations import feedback
 from app.models import TrainingCycle, User
 from app.notifications.scheduled import overdue_items
 
@@ -83,6 +85,63 @@ def get_cycle_stats(cycle_id: uuid.UUID, company_id: uuid.UUID | None = None, ac
     if cycle.college_id != actor.user.college_id:
         raise forbidden()
     return service.cycle_stats(db, cycle, company_id)
+
+
+class OutcomeFigures(BaseModel):
+    answers: int
+    yes: int
+    no: int
+    pending: int
+    job_offer_rate: float | None
+
+
+class CompanyOutcome(OutcomeFigures):
+    company_id: uuid.UUID
+    company_name: str
+
+
+class Outcomes(BaseModel):
+    cycle_id: uuid.UUID
+    overall: OutcomeFigures
+    companies: list[CompanyOutcome]
+
+
+class CompanyLeniency(BaseModel):
+    company_id: uuid.UUID
+    company_name: str
+    evaluations: int
+    mean: Decimal
+    difference: Decimal
+    alert: bool
+
+
+class Leniency(BaseModel):
+    cycle_id: uuid.UUID
+    cycle_mean: Decimal | None
+    evaluations: int
+    min_evaluations: int
+    delta: Decimal
+    companies: list[CompanyLeniency]
+
+
+def _own_cycle(db: Session, actor: Actor, cycle_id: uuid.UUID) -> TrainingCycle:
+    cycle = get_or_404(db, TrainingCycle, cycle_id)
+    if cycle.college_id != actor.user.college_id:
+        raise forbidden()
+    return cycle
+
+
+@router.get("/cycles/{cycle_id}/outcomes", response_model=Outcomes)
+def get_outcomes(cycle_id: uuid.UUID, actor: Actor = Depends(auth("co")), db: Session = Depends(get_db)):
+    """FR-DSH-03: the job-offer rate per cycle and per company."""
+    return feedback.outcomes(db, _own_cycle(db, actor, cycle_id))
+
+
+@router.get("/cycles/{cycle_id}/leniency-alerts", response_model=Leniency)
+def get_leniency(cycle_id: uuid.UUID, actor: Actor = Depends(auth("co")), db: Session = Depends(get_db)):
+    """FR-DSH-04: each company's mean final evaluation against the cycle mean; `alert` marks the informational
+    alerts."""
+    return service.leniency(db, _own_cycle(db, actor, cycle_id))
 
 
 class Escalation(BaseModel):

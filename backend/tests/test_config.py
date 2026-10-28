@@ -29,3 +29,11 @@ def test_production_refuses_the_development_secret(monkeypatch):
         Settings(_env_file=None)
     monkeypatch.setenv("JWT_SECRET", "x" * 40)
     assert Settings(_env_file=None).env == "production"
+
+
+def test_every_answer_has_the_release_check_headers(client):
+    """NFR-SEC-05: the findings of the ZAP API scan (Increment 4 test report, Section 6)."""
+    for path in ("/api/v1/health", "/api/v1/me", "/api/v1/public/certificates/NOPE"):
+        r = client.get(path)
+        assert r.headers["x-content-type-options"] == "nosniff", path
+        assert r.headers["cross-origin-resource-policy"] == "same-origin", path

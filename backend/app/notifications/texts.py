@@ -96,6 +96,14 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
         "en": ("Grade final", "The grade of {student} is final."),
         "ar": ("اعتُمدت الدرجة", "اعتُمدت درجة {student} نهائياً."),
     },
+    "certificate.issued": {
+        "en": ("Certificate issued", "Your completion certificate for the training at {company} is ready."),
+        "ar": ("صدرت الشهادة", "شهادة إتمام تدريبك لدى {company} جاهزة."),
+    },
+    "certificate.revoked": {
+        "en": ("Certificate revoked", "Your completion certificate was revoked: {reason}"),
+        "ar": ("أُلغيت الشهادة", "أُلغيت شهادة إتمام تدريبك: {reason}"),
+    },
     "grade.reopened": {
         "en": ("Grade reopened", "The grade of {student} was reopened for correction: {reason}"),
         "ar": ("أُعيد فتح الدرجة", "أُعيد فتح درجة {student} للتصحيح: {reason}"),

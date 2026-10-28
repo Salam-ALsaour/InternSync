@@ -1,0 +1,2 @@
+# Load test tool only (NFR-PER-01); kept apart from the API's packages
+locust==2.46.7

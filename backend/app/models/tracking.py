@@ -1,9 +1,10 @@
-"""Attendance, evaluations, and grades (Design 4.3.6, 4.3.7; Increment 2 design, Section 2)."""
+"""Attendance, evaluations, grades, and certificates (Design 4.3.6, 4.3.7; Increment 2 design, Section 2;
+Increment 4 design, Section 2)."""
 import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, Numeric, SmallInteger, Text, UniqueConstraint
+from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Index, Numeric, SmallInteger, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
@@ -89,3 +90,52 @@ class GradeComponentScore(Base):
     score: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     updated_at: Mapped[datetime] = updated_at()
     __table_args__ = (CheckConstraint("score >= 0 AND score <= 100", name="score"),)
+
+
+RATINGS = ("learning_opportunities", "supervision_quality", "work_environment", "relevance_to_major")
+
+
+class CompanyEvaluation(Base):
+    """The student's evaluation of the training entity (FR-EVL-05); never visible to company supervisors."""
+    __tablename__ = "company_evaluations"
+    placement_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("placements.id"), primary_key=True)
+    learning_opportunities: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    supervision_quality: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    work_environment: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    relevance_to_major: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    would_recommend: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    comment: Mapped[str | None] = mapped_column(Text)
+    submitted_at: Mapped[datetime] = ts(nullable=False)
+    __table_args__ = tuple(CheckConstraint(f"{r} BETWEEN 1 AND 5", name=r) for r in RATINGS)
+
+
+class OutcomeSurvey(Base):
+    """The job-offer answer of FR-DSH-03."""
+    __tablename__ = "outcome_surveys"
+    placement_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("placements.id"), primary_key=True)
+    job_offer: Mapped[str] = mapped_column(Text, nullable=False)
+    submitted_at: Mapped[datetime] = ts(nullable=False)
+    updated_at: Mapped[datetime] = updated_at()
+    __table_args__ = (CheckConstraint("job_offer IN ('yes','no','pending')", name="job_offer"),)
+
+
+class Certificate(Base):
+    """Completion certificate (FR-CER-01 – 03); `code` is the public ID in the QR code."""
+    __tablename__ = "certificates"
+    id: Mapped[uuid.UUID] = uuid_pk()
+    placement_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("placements.id"), nullable=False)
+    code: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    file_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("files.id"), nullable=False)
+    status: Mapped[str] = mapped_column(Text, nullable=False, server_default="valid", default="valid")
+    issued_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    issued_at: Mapped[datetime] = ts(nullable=False)
+    revoked_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    revoked_at: Mapped[datetime | None] = ts()
+    revoke_reason: Mapped[str | None] = mapped_column(Text)
+    __table_args__ = (
+        CheckConstraint("status IN ('valid','revoked')", name="status"),
+        CheckConstraint("status <> 'revoked' OR (revoke_reason IS NOT NULL AND length(trim(revoke_reason)) > 0)",
+                        name="revoke_reason"),
+        Index("uq_certificates_valid_placement", "placement_id", unique=True,
+              postgresql_where=text("status = 'valid'")),
+    )

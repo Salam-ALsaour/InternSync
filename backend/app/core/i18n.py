@@ -108,6 +108,19 @@ MESSAGES: dict[str, tuple[str, str]] = {
                             "لا يمكن إرسال الدرجة بعد. أكمل العناصر المذكورة أولاً."),
     "GRADE_LOCKED": ("This grade is locked. Only the coordinator can reopen it.",
                      "هذه الدرجة مقفلة. يعيد فتحها المنسق فقط."),
+    "GRADE_NOT_FINAL": ("A certificate is issued only for a Final grade.", "تصدر الشهادة للدرجة المعتمدة فقط."),
+    "CERTIFICATE_EXISTS": ("This placement already has a valid certificate. Revoke it first to issue a new one.",
+                           "لهذا التدريب شهادة سارية. ألغها أولاً لإصدار شهادة جديدة."),
+    "CERTIFICATE_REVOKED": ("This certificate is already revoked.", "هذه الشهادة ملغاة من قبل."),
+    "FEEDBACK_NOT_OPEN": ("This opens when your training ends or your grade is final.",
+                          "يُتاح هذا عند انتهاء تدريبك أو اعتماد درجتك."),
+    "ALREADY_SUBMITTED": ("You already submitted this evaluation. It cannot be changed.",
+                          "أرسلت هذا التقييم من قبل، ولا يمكن تعديله."),
+    "CYCLE_NOT_CLOSED": ("Close the cycle first.", "أغلق الدورة أولاً."),
+    "RETENTION_NOT_OVER": ("The retention period of this cycle has not ended yet.",
+                           "لم تنتهِ مدة الاحتفاظ ببيانات هذه الدورة بعد."),
+    "ALREADY_ANONYMIZED": ("This cycle was already anonymized.", "أُخفيت بيانات هذه الدورة من قبل."),
+    "CONFIRM_REQUIRED": ("Confirm the action to continue.", "أكّد الإجراء للمتابعة."),
 }
 
 

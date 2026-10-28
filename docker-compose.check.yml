@@ -1,0 +1,16 @@
+# Release checks (Increment 4 design, Section 10), used with docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.check.yml up -d --build
+# The API is built without the model (basic matching) and runs on its own database, so the browser tests, the ZAP
+# scan, and the load test never touch the demo data; the web app also answers to the host name `web`, so the ZAP
+# container can reach it on the Compose network.
+services:
+  api:
+    build:
+      context: ./backend
+      args:
+        WITH_AI: "0"
+    environment:
+      DATABASE_URL: postgresql+psycopg://internsync:internsync@db:5432/internsync_check
+  web:
+    environment:
+      __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: web

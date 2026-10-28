@@ -60,6 +60,9 @@ def history(entity_type: Literal["report_slot", "evaluation", "grade"], entity_i
     rows = db.execute(select(AuditEntry, User).outerjoin(User, User.id == AuditEntry.user_id)
                       .where(AuditEntry.entity_type == entity_type, AuditEntry.entity_id == str(entity_id))
                       .order_by(AuditEntry.at, AuditEntry.id)).all()
+    student = db.get(User, rows[0][0].student_id) if rows and rows[0][0].student_id else None
+    masked = student is not None and student.anonymized_at is not None  # reasons may quote the student (NFR-PRV-04)
     return [{"at": e.at, "action": e.action, "role": e.role, "user_en": u.name_en if u else None,
-             "user_ar": u.name_ar if u else None, "old": e.old_value, "new": e.new_value, "reason": e.reason}
+             "user_ar": u.name_ar if u else None, "old": e.old_value, "new": e.new_value,
+             "reason": None if masked else e.reason}
             for e, u in rows if not (relation == "st" and e.action in HIDDEN_FROM_STUDENT)]

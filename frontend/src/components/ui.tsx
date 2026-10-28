@@ -141,7 +141,7 @@ const STATUS_TONE: Record<string, keyof typeof CHIP> = {
   verified: "success", placed: "success", completed: "success", revision_requested: "purple", late: "warning",
   missing: "danger", closed_missing: "danger", rejected: "danger", declined: "danger", withdrawn: "neutral",
   cancelled: "danger", placement_cancelled: "danger", suspended: "danger", inactive: "neutral",
-  flagged: "danger", clear: "success",
+  flagged: "danger", clear: "success", valid: "success", revoked: "danger",
 };
 
 /** A status chip: the translated label and its colour, never colour alone. */
@@ -191,6 +191,24 @@ export function Notice({ children, tone = "info" }: { children: ReactNode; tone?
   const cls = { info: "border-[#C7D6F2] bg-[#E6EEFB] text-[#1F4E9A]", success: "border-[#BFE0C8] bg-[#E3F3E7] text-[#1E6B34]",
     warning: "border-[#F2D9A6] bg-[#FFF1D6] text-[#8A4B00]" }[tone];
   return <div className={`rounded-ctl border p-3 text-sm ${cls}`}>{children}</div>;
+}
+
+/** Where the text of a form is (CR-10): kept on this device, being saved, or in conflict with a newer draft. */
+export function DraftNotice({ status, onKeepMine, onKeepSaved }: { status: string; onKeepMine: () => void;
+  onKeepSaved: () => void }) {
+  const { t } = useTranslation();
+  if (status === "device") return <Notice>{t("draft.on_device")}</Notice>;
+  if (status === "saving") return <Notice>{t("draft.saving")}</Notice>;
+  if (status !== "conflict") return null;
+  return (
+    <Notice tone="warning">
+      <p>{t("draft.conflict")}</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <Button onClick={onKeepMine}>{t("draft.keep_mine")}</Button>
+        <Button tone="secondary" offlineOk onClick={onKeepSaved}>{t("draft.keep_saved")}</Button>
+      </div>
+    </Notice>
+  );
 }
 
 export function Loading() {

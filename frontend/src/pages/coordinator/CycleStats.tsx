@@ -1,8 +1,10 @@
-/** The coordinator's cycle status overall and per company (FR-DSH-02). */
+/** The coordinator's cycle status overall and per company (FR-DSH-02), with the leniency alert, the job-offer rate,
+ *  and the students' evaluation of the companies (FR-DSH-03, FR-DSH-04, FR-EVL-05). */
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api, type S, unwrap } from "../../api/client";
 import { Card, ErrorBox, Loading, Table, Td } from "../../components/ui";
+import { LeniencyCard, OutcomesCard, RatingsCard } from "./CycleFeedback";
 
 type Figures = S<"Figures">;
 
@@ -47,6 +49,9 @@ export default function CycleStats({ cycleId }: { cycleId: string }) {
           ))}
         </Table>
       </Card>
+      <LeniencyCard cycleId={cycleId} />
+      <OutcomesCard cycleId={cycleId} />
+      <RatingsCard cycleId={cycleId} />
     </div>
   );
 }

@@ -2,12 +2,13 @@
  *  comments (`AS_ReportReview`, without the similarity panel), the company supervisor and coordinator read
  *  (FR-REP-02 – 07, FR-WFL-01). The actions shown are the ones the API allows for this caller. */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { api, openFile, type S, sendForm, unwrap } from "../../api/client";
-import { Button, Card, Dialog, ErrorBox, Loading, Notice, PageHeader, TextArea } from "../../components/ui";
+import { Button, Card, Dialog, DraftNotice, ErrorBox, Loading, Notice, PageHeader, TextArea } from "../../components/ui";
 import { formatDateTime, nameOf } from "../../lib/format";
+import { draftKey, useLocalDraft } from "../../lib/offline";
 import { SlotStatus, slotTitle } from "./PlacementReports";
 import { SimilarityPanel } from "./SimilarityPanel";
 import { History } from "./History";
@@ -69,23 +70,29 @@ function VersionView({ v, kind }: { v: Version; kind: string }) {
 
 function DraftEditor({ slot, onChange }: { slot: Slot; onChange: (s: Slot) => void }) {
   const { t } = useTranslation();
+  const me = useMe();
   const fields: DraftField[] = slot.kind === "final" ? ["summary"] : [...WEEKLY];
-  const [values, setValues] = useState<Record<string, string>>({});
-  useEffect(() => {
-    const d = slot.draft;
-    setValues(Object.fromEntries(fields.map((f) => [f, (d?.[f] as string | null) ?? ""])));
-  }, [slot.id, slot.draft?.id]); // reset only when another slot or draft is shown
+  const server = Object.fromEntries(fields.map((f) => [f, (slot.draft?.[f] as string | null) ?? ""]));
   const params = { params: { path: { slot_id: slot.id } } };
-  const save = useMutation({
-    mutationFn: () => unwrap(api.PUT("/api/v1/report-slots/{slot_id}/draft", { ...params, body: values })),
-    onSuccess: onChange,
-  });
+  const put = (body: Record<string, string>) =>
+    unwrap(api.PUT("/api/v1/report-slots/{slot_id}/draft", { ...params, body })).then((s) => {
+      onChange(s);
+      return s;
+    });
+  // The text is kept on the device until it reaches the server, and saved when the connection returns (CR-10).
+  const local = useLocalDraft(draftKey(me.id, "report", slot.id), server, put);
+  const values = local.values;
+  const setValues = local.setValues;
+  const save = useMutation({ mutationFn: () => put(values), onSuccess: local.saved });
   const submit = useMutation({
     mutationFn: async () => {
-      await unwrap(api.PUT("/api/v1/report-slots/{slot_id}/draft", { ...params, body: values }));
+      await put(values);
       return unwrap(api.POST("/api/v1/report-slots/{slot_id}/submit", params));
     },
-    onSuccess: onChange,
+    onSuccess: (s) => {
+      local.saved();
+      onChange(s);
+    },
   });
   const upload = useMutation({
     mutationFn: ({ file, role }: { file: File; role: "main" | "attachment" }) => {
@@ -139,8 +146,9 @@ function DraftEditor({ slot, onChange }: { slot: Slot; onChange: (s: Slot) => vo
             </label>
           )}
         </div>
+        <DraftNotice status={local.status} onKeepMine={local.keepMine} onKeepSaved={local.keepSaved} />
         <ErrorBox error={save.error ?? submit.error ?? upload.error ?? remove.error} />
-        {save.isSuccess && !save.isPending && <Notice tone="success">{t("report.saved")}</Notice>}
+        {save.isSuccess && !save.isPending && local.status === "server" && <Notice tone="success">{t("report.saved")}</Notice>}
         <div className="flex flex-wrap gap-2">
           <Button tone="secondary" busy={save.isPending} onClick={() => save.mutate()}>{t("report.save_draft")}</Button>
           <Button busy={submit.isPending} onClick={() => submit.mutate()} className="min-h-[48px]">{t("report.submit")}</Button>

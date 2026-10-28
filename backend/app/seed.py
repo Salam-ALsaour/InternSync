@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from app.attendance.service import week_end
 from app.catalog.router import match_terms
+from app.certificates import service as certificates
 from app.core import clock, files
 from app.core.config import get_settings
 from app.core.db import SessionLocal
@@ -30,9 +31,16 @@ from app.models import (
     AttendanceWeek,
     College,
     Company,
+    CompanyEvaluation,
     CycleWeek,
     Enrollment,
+    Evaluation,
+    EvaluationScore,
+    Grade,
+    GradeComponent,
+    GradeComponentScore,
     Major,
+    OutcomeSurvey,
     Placement,
     ReportSlot,
     ReportVersion,
@@ -45,6 +53,7 @@ from app.models import (
     User,
     Vacancy,
 )
+from app.privacy.service import add_months
 from app.similarity import service as similarity
 from app.vacancies import service as vacancies
 
@@ -190,6 +199,110 @@ def _demo_earlier_cycle(db: Session, coord: User, as1: User, ca: User, college: 
     similarity.check(db, check.id)  # stores the passages; without the model the retry job does it later
 
 
+# A closed summer cycle of 2025 (Increment 4 demo): Final grades, a certificate, answers to the evaluation of the
+# company and the survey, five generous final evaluations at one company (leniency alert), and a retention period
+# that has ended (anonymization). s10 has not answered yet and has no certificate, so both can be shown live.
+SUMMER = [  # email, English name, Arabic name, company (0 Nakheel, 1 Gulf), final evaluation score, job offer
+    ("s10@iau.edu.sa", "Fahad Al-Dosari", "فهد الدوسري", 0, 5, None),
+    ("s11@iau.edu.sa", "Lama Al-Harbi", "لمى الحربي", 0, 5, "yes"),
+    ("s12@iau.edu.sa", "Majed Al-Shammari", "ماجد الشمري", 0, 5, "yes"),
+    ("s13@iau.edu.sa", "Nouf Al-Qahtani", "نوف القحطاني", 0, 5, "pending"),
+    ("s14@iau.edu.sa", "Turki Al-Anazi", "تركي العنزي", 0, 4, "no"),
+    ("s15@iau.edu.sa", "Hessa Al-Mutairi", "حصة المطيري", 1, 2, "yes"),
+    ("s16@iau.edu.sa", "Saud Al-Zahrani", "سعود الزهراني", 1, 2, "no"),
+    ("s17@iau.edu.sa", "Amal Al-Ghamdi", "أمل الغامدي", 1, 3, None),
+]
+RATING = {0: (5, 4, 5, 4, True, "Real projects and a patient mentor."), 1: (3, 2, 3, 3, False, None)}
+
+
+def _demo_summer_cycle(db: Session, coord: User, as1: User, ca: User, college: College, majors: dict) -> None:
+    name = "Summer 2025 (demo)"
+    if db.scalar(select(TrainingCycle).where(TrainingCycle.college_id == college.id, TrainingCycle.name == name)):
+        return
+    coord_actor = Actor(coord, None)
+    start = date(2025, 6, 15)
+    end = start + timedelta(weeks=8) - timedelta(days=1)
+    final = clock.riyadh_to_utc(end + timedelta(days=7), time(23, 59))
+    summer = cycles.create(db, coord_actor, {
+        "name": name, "type": "summer", "start_date": start, "end_date": end, "weeks": 8,
+        "working_days": [7, 1, 2, 3, 4], "report_weekday": 4, "report_time": time(23, 59),
+        "periodic_eval_due_at": clock.riyadh_to_utc(start + timedelta(weeks=4), time(23, 59)),
+        "final_eval_due_at": final, "final_report_due_at": final})
+    cycles.replace_components(db, coord_actor, summer, [
+        {"name_en": "Company final evaluation", "name_ar": "التقييم النهائي من الجهة", "weight": Decimal(50),
+         "source": "company_final_evaluation"},
+        {"name_en": "Training report", "name_ar": "تقرير التدريب", "weight": Decimal(50),
+         "source": "academic_supervisor"}])
+    levels = {str(n): {"en": f"Level {n}", "ar": f"المستوى {n}"} for n in range(1, 6)}
+    cycles.replace_rubric(db, coord_actor, summer, [
+        {"name_en": "Technical skills", "name_ar": "المهارات التقنية", "levels": levels},
+        {"name_en": "Professional behaviour", "name_ar": "السلوك المهني", "levels": levels}])
+    gulf = db.scalar(select(Company).where(Company.commercial_reg_no == "2050765432"))
+    if gulf is None:
+        gulf = Company(name="Gulf Logistics", commercial_reg_no="2050765432", city="Jubail", status="verified",
+                       verified_at=clock.now())
+        db.add(gulf)
+        db.flush()
+    gulf_ca = _user(db, "majed@gulf-logistics.example", "company_supervisor", "Majed Al-Rashid", "ماجد الراشد",
+                    company_id=gulf.id, is_company_admin=True)
+    vacancies_by_company = []
+    for company, owner, title in ((db.get(Company, ca.company_id), ca, "Summer Software Trainee"),
+                                  (gulf, gulf_ca, "Summer Operations Trainee")):
+        v = Vacancy(company_id=company.id, company_supervisor_id=owner.id, created_by=owner.id, title=title,
+                    city=company.city, description="Summer training with a weekly mentor.", training_type="summer",
+                    training_start=start, training_end=end, seats=5, application_deadline=clock.riyadh_to_utc(
+                        start - timedelta(days=14), time(23, 59)), status="closed", published_at=clock.now(),
+                    closed_at=clock.now())
+        db.add(v)
+        vacancies_by_company.append((v, owner))
+    db.flush()
+    components = list(db.scalars(select(GradeComponent).where(GradeComponent.cycle_id == summer.id)
+                                 .order_by(GradeComponent.position)))
+    criteria = evaluations.criteria(db, summer.id)
+    now = clock.now()
+    placements = []
+    for i, (email, name_en, name_ar, company_index, score, offer) in enumerate(SUMMER):
+        student = _user(db, email, "student", name_en, name_ar, college_id=college.id)
+        if db.get(StudentProfile, student.id) is None:
+            db.add(StudentProfile(user_id=student.id, student_number=f"21900{i + 10}",
+                                  major_id=majors["Computer Science"].id, gpa=Decimal("3.60"), level=10))
+        db.add(Enrollment(cycle_id=summer.id, student_id=student.id, created_by=coord.id))
+        vacancy, owner = vacancies_by_company[company_index]
+        application = Application(vacancy_id=vacancy.id, student_id=student.id, status="placed", decided_by=owner.id,
+                                  decided_at=now)
+        db.add(application)
+        db.flush()
+        p = Placement(application_id=application.id, student_id=student.id, cycle_id=summer.id, vacancy_id=vacancy.id,
+                      company_supervisor_id=owner.id, academic_supervisor_id=as1.id, status="completed",
+                      confirmed_by=coord.id, confirmed_at=now)
+        db.add(p)
+        db.flush()
+        e = Evaluation(placement_id=p.id, type="final", status="submitted", overall_comment="Completed the training.",
+                       mean_score=Decimal(score), submitted_by=owner.id, submitted_at=now)
+        db.add(e)
+        db.flush()
+        db.add_all([EvaluationScore(evaluation_id=e.id, criterion_id=c.id, score=score) for c in criteria])
+        company_part, report_part = Decimal(score) / 5 * 100, Decimal(85)
+        grade = Grade(placement_id=p.id, status="final", total=(company_part + report_part) / 2, submitted_by=as1.id,
+                      submitted_at=now, approved_by=coord.id, approved_at=now)
+        db.add(grade)
+        db.flush()
+        db.add_all([GradeComponentScore(grade_id=grade.id, component_id=components[0].id, score=company_part),
+                     GradeComponentScore(grade_id=grade.id, component_id=components[1].id, score=report_part)])
+        if email != "s10@iau.edu.sa":
+            lo, sq, we, rm, recommend, comment = RATING[company_index]
+            db.add(CompanyEvaluation(placement_id=p.id, learning_opportunities=lo, supervision_quality=sq,
+                                     work_environment=we, relevance_to_major=rm, would_recommend=recommend,
+                                     comment=comment, submitted_at=now))
+        if offer:
+            db.add(OutcomeSurvey(placement_id=p.id, job_offer=offer, submitted_at=now))
+        placements.append(p)
+    summer.rubric_locked_at = now
+    db.flush()
+    certificates.issue(db, coord_actor, placements[1])
+    summer.status, summer.closed_at = "closed", add_months(now, -13)  # the 12-month retention period has ended
+
+
 def seed_demo(db: Session) -> list[tuple[str, str]]:
     """Accounts for each role, an open Co-op cycle that started three weeks ago, a published vacancy, one
     placement with report slots, one accepted applicant waiting for a placement, and one student who has
@@ -311,11 +424,13 @@ def seed_demo(db: Session) -> list[tuple[str, str]]:
         vacancies.decide(db, ca_actor, a2, accept=True)
         _demo_tracking(db, ca, placement)
     _demo_earlier_cycle(db, coord, as1, ca, college, vacancy)
+    _demo_summer_cycle(db, coord, as1, ca, college, majors)
     db.flush()
     return [("Platform Admin", admin.email), ("Coordinator", coord.email), ("Academic supervisor", as1.email),
             ("Company Admin", ca.email), ("Company supervisor", "omar@nakheel.example"),
             ("Student (placed)", "s1@iau.edu.sa"), ("Student (accepted, waiting)", "s2@iau.edu.sa"),
-            ("Student (not applied)", "s3@iau.edu.sa"), ("Former student (earlier cycle)", "s0@iau.edu.sa")]
+            ("Student (not applied)", "s3@iau.edu.sa"), ("Former student (earlier cycle)", "s0@iau.edu.sa"),
+            ("Former student (summer 2025, Final grade)", "s10@iau.edu.sa")]
 
 
 def main(argv: list[str] | None = None) -> int:

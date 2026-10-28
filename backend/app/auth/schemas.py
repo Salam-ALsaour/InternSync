@@ -26,6 +26,7 @@ class MeOut(BaseModel):
     consent_required: bool
     verification_status: str
     is_company_admin: bool
+    idle_timeout_minutes: int = 30
     organization: OrganizationOut
 
 

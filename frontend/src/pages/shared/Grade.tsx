@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ApiError, api, type S, unwrap } from "../../api/client";
 import { Button, Card, Dialog, ErrorBox, Loading, Notice, StatusChip, Table, Td, TextArea } from "../../components/ui";
+import { useMe } from "../../lib/auth";
 import { formatDateTime, nameOf } from "../../lib/format";
+import { CertificateCard } from "./Certificate";
 import { History } from "./History";
 
 type GradeOut = S<"GradeOut">;
@@ -38,6 +40,7 @@ function checkLines(g: GradeOut, t: T, lang: string) {
 
 export default function Grade({ placementId }: { placementId: string }) {
   const { t, i18n } = useTranslation();
+  const me = useMe();
   const queryClient = useQueryClient();
   const key = ["grade", placementId];
   const data = useQuery({ queryKey: key, queryFn: () =>
@@ -73,6 +76,7 @@ export default function Grade({ placementId }: { placementId: string }) {
   if (!g.visible) return <Card title={t("grade.title")}><Notice>{t("grade.hidden")}</Notice></Card>;
   const missing = submit.error instanceof ApiError ? (submit.error.extra.missing as { item: string }[] | undefined) : undefined;
   return (
+    <>
     <Card title={t("grade.title")} actions={<StatusChip status={g.status ?? "draft"} label={t(`grade.status_${g.status}`)} />}>
       <div className="flex flex-col gap-4">
         {g.return_comment && g.status === "draft" && <Notice tone="warning">{t("grade.returned")}: {g.return_comment}</Notice>}
@@ -130,5 +134,8 @@ export default function Grade({ placementId }: { placementId: string }) {
         </div>
       </Dialog>
     </Card>
+    {(me.role === "coordinator" || me.role === "student") &&
+      <div className="mt-4"><CertificateCard placementId={placementId} coordinator={me.role === "coordinator"} /></div>}
+    </>
   );
 }

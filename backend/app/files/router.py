@@ -15,6 +15,7 @@ from app.core.deps import Actor, auth
 from app.core.errors import ApiError, forbidden
 from app.core.scope import can_see_student, placement_access
 from app.models import (
+    Certificate,
     Cv,
     Placement,
     ReportAttachment,
@@ -30,6 +31,17 @@ router = APIRouter(tags=["files"])
 
 
 def _check(db: Session, actor: Actor, f: StoredFile) -> None:
+    _owner_check(db, actor, f)
+    if f.purged_at is not None:  # removed from storage by an anonymization (NFR-PRV-04)
+        raise ApiError(410, "FILE_PURGED")
+
+
+def _owner_check(db: Session, actor: Actor, f: StoredFile) -> None:
+    if f.purpose == "certificate":  # the student and the coordinator of the student's college (FR-CER-01)
+        cert = db.scalar(select(Certificate).where(Certificate.file_id == f.id))
+        if cert is None or placement_access(db, actor, db.get(Placement, cert.placement_id)) not in ("st", "co"):
+            raise forbidden()
+        return
     if f.purpose == "verification_document":
         doc = db.scalar(select(VerificationDocument).where(VerificationDocument.file_id == f.id))
         if doc is None:

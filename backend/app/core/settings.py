@@ -35,6 +35,8 @@ SPECS: dict[str, tuple[Number, Number, Number]] = {
     "similarity.ngram_containment": (0.5, 0.1, 1.0),
     "notifications.reminder_hours_before": (24, 1, 168),
     "notifications.escalation_days": (3, 1, 30),
+    "dashboard.leniency_min_evaluations": (5, 1, 50),
+    "dashboard.leniency_delta": (0.8, 0.1, 4.0),
 }
 
 

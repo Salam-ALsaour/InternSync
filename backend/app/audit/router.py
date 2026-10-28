@@ -67,9 +67,11 @@ def audit_log(student_id: uuid.UUID | None = None, user_id: uuid.UUID | None = N
 
     def out(e: AuditEntry) -> dict:
         u, s = name(e.user_id), name(e.student_id)
+        # The log is append-only; the entries of an anonymized student are shown without their values (NFR-PRV-04).
+        masked = any(x is not None and x.anonymized_at is not None for x in (u, s))
         return {"id": e.id, "at": e.at, "user_id": e.user_id, "user_en": u.name_en if u else None,
                 "user_ar": u.name_ar if u else None, "role": e.role, "action": e.action, "entity_type": e.entity_type,
                 "entity_id": e.entity_id, "student_id": e.student_id, "student_en": s.name_en if s else None,
-                "student_ar": s.name_ar if s else None, "old_value": e.old_value, "new_value": e.new_value,
-                "reason": e.reason}
+                "student_ar": s.name_ar if s else None, "old_value": None if masked else e.old_value,
+                "new_value": None if masked else e.new_value, "reason": None if masked else e.reason}
     return paginate(db, stmt, params, out)

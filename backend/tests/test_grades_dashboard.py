@@ -191,13 +191,13 @@ def test_at_dsh_01_every_count_equals_the_database(client, w, f, db):
                                       ReportSlot.status.in_(("draft", "revision_requested")),
                                       ReportSlot.due_at <= clock.now() + timedelta(days=7)).count()
     assert st == {"reports_due": due, "revisions_requested": 1, "applications_submitted": 0,
-                  "applications_accepted": 0, "grade_final": 0}
+                  "applications_accepted": 0, "grade_final": 0, "feedback_due": 0}
     assert counts(client, f, w.cs1) == {"applicants_to_review": 1, "attendance_to_record": 1, "evaluations_due": 0}
     assert counts(client, f, w.ca1)["applicants_to_review"] == 1  # the company: own and the colleague's vacancies
     assert counts(client, f, w.asA1) == {"reports_to_review": 1, "similarity_flags": 0, "grades_to_submit": 0,
                                          "grades_returned": 0}
     assert counts(client, f, w.coA1) == {"students_to_verify": 1, "placements_to_confirm": 1, "grades_to_approve": 0,
-                                         "escalations": len(overdue_items(db, w.A1.id))}
+                                         "escalations": len(overdue_items(db, w.A1.id)), "leniency_alerts": 0}
     assert counts(client, f, w.pa) == {"verifications_pending": 1}
     clock.freeze(w.cycle.periodic_eval_due_at - timedelta(days=3))
     assert counts(client, f, w.cs1)["evaluations_due"] == 1
