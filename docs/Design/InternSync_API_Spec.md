@@ -1,7 +1,7 @@
 # InternSync – API Specification
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Task T2 (System design) · Milestone M2 · Version 1.4 · October 27, 2026
+Task T2 (System design) · Milestone M2 · Version 1.5 · October 28, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -10,6 +10,7 @@ Task T2 (System design) · Milestone M2 · Version 1.4 · October 27, 2026
 | 1.2 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `GET /admin/universities`, `GET /placements/candidates`, and the development-only demo clock added; endpoints usable before consent listed; registration rate limit; `company_id` filter on placements; audit filters named `date_from` and `date_to`; error codes `STUDENT_NUMBER_TAKEN`, `DUPLICATE_NAME`, `FILE_PURGED`, `SEATS_BELOW_PLACEMENTS`, `ACADEMIC_SUPERVISOR_INVALID`, `COMPANY_SUPERVISOR_INVALID`, and `INTERNAL_ERROR` added; Section 6 describes the permission matrix and the contract check as built. | Salam Alsaour |
 | 1.3 | Oct 26, 2026 | CR-08 (Increment 2 implementation): files are always streamed by the API; `can_*` flags on attendance and grades; reopening a final evaluation needs a `draft` grade; `/version` and the deep health check name the loaded model; dashboard links open the grades page; payloads of Sections 4.5, 4.6, 4.9, and 4.10 as built. Sections 3.7, 3.11, 3.12, 3.19, 3.20, and 4 updated. | Salam Alsaour |
 | 1.4 | Oct 27, 2026 | CR-09 (Increment 3 implementation): transfer rules and answers; similarity result as built (`status` `none`, `sources` with `author`, `can_decide`); notification items with their text in the caller's language; push answers `204`; history entries; exports in the caller's language and audited; error codes `TRANSFER_TARGET_INVALID` and `SUPERVISOR_HAS_STUDENTS`. Sections 3.2, 3.10, 3.15, 3.17, 3.18, 4.8, and 5 updated. | Salam Alsaour |
+| 1.5 | Oct 28, 2026 | CR-11 (Increment 4 implementation): retention and anonymization endpoints; `GET /placements/{id}/feedback` and `/certificate`; the evaluation of the company, survey, outcomes, and leniency answers as built; the public certificate answer with university, college, and `name_removed`; `idle_timeout_minutes` on `/me`; seven new error codes. Sections 3.1, 3.3, 3.12, 3.14, 3.16, 4.11, and 5 updated. | Salam Alsaour |
 
 This document is the API contract agreed before implementation (SPMP risk "integration problems"). During development, FastAPI generates the OpenAPI 3.1 document from the code at `/api/v1/openapi.json` (NFR-MNT-02), and the frontend client is generated from it. The generated document must match this specification; any difference is either a bug or a change that is recorded here first.
 
@@ -91,7 +92,7 @@ A request for a record outside the caller's scope returns `403 FORBIDDEN`. An ac
 | POST | `/auth/invitations/accept` | Public | `{token, password}`: set the password of an invited account | FR-ORG-06 |
 | POST | `/auth/password/forgot` | Public | `{email}`: always `202`; sends a reset link if the account exists | FR-AUT-04 |
 | POST | `/auth/password/reset` | Public | `{token, password}`: set a new password and end all sessions | FR-AUT-04 |
-| GET | `/me` | Any (unverified) | The current user, role, organization, language, `verification_status`, `is_company_admin`, and `consent_required` | FR-AUT-01, FR-ORG-02 |
+| GET | `/me` | Any (unverified) | The current user, role, organization, language, `verification_status`, `is_company_admin`, `consent_required`, and `idle_timeout_minutes` (the app applies the same idle limit on the device, CR-11) | FR-AUT-01, FR-AUT-03, FR-ORG-02 |
 | PATCH | `/me` | Any (unverified) | `{language}` | FR-LOC-01 |
 | POST | `/me/consent` | Any (unverified) | Acknowledge the privacy notice | NFR-PRV-01 |
 | GET | `/me/verification` | Any (unverified) | The caller's verification requests with status, reason, and documents | FR-ORG-02, FR-ORG-09 |
@@ -142,7 +143,11 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 | GET | `/cycles/{id}/weeks` | Same as list | Weeks with dates, report deadline, scheduled days | FR-CYC-01 |
 | PATCH | `/cycles/{id}/weeks/{week_no}` | CO | `{report_due_at, reason}`: move one week's deadline; updates the slots still in draft | FR-CYC-01 |
 | POST | `/cycles/{id}/close` | CO | Make the cycle read-only | FR-CYC-05 |
-| POST | `/cycles/{id}/reopen` | CO | `{reason}` | FR-CYC-05 |
+| POST | `/cycles/{id}/reopen` | CO | `{reason}`; refused after an anonymization (`409 ALREADY_ANONYMIZED`) | FR-CYC-05 |
+| GET | `/cycles/{id}/anonymization` | CO | `status` (`open`, `waiting`, `ready`, `done`), `closed_at`, `eligible_at`, `retention_months`, the number of `students` to anonymize and of `skipped` ones, `anonymized_at` | NFR-PRV-04 |
+| POST | `/cycles/{id}/anonymize` | CO | `{confirm: true}` (`422 CONFIRM_REQUIRED` without it); `409 CYCLE_NOT_CLOSED`, `409 RETENTION_NOT_OVER` with `eligible_at`, `409 ALREADY_ANONYMIZED` when nobody is left; answers as the `GET` | NFR-PRV-04 |
+| GET | `/colleges/{id}/retention` | CO (own college) | `{retention_months}` | NFR-PRV-04 |
+| PUT | `/colleges/{id}/retention` | CO (own college) | `{retention_months}`, 0–120; audited | NFR-PRV-04 |
 | GET | `/cycles/{id}/grade-components` | CO, AS | Components and weights | FR-CYC-02 |
 | PUT | `/cycles/{id}/grade-components` | CO | Replace the list; total must be 100 (`422 WEIGHTS_NOT_100`); refused after a grade is submitted (`409 GRADES_EXIST`) | FR-CYC-02 |
 | GET | `/cycles/{id}/rubric` | Any in the cycle | Criteria with the five level descriptions | FR-CYC-03 |
@@ -254,11 +259,12 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 | PUT | `/placements/{id}/evaluations/{type}` | CS (assigned) | Save a draft: `{scores: [{criterion_id, score}], overall_comment}`; `type` is `periodic` or `final` | FR-EVL-01 |
 | POST | `/placements/{id}/evaluations/{type}/submit` | CS (assigned) | Submit; every criterion and the comment are required; locks the rubric | FR-EVL-01, FR-CYC-03 |
 | POST | `/evaluations/{id}/reopen` | CO | `{reason}`; once per evaluation (`409 ALREADY_REOPENED`); a final evaluation only while its grade is `draft` (`409 INVALID_TRANSITION`) | FR-EVL-04 |
-| GET | `/placements/{id}/company-evaluation` | ST (own), CO | The student's evaluation of the training entity | FR-EVL-05 |
-| PUT | `/placements/{id}/company-evaluation` | ST (own) | Submit it once the placement has ended | FR-EVL-05 |
-| GET | `/cycles/{id}/company-evaluations` | CO | Averages per company | FR-EVL-05 |
-| GET | `/placements/{id}/outcome-survey` | ST (own), CO | Job-offer answer | FR-DSH-03 |
-| PUT | `/placements/{id}/outcome-survey` | ST (own) | `{job_offer: yes \| no \| pending}` | FR-DSH-03 |
+| GET | `/placements/{id}/feedback` | ST (own), CO | Both answers below, the company and vacancy, `open_from`, `is_open`, `can_evaluate`, and `can_answer` | FR-EVL-05, FR-DSH-03 |
+| GET | `/placements/{id}/company-evaluation` | ST (own), CO | The student's evaluation of the training entity, or `null` | FR-EVL-05 |
+| PUT | `/placements/{id}/company-evaluation` | ST (own) | The four ratings 1–5, `would_recommend`, optional `comment`; once (`409 ALREADY_SUBMITTED`), from the training end date or the Final grade (`409 FEEDBACK_NOT_OPEN`); answers as the feedback `GET` | FR-EVL-05 |
+| GET | `/cycles/{id}/company-evaluations` | CO | Per company and for the cycle: answers, the mean of each rating, and `recommend_rate` | FR-EVL-05 |
+| GET | `/placements/{id}/outcome-survey` | ST (own), CO | Job-offer answer, or `null` | FR-DSH-03 |
+| PUT | `/placements/{id}/outcome-survey` | ST (own) | `{job_offer: yes \| no \| pending}`; can be changed later; answers as the feedback `GET` | FR-DSH-03 |
 
 ### 3.13 Grades
 
@@ -280,8 +286,8 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 |:--|:---|:---|:---|:---|
 | GET | `/dashboard` | Any | Pending actions of the caller's role with counts and links | FR-DSH-01 |
 | GET | `/cycles/{id}/stats` | CO | Cycle status overall and per company: `?company_id` | FR-DSH-02 |
-| GET | `/cycles/{id}/outcomes` | CO | Placement-to-job-offer rate per cycle and per company | FR-DSH-03 |
-| GET | `/cycles/{id}/leniency-alerts` | CO | Companies whose mean final score is ≥ 0.8 above the cycle mean | FR-DSH-04 |
+| GET | `/cycles/{id}/outcomes` | CO | Placement-to-job-offer rate per cycle and per company: `answers`, `yes`, `no`, `pending`, `job_offer_rate` (Yes ÷ answers) | FR-DSH-03 |
+| GET | `/cycles/{id}/leniency-alerts` | CO | `cycle_mean`, and per company its final evaluations, `mean`, `difference`, and `alert` (at least `dashboard.leniency_min_evaluations` and a difference of at least `dashboard.leniency_delta`) | FR-DSH-04 |
 | GET | `/escalations` | CO | Items overdue 3 days or more: `?cycle_id&type` | FR-NOT-04 |
 | GET | `/platform/stats` | PA | Universities, colleges with and without a coordinator, verified companies, users by role, pending verification requests and their age, published vacancies; no academic records | FR-DSH-05 |
 
@@ -297,7 +303,8 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| POST | `/placements/{id}/certificate` | CO | Issue a certificate; the grade must be Final | FR-CER-01 |
+| GET | `/placements/{id}/certificate` | CO, ST (own) | `{certificate, can_issue}`: the valid certificate, else the latest revoked one, or `null` | FR-CER-01 |
+| POST | `/placements/{id}/certificate` | CO | Issue a certificate; the grade must be Final; `201` with the same answer as the `GET` | FR-CER-01 |
 | GET | `/certificates` | CO | `?cycle_id&status` | FR-CER-01 |
 | GET | `/certificates/{id}` | CO, ST (own) | Certificate details and file | FR-CER-01 |
 | POST | `/certificates/{id}/revoke` | CO | `{reason}` | FR-CER-03 |
@@ -575,12 +582,15 @@ The item types of each role are listed in the [Increment 2 design, Section 8](..
 `GET /public/certificates/7K2M9QX4…` → `200 OK`
 
 ```json
-{ "status": "valid", "student_name": { "en": "Sara Ahmed", "ar": "سارة أحمد" },
+{ "status": "valid", "name_removed": false,
+  "student_name": { "en": "Sara Ahmed", "ar": "سارة أحمد" },
+  "university": { "en": "Imam Abdulrahman Bin Faisal University", "ar": "جامعة الإمام عبدالرحمن بن فيصل" },
+  "college": { "en": "College of Computer Science and Information Technology", "ar": "كلية علوم الحاسب وتقنية المعلومات" },
   "cycle": "Co-op Fall 2026", "company": "Example Co.",
   "training_start": "2026-09-06", "training_end": "2026-11-28" }
 ```
 
-An unknown or altered code returns `200` with `{"status": "not_found"}`, so the page can always show a clear result (FR-CER-02).
+An unknown or altered code returns `200` with `{"status": "not_found"}` and the other fields `null`, so the page can always show a clear result (FR-CER-02). The code is accepted with or without dashes and in any case. After the student's data was anonymized (NFR-PRV-04), `student_name` is `null` and `name_removed` is `true`; the status still answers.
 
 ## 5. Error Codes
 
@@ -651,6 +661,13 @@ An unknown or altered code returns `200` with `{"status": "not_found"}`, so the 
 | `GRADE_LOCKED` | 409 | Edit of a Final grade | FR-WFL-05 |
 | `GRADE_NOT_FINAL` | 409 | Certificate for a grade that is not Final | FR-CER-01 |
 | `CERTIFICATE_EXISTS` | 409 | A valid certificate already exists for the placement | FR-CER-01 |
+| `CERTIFICATE_REVOKED` | 409 | Revoking a certificate that is already revoked | FR-CER-03 |
+| `FEEDBACK_NOT_OPEN` | 409 | Evaluation of the company or survey before the training end date and the Final grade | FR-EVL-05, FR-DSH-03 |
+| `ALREADY_SUBMITTED` | 409 | A second evaluation of the company for the same placement | FR-EVL-05 |
+| `CYCLE_NOT_CLOSED` | 409 | Anonymizing an open cycle | NFR-PRV-04 |
+| `RETENTION_NOT_OVER` | 409 | Anonymizing before `closed_at` plus the retention period; includes `eligible_at` | NFR-PRV-04 |
+| `ALREADY_ANONYMIZED` | 409 | Anonymizing again with nobody left, reopening an anonymized cycle, or a certificate for an anonymized student | NFR-PRV-04 |
+| `CONFIRM_REQUIRED` | 422 | Anonymizing without `confirm: true` | NFR-PRV-04 |
 | `INTERNAL_ERROR` | 500 | Unexpected server error; the details are only in the server log | NFR-USA-05 |
 
 `PATCH /settings` reports each refused key in `errors` with the code `UNKNOWN_SETTING` or `OUT_OF_RANGE` under `422 VALIDATION_ERROR`.

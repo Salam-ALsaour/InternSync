@@ -1,7 +1,7 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.5 · October 27, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.6 · October 28, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -11,6 +11,7 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.5 · Oc
 | 1.3 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `PATCH /me` usable before consent; purged verification documents keep their file reference; jobs use transaction-level advisory locks; supervisors see the cycles of their placements; permission test described as built. Sections 2, 4, 5, and 7 updated. | Salam Alsaour |
 | 1.4 | Oct 26, 2026 | CR-08 (Increment 2 implementation): matching weights as three numeric settings; downloads always streamed by the API, so `files.signed_url_seconds` is removed; attendance rows may hold only an unlock; a final evaluation cannot be reopened while its grade is submitted or Final; row level security on every table; backup retention and GitHub Actions limits for a private repository. Sections 3.2, 3.4, 3.5, 4.3.2, 4.3.6, 5.1, and 5.5 updated. | Salam Alsaour |
 | 1.5 | Oct 27, 2026 | CR-09 (Increment 3 implementation): PDF exports with fpdf2 and HarfBuzz shaping instead of WeasyPrint; similarity passages of about one sentence, and a passage compared with the source report's nearby passages taken together; `slot_id` on passages and `attempts` on checks. Sections 1.3, 4.3.5, 5.6, and 6.3 updated. | Salam Alsaour |
+| 1.6 | Oct 28, 2026 | CR-10: offline mode with a saved copy of the session and drafts kept on the device (Sections 7.3 and 8.3). CR-11 (Increment 4 implementation): retention period per college, anonymization as built, `anonymized_at` on cycles and users, `purged_at` on files, the certificate page and public answer as built, the idle limit applied on the device. Sections 4.3.1, 4.3.2, 4.3.8, 4.5, 5.6, 5.7, 7.1, 7.3, and 8.3 updated. | Salam Alsaour |
 
 **Related documents**
 
@@ -257,6 +258,7 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | university_id | uuid | NN, FK `universities` | |
 | name_en, name_ar | text | NN; UQ (university_id, `lower(name_en)`) | |
 | is_active | boolean | NN, default true | Inactive colleges are not offered at registration |
+| retention_months | smallint | NN, default 12, CHECK 0–120 | Months after a cycle closes before its personal data may be anonymized; set by the coordinator (NFR-PRV-04, CR-11) |
 | created_at | timestamptz | NN | |
 
 **`companies`** (FR-ORG-04, FR-VAC-01).
@@ -292,6 +294,7 @@ Abbreviations: **PK** primary key, **FK** foreign key, **UQ** unique, **NN** not
 | locked_until | timestamptz | | NFR-SEC-03 |
 | consent_at | timestamptz | | NFR-PRV-01 |
 | last_login_at | timestamptz | | |
+| anonymized_at | timestamptz | | Set by an anonymization; the account is inactive and its audit entries are masked (NFR-PRV-04, CR-11) |
 | created_at, updated_at | timestamptz | NN | |
 
 Partial UQ (college_id) where role = `coordinator`, verification_status = `verified`, and is_active: one Coordinator per college (FR-ORG-03).
@@ -377,6 +380,7 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 | status | text | NN, CHECK in (`open`, `closed`) | Closed cycles are read-only (FR-CYC-05) |
 | rubric_locked_at | timestamptz | | Set when the first evaluation is submitted (FR-CYC-03) |
 | closed_at | timestamptz | | |
+| anonymized_at, anonymized_by | timestamptz, uuid | FK `users` | Set by the anonymization (Section 4.5); such a cycle cannot be reopened (CR-11) |
 | created_by | uuid | NN, FK `users` | |
 | created_at, updated_at | timestamptz | NN | |
 
@@ -847,6 +851,7 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 | purpose | text | NN, CHECK in (`cv`, `report_document`, `report_attachment`, `verification_document`, `export`, `certificate`) | Verification documents are kept under their own storage prefix |
 | uploaded_by | uuid | FK `users` | |
 | created_at | timestamptz | NN | |
+| purged_at | timestamptz | | Removed from storage by an anonymization; the file answers `410 FILE_PURGED` (CR-11) |
 
 **`notifications`**: in-app list and delivery outbox (FR-NOT-01 – 06).
 
@@ -905,7 +910,13 @@ A trigger raises an error on `UPDATE` and `DELETE`, and the application's databa
 
 ### 4.5 Data Retention and Anonymization
 
-Records stay for the life of the system. NFR-PRV-04 (Could) is designed as one Coordinator action on a closed cycle: replace names and contact details of that cycle's students with placeholders, delete their CV files from storage, clear `extracted_text`, embeddings, and report text, and keep statistics-bearing columns (statuses, scores, dates). It is planned for the testing phase with the other Could requirements.
+Records stay for the life of the system. NFR-PRV-04 (Could) is one Coordinator action on a closed cycle, built in Increment 4 ([design, Section 7](../Increments/Increment_4/02_Design.md)):
+
+- **When:** once `closed_at` plus the college's `retention_months` has passed; the coordinator sees the counts and confirms.
+- **Removed:** names and contact details of that cycle's students (replaced by placeholders), their CV files, `extracted_text`, skills, embeddings, report text and attachments, comments, and certificate files.
+- **Kept:** statistics-bearing columns (statuses, scores, dates, majors, companies, survey answers), so the cycle's figures do not change.
+- **Skipped:** a student who is still in another cycle that is open or within its period.
+- **Audit log:** append-only and unchanged; when read, the entries of an anonymized student are shown without their values.
 
 Verification documents are deleted from storage 30 days after the decision by the `purge_verification_documents` job; the request, its decision, and its reason stay (FR-ORG-08).
 
@@ -1047,7 +1058,7 @@ All jobs run inside the API process under APScheduler. Each job runs in one tran
 
 - **PDF:** drawn with fpdf2 and HarfBuzz text shaping. Noto Sans carries Latin text and Noto Naskh Arabic is its fallback, so a line can mix both. The page direction follows the user's language: in Arabic the text is right-aligned and table columns run from the right. Documents: grade sheet, term summary, training record, certificate.
 - **Excel:** the grade sheet is built with `openpyxl`, one row per placement. Cell values starting with `=`, `+`, `-`, or `@` are prefixed with `'` to prevent formula injection.
-- **Certificate:** the PDF holds the student name, cycle, company, training dates, the certificate code, and a QR code for `https://<frontend>/verify/<code>`. The public page calls `GET /public/certificates/{code}` and shows Valid, Revoked, or Not found, without the grade (FR-CER-02).
+- **Certificate:** one A4 landscape page in English and Arabic with the student name, university and college, cycle, company, training dates, the issue date, the certificate code, and a QR code for `https://<frontend>/verify/<code>`, without the grade. It is built once at issue and stored. The public page calls `GET /public/certificates/{code}` (the code is accepted with or without dashes, in any case) and shows Valid, Revoked, or Not found, without the grade (FR-CER-02). After an anonymization the page still answers, without the name (CR-11).
 
 ### 5.7 Dashboards (FR-DSH-01 – 04)
 
@@ -1055,7 +1066,7 @@ Counts are live queries, so they always equal the database (FR-DSH-01 acceptance
 
 | **Role** | **Pending actions** |
 |:---|:---|
-| ST | Reports due in the next 7 days or overdue and not closed; revisions requested; applications by status; evaluation of the company and survey (when the grade is Final) |
+| ST | Reports due in the next 7 days or overdue and not closed; revisions requested; applications by status; evaluation of the company and survey (from the training end date or the Final grade, whichever comes first) |
 | CS | Applicants to review on own vacancies (the Company Admin: on all the company's vacancies); ended weeks without attendance (overdue after `attendance.pending_after_days`); evaluations due within 7 days or overdue |
 | AS | Submitted reports not yet reviewed; flagged similarity checks without a decision; grades in `draft` whose preconditions are met |
 | CO | Student verification requests of the college; accepted applications of the college's students without a placement; grades `submitted`; escalations (items overdue 3 days or more) |
@@ -1116,7 +1127,7 @@ The method is measured with the evaluation script on 10 copied and 10 original r
 - **Email-confirmation, invitation, and reset links:** 32 random bytes, URL-safe; only the SHA-256 hash is stored. Single use and time-limited. A password reset revokes all sessions of the user.
 - **Registration:** at most `auth.registrations_per_ip_hour` registrations per IP address per hour. A new account cannot log in before its email is confirmed, and stays behind the verification gate (Section 2.3) until it is verified.
 - **Forgot password** always answers `202`, whether or not the email exists, so accounts cannot be discovered.
-- **Access token:** JWT HS256 with `sub`, `role`, `sid`, `iat`, and `exp` (12 h maximum). The session row enforces the 30-minute idle timeout and logout (FR-AUT-03). The frontend keeps the token in memory and `sessionStorage` only (never in cookies, so there is no CSRF exposure), and Vercel sends a strict Content-Security-Policy to limit XSS.
+- **Access token:** JWT HS256 with `sub`, `role`, `sid`, `iat`, and `exp` (12 h maximum). The session row enforces the 30-minute idle timeout and logout (FR-AUT-03). The app applies the same limit on the device, from the last key, click, or touch, online and offline; `GET /me` returns the limit (CR-11). The frontend keeps the token in memory and `sessionStorage` only (never in cookies, so there is no CSRF exposure), and Vercel sends a strict Content-Security-Policy to limit XSS.
 
 ### 7.2 Authorization (FR-AUT-05)
 
@@ -1144,7 +1155,12 @@ Each route declares its allowed roles. Record access then follows these scope ru
 - **Secrets:** stored as Space secrets, Vercel environment variables, and GitHub secrets.
 - **Backups:** encrypted before upload (Section 3.5).
 - **Consent:** a notice in the user's language at first login; `consent_at` is stored (NFR-PRV-01).
-- **Release checks:** OWASP ZAP baseline against the reference deployment, plus `pip-audit` and `npm audit` (NFR-SEC-05).
+- **Offline copy on the device (CR-10):**
+  - The saved copy of the pages shown is kept in the window's `sessionStorage` and deleted at sign-out, at the idle limit, and when the window closes.
+  - Drafts typed offline are kept in `localStorage` under the user's ID until saved, for 7 days at most, and deleted at sign-out.
+  - Files, exports, the audit log, and the Platform Admin's pages are never kept.
+- **Anonymization:** Section 4.5 (NFR-PRV-04).
+- **Release checks:** OWASP ZAP baseline of the web app and API scan in safe mode (`security-scan.yml`, weekly and on request), plus `pip-audit` and `npm audit` in CI (NFR-SEC-05).
 
 ## 8. User Interface Design
 
@@ -1205,7 +1221,7 @@ Not yet drawn: the student's evaluation of the company and the outcome survey (F
 - **Layout:** `dir` and `lang` on `<html>` follow the selected language. Spacing uses logical properties (`ms-`, `me-`, `ps-`, `pe-`), and directional icons are mirrored in Arabic.
 - **Status chips:** text plus colour, never colour alone. AI results sit in a panel labelled "Advisory" (4.1 of the SRS).
 - **Task length:** report submission, attendance, and evaluation each fit in at most 3 screens (NFR-USA-02); "Full attendance" is one button.
-- **Offline:** the service worker caches the app shell. Offline, a banner is shown and every submit button is disabled (FR-PWA-03).
+- **Offline:** the service worker caches the app shell. Offline, a banner is shown with the time of the saved copy, pages opened earlier in the session show that copy, and every submit button is disabled. Report and evaluation drafts typed offline are kept on the device and saved when the connection returns (FR-PWA-03, CR-10).
 
 ## 9. Traceability
 

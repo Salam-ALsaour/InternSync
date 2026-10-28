@@ -4,7 +4,7 @@
 CSC 305 – Semester 1 – 2026/2027
 
 **Project title:** InternSync – Cooperative Training Coordination and Tracking System  
-Version 1.5 · October 2026
+Version 1.6 · October 2026
 
 > This Markdown file is the maintained version of the SPMP. `InternSync_SPMP-1.pdf` in this folder is version 1.0 as submitted on Oct 3, 2026. Changes after 1.0 are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
 
@@ -29,6 +29,7 @@ Version 1.5 · October 2026
 | 1.3 | Oct 24, 2026 | Milestone status updated: Increment 1 built and tested (M3 demo on Nov 1). | Salam Alsaour |
 | 1.4 | Oct 26, 2026 | Milestone status updated: Increment 2 built and tested early (M4 demo on Nov 15). CR-08: the development plan (FR-MAT-06) moved from T6 to T5. | Salam Alsaour |
 | 1.5 | Oct 27, 2026 | Milestone status updated: Increment 3 built and tested early (M5 demo on Nov 25); FR-ORG-07 delivered in T6 as the risk plan allowed. | Salam Alsaour |
+| 1.6 | Oct 28, 2026 | T7 started early as Increment 4: the Could functions F16 – F19 and NFR-PRV-04, the offline mode of CR-10, and the release checks (browser tests, ZAP scan, load test, held-out AI sets). M6 status updated: UAT prepared, to be run by the owner. | Salam Alsaour |
 
 ## 1. Project Organization
 
@@ -83,7 +84,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | T4 | Increment 1: registration and verification (universities, colleges, companies, Platform Admin), authentication, profiles and CV upload, vacancies, weekly reports, bilingual interface foundation | Oct 16 | Nov 1 | 17 days | T2, T3 | All developers |
 | T5 | Increment 2: matching, attendance, evaluations, approval workflow, dashboards (all Must functions) | Nov 2 | Nov 15 | 14 days | T4 | All developers |
 | T6 | Increment 3: similarity detection, notifications, exports, PWA (Should functions); the explanation and skill gaps were delivered in T5 (CR-08) | Nov 16 | Nov 25 | 10 days | T5 | All developers |
-| T7 | Testing and bug fixing (unit, integration, user acceptance); Could functions if time allows | Nov 26 | Dec 10 | 15 days | T6 | Abdullah, all |
+| T7 | Testing and bug fixing (unit, integration, user acceptance); Could functions if time allows. Built as Increment 4 from Oct 28 (all Could functions, CR-10, release checks) | Nov 26 | Dec 10 | 15 days | T6 | Abdullah, all |
 | T8 | Final documentation and presentation | Dec 11 | Dec 15 | 5 days | T7 | Abdullah, Salam |
 | T9 | Project management and monitoring (weekly meetings, tracking, change and risk control) | Sep 25 | Dec 15 | 82 days | – | Salam |
 
@@ -96,7 +97,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | M3: Increment 1 delivered | Demo of F1, F2, F3, F5, F10 foundation; automated tests pass | Nov 1 | In progress: built and tested Oct 24 ([test report](../Increments/Increment_1/04_Test_Report.md)); demo on Nov 1 |
 | M4: Increment 2 delivered (all Must functions) | Demo of F4, F6, F7, F8, F9; every Must function passes its tests | Nov 15 | In progress: built and tested Oct 26, ahead of plan ([test report](../Increments/Increment_2/04_Test_Report.md)); demo on Nov 15 |
 | M5: Increment 3 delivered | Demo of F11–F15; Should functions pass their tests | Nov 25 | In progress: built and tested Oct 27, ahead of plan ([test report](../Increments/Increment_3/04_Test_Report.md)); demo on Nov 25 |
-| M6: Testing complete | Test report; user acceptance testing with at least 8 participants, 80% or more of scenarios completed without help | Dec 10 | Planned |
+| M6: Testing complete | Test report; user acceptance testing with at least 8 participants, 80% or more of scenarios completed without help | Dec 10 | In progress: Increment 4 built and its release checks done Oct 28 ([test report](../Increments/Increment_4/04_Test_Report.md)); UAT prepared ([plan](../Increments/Increment_4/05_UAT_Plan.md)), sessions to be run |
 | M7: Final delivery | Final system, documentation, and presentation | Dec 15 | Planned |
 
 ## 6. Resource Planning

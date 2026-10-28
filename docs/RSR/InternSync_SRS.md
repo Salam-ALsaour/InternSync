@@ -36,6 +36,7 @@ CSC 305 – Software Engineering \| Semester 1 – 2026/2027 \| Section 5MA1 \| 
 | 1.3 | Oct 23, 2026 | Restructured to the course SRS template (IEEE 830 adapted): sections 1 – 6 renumbered (old Sections 7 – 10 and Appendix A are now 2.5, 2.6, 6.3, 6.4, and 6.5); reader guide (1.3), product functions (2.2), use case specifications (3.2), wireframe figures (4.1), glossary (6.1), and supporting diagrams (6.2) added; NFR-MNT-03 and the glossary name the Platform Admin for platform defaults and the skill vocabulary (CR-05). No requirement added or removed. | Salam Alsaour |
 | 1.4 | Oct 23, 2026 | CR-06: the vacancy's training type must equal the type of the student's cycle (FR-VAC-04, FR-MAT-03). Version 1.3 is the submitted version. | Salam Alsaour |
 | 1.5 | Oct 26, 2026 | CR-08: the file storage interface (4.3) streams downloads through the API after the permission check instead of issuing signed links. No requirement changed. | Salam Alsaour |
+| 1.6 | Oct 28, 2026 | CR-10: offline mode (FR-PWA-03): pages opened earlier stay readable offline, and drafts typed offline are saved when the connection returns. | Salam Alsaour |
 
 ## Table of Contents
 
@@ -617,7 +618,7 @@ Reports and grades are controlled by explicit state machines. Figure 3.1 shows t
 | **FR-LOC-02** | All interface text, validation messages, notification texts, and email templates shall exist in both languages; user-entered content is shown as entered. | Must | An automated check finds no missing translation keys in either language. |
 | **FR-PWA-01** | The application shall be installable as a PWA on supported browsers. | Should | The app installs from Chrome on Android and from Safari on iOS (Add to Home Screen) and opens full screen. |
 | **FR-PWA-02** | Users who grant permission shall receive web push notifications for the events of FR-NOT-05; email remains the fallback. | Should | With permission the push arrives; with permission denied the email still arrives. |
-| **FR-PWA-03** | The app shell shall be cached so the application opens offline and shows an offline message. Submissions are not accepted offline. | Should | In airplane mode the app opens with the offline message and submit buttons are disabled. |
+| **FR-PWA-03** | The app shell shall be cached so the application opens offline and shows an offline message. While offline, pages opened earlier in the same signed-in session shall show their saved copy with its time, and text typed into a report or evaluation draft shall be kept on the device and saved to the server as a draft when the connection returns. Submissions and other changes are not accepted offline (CR-10). | Should | In airplane mode the app opens with the offline message; a page opened before shows its saved copy; a draft typed offline is saved after reconnecting; submit buttons are disabled; after sign-out nothing is left on the device. |
 
 #### 3.1.17 Audit Trail
 
