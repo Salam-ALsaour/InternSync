@@ -21,6 +21,7 @@ from app.models import (
     User,
     Vacancy,
 )
+from app.notifications import events
 
 COMPANY = "company_final_evaluation"
 TWO = Decimal("0.01")
@@ -171,6 +172,7 @@ def submit(db: Session, actor: Actor, grade: Grade, placement: Placement) -> Non
     grade.return_comment = None
     _audit(db, actor, "submit", grade, placement, old={"status": "draft"},
            new={"status": "submitted", "total": grade.total})
+    events.grade_event(db, "grade.submitted", grade, placement)
 
 
 def _coordinator(actor: Actor, placement: Placement, db: Session) -> None:
@@ -189,6 +191,7 @@ def approve(db: Session, actor: Actor, grade: Grade, placement: Placement) -> No
     placement.status = "completed"
     _audit(db, actor, "approve", grade, placement, old={"status": "submitted"},
            new={"status": "final", "total": grade.total})
+    events.grade_event(db, "grade.final", grade, placement)
 
 
 def return_grade(db: Session, actor: Actor, grade: Grade, placement: Placement, comment: str) -> None:
@@ -200,6 +203,7 @@ def return_grade(db: Session, actor: Actor, grade: Grade, placement: Placement, 
     grade.status, grade.return_comment = "draft", comment.strip()
     _audit(db, actor, "return", grade, placement, old={"status": "submitted"}, new={"status": "draft"},
            reason=grade.return_comment)
+    events.grade_event(db, "grade.returned", grade, placement, comment=grade.return_comment)
 
 
 def reopen(db: Session, actor: Actor, grade: Grade, placement: Placement, reason: str) -> None:
@@ -214,6 +218,7 @@ def reopen(db: Session, actor: Actor, grade: Grade, placement: Placement, reason
     placement.status = "active"
     _audit(db, actor, "reopen", grade, placement, old={"status": "final"}, new={"status": "draft"},
            reason=grade.reopen_reason)
+    events.grade_event(db, "grade.reopened", grade, placement, reason=grade.reopen_reason)
 
 
 def bulk_approve(db: Session, actor: Actor, grade_ids: list[uuid.UUID]) -> list[dict]:

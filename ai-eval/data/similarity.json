@@ -1,0 +1,250 @@
+{
+ "note": "Synthetic weekly reports for the similarity evaluation (NFR-AI-03, FR-SIM-02), written and labelled by the author (Increment 3, RQ-6). Copied reports are built from the sentences of a stored report (light word edits allowed) plus their own text; original reports are written on the same topics as the stored ones.",
+ "sources": [
+  {
+   "id": "S01",
+   "lang": "en",
+   "text": "This week I worked on the order service of the e-commerce platform. I wrote a new endpoint that returns the order history of a customer with pagination and filters by date and status. To make the query fast I added a composite index on the customer and created date columns, which reduced the response time from two seconds to about two hundred milliseconds. I also wrote integration tests that run against a test database in Docker. During the code review my supervisor asked me to move the validation into a separate layer, and I learned why thin controllers are easier to maintain. Next week I will add caching for the most frequent queries."
+  },
+  {
+   "id": "S02",
+   "lang": "en",
+   "text": "My main task was the monthly sales dashboard for the regional managers. I cleaned the raw sales export, removed duplicated invoices, and fixed dates that were stored as text. Then I built a data model in Power BI with a calendar table and relationships between sales, products, and branches. I wrote measures for revenue, growth compared with the previous month, and the share of each product category. The managers asked for a page that compares branches, so I added a map and a ranking table. I presented the first version on Wednesday and collected feedback about colors and filters. I learned that agreeing on the definition of each figure early saves a lot of rework."
+  },
+  {
+   "id": "S03",
+   "lang": "en",
+   "text": "I spent the week with the infrastructure team preparing the network of the new branch office. We designed the VLANs for staff, guests, and printers, and I configured them on two Cisco switches using the command line. I set up DHCP reservations for the printers and wrote access lists so that the guest network can reach only the internet. On Tuesday we found that the uplink to the core switch was misconfigured as an access port, and fixing it taught me how trunk ports carry several VLANs. I documented every configuration in the team wiki with screenshots and a diagram. Next week we will test the wireless access points."
+  },
+  {
+   "id": "S04",
+   "lang": "en",
+   "text": "This week I continued the Flutter application for booking meeting rooms. I implemented the screen that shows the available rooms for a chosen day and time, using a grid that updates when the user changes the filters. The data comes from a REST API, so I wrote a repository class that calls the API and caches the last answer for offline use. I fixed a bug where the time picker showed the wrong time zone for users in Riyadh. My supervisor showed me how to write widget tests, and I added tests for the booking form validation. I also prepared a short demo video for the product owner."
+  },
+  {
+   "id": "S05",
+   "lang": "en",
+   "text": "I joined the security operations team and learned how alerts are handled in the SIEM. Each morning I reviewed the overnight alerts, grouped the false positives, and wrote notes about why they were triggered. I wrote a small Python script that downloads the list of failed logins and highlights accounts with more than ten failures in one hour. On Thursday we simulated a phishing incident and I followed the response playbook, from isolating the laptop to resetting the user's password. The exercise showed me how important clear communication is during an incident. Next week I will help tune two detection rules that create too many alerts."
+  },
+  {
+   "id": "S06",
+   "lang": "ar",
+   "text": "عملت هذا الأسبوع على قاعدة بيانات نظام إدارة المخزون في الشركة. صممت جداول المنتجات والمستودعات وحركات المخزون، وأضفت المفاتيح الأجنبية بين الجداول للحفاظ على سلامة البيانات. كتبت إجراءات مخزنة لتسجيل عمليات الإدخال والإخراج وحساب الرصيد الحالي لكل منتج. لاحظت أن تقرير الجرد الشهري بطيء جداً، فأضفت فهرساً على عمود التاريخ وانخفض وقت التنفيذ إلى أقل من ثانية. راجع المشرف التصميم وطلب مني توثيق كل جدول وعلاقاته في مستند واحد. تعلمت أهمية التطبيع وكيف يقلل تكرار البيانات. في الأسبوع القادم سأبدأ ببناء واجهة برمجية لعرض الأرصدة."
+  },
+  {
+   "id": "S07",
+   "lang": "ar",
+   "text": "كانت مهمتي الرئيسية هذا الأسبوع تحليل بيانات شكاوى العملاء للربع الأخير. استخرجت البيانات من نظام CRM ونظفتها باستخدام Python ومكتبة pandas، فحذفت السجلات المكررة ووحدت أسماء المدن. صنفت الشكاوى حسب نوعها ومدة حلها، ورسمت مخططات توضح الأيام التي تكثر فيها الشكاوى. وجدت أن نصف الشكاوى تقريباً تتعلق بتأخر التوصيل في نهاية الأسبوع. عرضت النتائج على مدير خدمة العملاء واقترحت زيادة عدد الموظفين يوم الخميس. تعلمت أن الرسوم البيانية البسيطة تقنع الإدارة أكثر من الجداول الطويلة."
+  },
+  {
+   "id": "S08",
+   "lang": "ar",
+   "text": "قضيت الأسبوع في قسم الدعم الفني ضمن فريق مكتب المساعدة. استقبلت طلبات الموظفين عبر نظام التذاكر، وكان أغلبها عن إعادة تعيين كلمات المرور ومشكلات الطابعات. تعلمت إنشاء حسابات المستخدمين الجدد في Active Directory وإضافتهم إلى المجموعات المناسبة حسب الإدارة. ساعدت في تجهيز عشرين جهازاً جديداً للموظفين وتثبيت البرامج الأساسية عليها باستخدام صورة نظام جاهزة. واجهت مشكلة في اتصال أحد الأجهزة بالشبكة، واكتشفت مع المشرف أن عنوان IP مكرر. كتبت دليلاً قصيراً بالخطوات المتكررة ليستفيد منه المتدربون القادمون."
+  },
+  {
+   "id": "S09",
+   "lang": "ar",
+   "text": "عملت هذا الأسبوع على تطوير واجهة موقع حجز المواعيد للعيادات باستخدام React. بنيت صفحة البحث عن الأطباء مع مرشحات حسب التخصص والمدينة والتقييم. ربطت الصفحة بالواجهة البرمجية للنظام وعالجت حالات التحميل والأخطاء بشكل واضح للمستخدم. اهتممت بأن تعمل الصفحة على شاشات الجوال، فاستخدمت تصميماً متجاوباً بشبكة مرنة. طلب مني المشرف دعم اللغة العربية من اليمين إلى اليسار، فتعلمت كيف أضبط اتجاه الصفحة والخطوط المناسبة. في نهاية الأسبوع كتبت اختبارات لمكونات البحث وأصلحت مشكلتين في عرض التواريخ."
+  },
+  {
+   "id": "S10",
+   "lang": "ar",
+   "text": "شاركت هذا الأسبوع في تنسيق مشروع نقل أنظمة الشركة إلى الخدمات السحابية. حضرت اجتماعات الفريق اليومية ودونت المهام المتأخرة وأسباب التأخير. حدثت لوحة المهام في Jira ونقلت البطاقات حسب حالتها بعد كل اجتماع. أعددت جدولاً يقارن تكلفة ثلاثة مزودين للخدمات السحابية بناءً على احتياجات الشركة من التخزين والمعالجة. ساعدت مديرة المشروع في كتابة تقرير الحالة الأسبوعي للإدارة العليا. تعلمت أن متابعة المخاطر مبكراً تمنع تأخر المشروع كله."
+  }
+ ],
+ "copied": [
+  {
+   "id": "C01",
+   "lang": "en",
+   "source": "S01",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [
+    [
+     "I wrote a new endpoint",
+     "I developed a new endpoint"
+    ]
+   ],
+   "before": "During my second week I joined the backend team of the online store. My first job was to read the code of the order service and run it on my laptop.",
+   "after": "I also attended a session about clean code and asked questions about naming. On Thursday I paired with a senior developer to fix a small bug in the payment callback."
+  },
+  {
+   "id": "C02",
+   "lang": "en",
+   "source": "S02",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [],
+   "before": "I worked with the business intelligence team this week on a request from the regional managers.",
+   "after": "In addition I helped a colleague prepare the attendance report of the warehouse staff. On Thursday I read the company policy about data privacy and discussed it with my supervisor."
+  },
+  {
+   "id": "C03",
+   "lang": "en",
+   "source": "S03",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [
+    [
+     "two Cisco switches",
+     "the Cisco switches"
+    ]
+   ],
+   "before": "This week my supervisor moved me to the networks unit, where the team was preparing a new branch office.",
+   "after": "I also learned the basics of monitoring bandwidth with the team's tool, and I joined a call with the internet provider about the new line."
+  },
+  {
+   "id": "C04",
+   "lang": "en",
+   "source": "S04",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [],
+   "before": "I am still on the mobile team of the facilities department, which builds tools for the employees.",
+   "after": "I still need to improve the loading time of the first screen, and I started reading about state management to make the code easier to follow."
+  },
+  {
+   "id": "C05",
+   "lang": "en",
+   "source": "S05",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [],
+   "before": "My placement this week was with the cyber defense unit of the bank.",
+   "after": "I took notes on the tools used by the analysts and asked about certifications that help in this field. I also read the incident reports of last year to understand the most common attacks."
+  },
+  {
+   "id": "C06",
+   "lang": "ar",
+   "source": "S06",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [],
+   "before": "انضممت هذا الأسبوع إلى فريق قواعد البيانات في إدارة تقنية المعلومات، وبدأت بقراءة توثيق الأنظمة الحالية.",
+   "after": "كما حضرت ورشة عن أمن قواعد البيانات وتعلمت كيفية منح الصلاحيات للمستخدمين حسب أدوارهم في الشركة."
+  },
+  {
+   "id": "C07",
+   "lang": "ar",
+   "source": "S07",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [],
+   "before": "انتقلت هذا الأسبوع إلى فريق تحليل البيانات في الإدارة، وتعرفت على الأنظمة التي يستخدمها الفريق يومياً.",
+   "after": "سأعمل الأسبوع القادم على أتمتة هذا التقرير حتى يُحدّث تلقائياً في بداية كل شهر دون تدخل يدوي."
+  },
+  {
+   "id": "C08",
+   "lang": "ar",
+   "source": "S08",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [],
+   "before": "بدأت هذا الأسبوع تدريبي في إدارة تقنية المعلومات، وعرّفني المشرف على فريق مكتب المساعدة.",
+   "after": "تعرفت كذلك على سياسة الشركة في حماية الأجهزة المحمولة، وحضرت اجتماع الفريق الأسبوعي الذي يراجع أكثر المشكلات تكراراً."
+  },
+  {
+   "id": "C09",
+   "lang": "ar",
+   "source": "S09",
+   "sentences": [
+    1,
+    2
+   ],
+   "edits": [],
+   "before": "واصلت هذا الأسبوع العمل مع فريق تطوير الواجهات في مشروع العيادات.",
+   "after": "أحتاج إلى تحسين سرعة تحميل الصور في الصفحة، وسأقرأ عن ضغط الصور وتحميلها عند الحاجة فقط."
+  },
+  {
+   "id": "C10",
+   "lang": "ar",
+   "source": "S10",
+   "sentences": [
+    1,
+    2,
+    3
+   ],
+   "edits": [],
+   "before": "انضممت هذا الأسبوع إلى مكتب إدارة المشاريع في الشركة، وكان أول ما طُلب مني متابعة مشروع كبير.",
+   "after": "كما تعلمت كتابة محاضر الاجتماعات بشكل مختصر وواضح، وحضرت ورشة قصيرة عن إدارة المخاطر في المشاريع التقنية."
+  }
+ ],
+ "original": [
+  {
+   "id": "O01",
+   "lang": "en",
+   "topic_of": "S01",
+   "text": "This week I built the endpoint that lets customers cancel an order before it is shipped. First I read the existing order states and drew the allowed transitions on paper, then I added a cancel action that checks the state and refunds the payment through the payment gateway. I wrote unit tests for every transition and one test that fails if a shipped order is cancelled. The database part was simple because the order table already had a status column, but I had to handle the case where two requests arrive at the same time, so I used a row lock. My supervisor explained optimistic and pessimistic locking with examples from our system. Next week I will add an email to the customer when the cancellation is confirmed."
+  },
+  {
+   "id": "O02",
+   "lang": "en",
+   "topic_of": "S02",
+   "text": "I was asked to analyse the delivery times of the logistics department. I received three spreadsheets from different warehouses with different column names, so I spent the first two days merging them into one table and checking for missing values. Using Excel pivot tables I compared the average delivery time per city and per day of the week. The results showed that deliveries to small towns take almost twice as long as deliveries in the main cities. I prepared a short report with four charts and a summary of the main findings for the operations manager. She asked me to repeat the analysis every month, so I recorded the steps as a checklist."
+  },
+  {
+   "id": "O03",
+   "lang": "en",
+   "topic_of": "S03",
+   "text": "The network team asked me to help replace the old firewall at the main office. Before the change, I exported the existing rules and grouped them by service, which showed many rules that were no longer used. I helped write the new rule set and tested it in a lab copy of the network. On the day of the change we worked at night to avoid disturbing employees, and I followed the checklist step by step while the senior engineer applied the rules. After the change we checked that email, the VPN, and the website were still reachable. I learned that careful preparation is the most important part of any network change."
+  },
+  {
+   "id": "O04",
+   "lang": "en",
+   "topic_of": "S04",
+   "text": "My task this week was the notification feature of the company's Android application written in Kotlin. I integrated Firebase Cloud Messaging so the app receives messages when a delivery is on the way. I created a settings screen where users can choose which notifications they want, and I stored their choices on the device. Testing on different phones showed that some older devices delayed the notifications, so I read the documentation about battery optimisation and added a note for users. I also fixed a crash that happened when the app was opened from a notification while it was closed. On Thursday I demonstrated the feature to the team."
+  },
+  {
+   "id": "O05",
+   "lang": "en",
+   "topic_of": "S05",
+   "text": "This week I worked with the vulnerability management team. I learned how the scanner runs every night against the servers and produces a report of missing patches and weak configurations. My job was to sort the findings by severity, remove duplicates, and assign each finding to the team that owns the server. I created a simple spreadsheet that tracks the age of each open finding, and the manager liked it because it shows which teams are slow to fix problems. I also read about the CVSS scoring system to understand why some findings are critical. Next week I will verify that the critical patches were installed."
+  },
+  {
+   "id": "O06",
+   "lang": "ar",
+   "topic_of": "S06",
+   "text": "كلفني المشرف هذا الأسبوع بمراجعة أداء قاعدة بيانات نظام الموارد البشرية. بدأت بقياس زمن تنفيذ الاستعلامات الأكثر استخداماً وسجلت النتائج في جدول. وجدت أن استعلام كشف الرواتب يقرأ الجدول كاملاً في كل مرة، فاقترحت إضافة فهرس مركب على رقم الموظف والشهر. جربت التعديل على نسخة الاختبار فتحسن الأداء بشكل كبير. كما حذفت بعض الأعمدة غير المستخدمة بعد التأكد من فريق التطوير. تعلمت قراءة خطة تنفيذ الاستعلام وفهم سبب بطء بعض العمليات. سأكتب الأسبوع القادم تقريراً بالتحسينات المقترحة."
+  },
+  {
+   "id": "O07",
+   "lang": "ar",
+   "topic_of": "S07",
+   "text": "عملت هذا الأسبوع على تحليل بيانات المبيعات الإلكترونية لمتجر الشركة. جمعت بيانات الطلبات من قاعدة البيانات باستخدام SQL وصدرتها إلى ملف Excel. حسبت متوسط قيمة الطلب ونسبة العملاء الذين يعودون للشراء خلال شهر. لاحظت أن العروض الأسبوعية ترفع عدد الطلبات لكنها لا تزيد متوسط قيمة الطلب. ناقشت هذه الملاحظة مع فريق التسويق واقترحت تجربة عرض على المنتجات الأعلى سعراً. تعلمت أن السؤال الواضح في البداية يحدد نوع التحليل المناسب."
+  },
+  {
+   "id": "O08",
+   "lang": "ar",
+   "topic_of": "S08",
+   "text": "قضيت هذا الأسبوع في فريق إدارة الخوادم. تعلمت كيف تتم مراقبة استهلاك المعالج والذاكرة والمساحة على الخوادم من خلال لوحة المراقبة. ساعدت في إعداد تنبيه يرسل رسالة بريد عندما تمتلئ مساحة القرص بنسبة تسعين بالمئة. شاركت في تحديث نظام التشغيل على خادمين في نافذة الصيانة الليلية، وتابعت قائمة التحقق بعد التحديث. واجهنا خدمة لم تعمل بعد إعادة التشغيل، واكتشفنا أن ملف الإعدادات تغير. تعلمت أهمية أخذ نسخة احتياطية قبل أي تحديث."
+  },
+  {
+   "id": "O09",
+   "lang": "ar",
+   "topic_of": "S09",
+   "text": "طورت هذا الأسبوع لوحة تحكم لموظفي الاستقبال في العيادة باستخدام Vue. تعرض اللوحة مواعيد اليوم مرتبة حسب الوقت مع إمكانية تأكيد حضور المريض. أضفت زراً لإرسال تذكير برسالة نصية للمرضى الذين لم يؤكدوا الموعد. استخدمت مكتبة جاهزة للجداول لكنني اضطررت لتعديلها لتدعم الأسماء العربية بشكل صحيح. ناقشت مع المشرف طريقة تنظيم الملفات في المشروع، واتفقنا على فصل المكونات حسب الصفحات. سأضيف الأسبوع القادم إحصائيات بسيطة عن نسبة الحضور."
+  },
+  {
+   "id": "O10",
+   "lang": "ar",
+   "topic_of": "S10",
+   "text": "عملت هذا الأسبوع مع فريق الجودة على تجهيز الشركة لتدقيق شهادة الآيزو. جمعت السياسات والإجراءات المعتمدة من الإدارات ورتبتها في مجلد مشترك. أعددت قائمة بالمستندات الناقصة وتابعت مع كل إدارة موعد تسليمها. حضرت اجتماعاً مع المدقق الداخلي وتعلمت كيف تُكتب ملاحظات التدقيق وخطط التصحيح. لاحظت أن بعض الإجراءات قديمة ولا تطابق طريقة العمل الحالية، فاقترحت تحديثها. تعلمت أن التوثيق الجيد يسهل عمل الجميع."
+  }
+ ]
+}

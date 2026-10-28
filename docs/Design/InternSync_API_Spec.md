@@ -1,7 +1,7 @@
 # InternSync – API Specification
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Task T2 (System design) · Milestone M2 · Version 1.3 · October 26, 2026
+Task T2 (System design) · Milestone M2 · Version 1.4 · October 27, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -9,6 +9,7 @@ Task T2 (System design) · Milestone M2 · Version 1.3 · October 26, 2026
 | 1.1 | Oct 20, 2026 | CR-05: registration, email confirmation, invitations, verification requests, universities and colleges, company team, Platform Admin endpoints and scope; vacancy review endpoints and CSV import removed. | Salam Alsaour |
 | 1.2 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `GET /admin/universities`, `GET /placements/candidates`, and the development-only demo clock added; endpoints usable before consent listed; registration rate limit; `company_id` filter on placements; audit filters named `date_from` and `date_to`; error codes `STUDENT_NUMBER_TAKEN`, `DUPLICATE_NAME`, `FILE_PURGED`, `SEATS_BELOW_PLACEMENTS`, `ACADEMIC_SUPERVISOR_INVALID`, `COMPANY_SUPERVISOR_INVALID`, and `INTERNAL_ERROR` added; Section 6 describes the permission matrix and the contract check as built. | Salam Alsaour |
 | 1.3 | Oct 26, 2026 | CR-08 (Increment 2 implementation): files are always streamed by the API; `can_*` flags on attendance and grades; reopening a final evaluation needs a `draft` grade; `/version` and the deep health check name the loaded model; dashboard links open the grades page; payloads of Sections 4.5, 4.6, 4.9, and 4.10 as built. Sections 3.7, 3.11, 3.12, 3.19, 3.20, and 4 updated. | Salam Alsaour |
+| 1.4 | Oct 27, 2026 | CR-09 (Increment 3 implementation): transfer rules and answers; similarity result as built (`status` `none`, `sources` with `author`, `can_decide`); notification items with their text in the caller's language; push answers `204`; history entries; exports in the caller's language and audited; error codes `TRANSFER_TARGET_INVALID` and `SUPERVISOR_HAS_STUDENTS`. Sections 3.2, 3.10, 3.15, 3.17, 3.18, 4.8, and 5 updated. | Salam Alsaour |
 
 This document is the API contract agreed before implementation (SPMP risk "integration problems"). During development, FastAPI generates the OpenAPI 3.1 document from the code at `/api/v1/openapi.json` (NFR-MNT-02), and the frontend client is generated from it. The generated document must match this specification; any difference is either a bug or a change that is recorded here first.
 
@@ -109,7 +110,7 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 | POST | `/universities/{id}/colleges` | PA | Add a college | FR-ORG-01 |
 | GET | `/colleges/{id}` | PA, CO | College with its Coordinator and counts | FR-ORG-01 |
 | PATCH | `/colleges/{id}` | PA | Edit or deactivate | FR-ORG-01 |
-| POST | `/colleges/{id}/coordinator/transfer` | PA | `{user_id, reason}` | FR-ORG-07 |
+| POST | `/colleges/{id}/coordinator/transfer` | PA | `{user_id, reason}`: the new coordinator must be an active academic supervisor of the college who has set a password (`422 TRANSFER_TARGET_INVALID`) and has no active students (`409 SUPERVISOR_HAS_STUDENTS`); the previous coordinator becomes an academic supervisor. Answers the college | FR-ORG-07 |
 | GET | `/colleges/{id}/academic-supervisors` | CO, PA | The college's academic supervisors with student counts | FR-ORG-06 |
 | POST | `/colleges/{id}/invitations` | CO | `{email, name_en, name_ar}`: invite an academic supervisor | FR-ORG-06 |
 | GET | `/companies` | PA (all), CS (own) | List companies: `?status&q` | FR-ORG-04 |
@@ -117,7 +118,7 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 | PATCH | `/companies/{id}` | CA | City and website | FR-ORG-04 |
 | POST | `/companies/{id}/suspend` | PA | `{reason}`: closes its published vacancies | FR-AUT-06 |
 | POST | `/companies/{id}/reactivate` | PA | Reactivate | FR-AUT-06 |
-| POST | `/companies/{id}/admin/transfer` | PA | `{user_id, reason}` | FR-ORG-07 |
+| POST | `/companies/{id}/admin/transfer` | PA | `{user_id, reason}`: the new Company Admin must be an active supervisor of the company who has set a password (`422 TRANSFER_TARGET_INVALID`). Answers the company's supervisors | FR-ORG-07 |
 | GET | `/companies/{id}/supervisors` | CA, PA | The company's supervisors with trainee counts | FR-ORG-06 |
 | POST | `/companies/{id}/invitations` | CA | `{email, name_en, name_ar}`: invite a company supervisor | FR-ORG-06 |
 | GET | `/verification-requests` | PA (coordinator and company requests), CO (student requests of the college) | `?status&kind` | FR-ORG-03 – 05, FR-DSH-01 |
@@ -233,7 +234,7 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| GET | `/report-versions/{id}/similarity` | AS (assigned), CO | Status, score, flag, sources with matching passages; source author only for CO | FR-SIM-02 |
+| GET | `/report-versions/{id}/similarity` | AS (assigned), CO | Status (`none`, `pending`, `done`, `failed`), score, flag, model version, sources with their passage pairs; the source author only for the coordinator of the author's college; `can_decide` | FR-SIM-02 |
 | POST | `/report-versions/{id}/similarity/decision` | AS (assigned) | `{decision: no_issue \| overlap_confirmed, comment}`; only for flagged checks | FR-SIM-03 |
 | GET | `/similarity-checks` | AS (assigned), CO | `?cycle_id&flagged=true&decided=false` | FR-DSH-01 |
 
@@ -288,7 +289,7 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| GET | `/cycles/{id}/exports/grade-sheet?format=xlsx\|pdf` | CO | Grade sheet file | FR-EXP-01, NFR-PER-05 |
+| GET | `/cycles/{id}/exports/grade-sheet?format=xlsx\|pdf` | CO | Grade sheet file, as an attachment in the caller's language; every export is audited (`export`) | FR-EXP-01, NFR-PER-05 |
 | GET | `/cycles/{id}/exports/term-summary` | CO | Term summary PDF | FR-EXP-02 |
 | GET | `/placements/{id}/exports/training-record` | CO, AS (assigned) | Student training record PDF | FR-EXP-03 |
 
@@ -306,19 +307,19 @@ Before the privacy notice is acknowledged, only `GET /me`, `PATCH /me` (so the n
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
-| GET | `/notifications` | Any (own) | `?unread_only`; includes `unread_count` | FR-NOT-01 |
+| GET | `/notifications` | Any (own) | `?unread_only&page&page_size`; each item has `title` and `body` already in the caller's language (FR-NOT-06), `link`, `read_at`; includes `unread_count` | FR-NOT-01 |
 | POST | `/notifications/{id}/read` | Any (own) | Mark one as read | FR-NOT-01 |
 | POST | `/notifications/read-all` | Any (own) | Mark all as read | FR-NOT-01 |
-| GET | `/push/vapid-public-key` | Any | Public key for the browser subscription | FR-PWA-02 |
-| POST | `/push/subscriptions` | Any (own) | `{endpoint, keys: {p256dh, auth}}` | FR-PWA-02 |
-| DELETE | `/push/subscriptions` | Any (own) | `{endpoint}` | FR-PWA-02 |
+| GET | `/push/vapid-public-key` | Any | `{key}`: the public key for the browser subscription, `null` when push is not configured | FR-PWA-02 |
+| POST | `/push/subscriptions` | Any (own) | `{endpoint, keys: {p256dh, auth}}`; `204`. The same endpoint signed in as another user moves to that user | FR-PWA-02 |
+| DELETE | `/push/subscriptions` | Any (own) | `{endpoint}`; `204` | FR-PWA-02 |
 
 ### 3.18 Audit and History
 
 | **Method** | **Path** | **Roles** | **Purpose** | **SRS** |
 |:--|:---|:---|:---|:---|
 | GET | `/audit-log` | CO (the college's entries), PA (entries about accounts, organizations, and verification) | `?student_id&user_id&entity_type&entity_id&date_from&date_to`; read-only, no update or delete endpoint exists | FR-AUD-02 |
-| GET | `/history/{entity_type}/{entity_id}` | Anyone allowed to view the record; `entity_type` is `report_slot`, `evaluation`, or `grade` | State changes with user and time | FR-AUD-03 |
+| GET | `/history/{entity_type}/{entity_id}` | Anyone allowed to view the record; `entity_type` is `report_slot`, `evaluation`, or `grade` | Entries oldest first: `{at, action, role, user_en, user_ar, old, new, reason}`. The student sees a grade's history only when it is Final and never the similarity decision | FR-AUD-03 |
 
 ### 3.19 Files
 
@@ -520,17 +521,17 @@ An empty `resources` list is shown by the client as "No resource available yet" 
 {
   "status": "done", "max_score": 0.46, "is_flagged": true, "threshold": 0.30,
   "model_version": "intfloat/multilingual-e5-small@<revision>",
-  "advisory": true,
-  "matches": [
-    { "source": { "version_id": "5d6c…", "cycle": "Co-op Spring 2026", "week_no": 3, "kind": "weekly" },
-      "score": 0.46,
-      "passages": [ { "report": [120, 410], "report_text": "…", "source": [88, 371], "source_text": "…", "cosine": 0.95 } ] }
+  "checked_at": "2026-10-27T00:28:41Z", "advisory": true, "can_decide": true,
+  "sources": [
+    { "version_id": "5d6c…", "slot_id": "8e1a…", "kind": "weekly", "week_no": 3, "version_no": 1,
+      "cycle_id": "c0a2…", "cycle_name": "Co-op Spring 2026", "score": 0.46, "author": null,
+      "passages": [ { "report": [120, 214], "report_text": "…", "source": [88, 182], "source_text": "…", "cosine": 0.97 } ] }
   ],
-  "decision": null
+  "decision": null, "decision_comment": null
 }
 ```
 
-For the Coordinator, `source` also includes `"author": {"id": "…", "name_en": "…", "name_ar": "…"}` (FR-SIM-02).
+For the coordinator of the source author's college, `author` is `{"id": "…", "name_en": "…", "name_ar": "…", "student_number": "…"}` (FR-SIM-02). Before a check exists `status` is `none`; while it runs, `pending`; without the model, `failed` until the retry job runs it.
 
 ### 4.9 Grade Submission Refused
 
@@ -638,6 +639,8 @@ An unknown or altered code returns `200` with `{"status": "not_found"}`, so the 
 | `REQUIRED_FIELDS_MISSING` | 422 | Weekly report fields empty | FR-REP-02 |
 | `DEADLINE_NOT_PASSED` | 409 | Close as missing before the deadline | FR-REP-07 |
 | `NOT_FLAGGED` | 409 | Decision on a similarity check that is not flagged | FR-SIM-03 |
+| `TRANSFER_TARGET_INVALID` | 422 | Role transfer to someone who is not an active member of the same college or company with a password | FR-ORG-07 |
+| `SUPERVISOR_HAS_STUDENTS` | 409 | Coordinator role transfer to an academic supervisor who still has active students | FR-ORG-07 |
 | `WEEK_NOT_STARTED` | 409 | Attendance for a future week | FR-ATT-01 |
 | `WEEK_LOCKED` | 409 | Attendance edit after the edit window without an unlock | FR-ATT-02 |
 | `ATTENDED_EXCEEDS_SCHEDULED` | 422 | More attended days than scheduled | FR-ATT-01 |

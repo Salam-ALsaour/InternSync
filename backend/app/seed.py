@@ -8,7 +8,7 @@ can run again safely. Demo accounts share DEMO_PASSWORD and are refused when ENV
 import argparse
 import json
 import sys
-from datetime import time, timedelta
+from datetime import date, time, timedelta
 from decimal import Decimal
 from pathlib import Path
 
@@ -26,12 +26,16 @@ from app.cycles import service as cycles
 from app.evaluations import service as evaluations
 from app.matching import service as matching
 from app.models import (
+    Application,
     AttendanceWeek,
     College,
     Company,
     CycleWeek,
     Enrollment,
     Major,
+    Placement,
+    ReportSlot,
+    ReportVersion,
     Skill,
     SkillResource,
     StudentProfile,
@@ -41,6 +45,7 @@ from app.models import (
     User,
     Vacancy,
 )
+from app.similarity import service as similarity
 from app.vacancies import service as vacancies
 
 DATA = Path(__file__).parent / "seed_data"
@@ -128,6 +133,61 @@ def _demo_tracking(db: Session, company_user: User, placement) -> None:
     evaluations.save(db, actor, placement, "periodic", [{"criterion_id": c.id, "score": 4} for c in criteria],
                      "Reliable and quick to learn; should ask for code review earlier.")
     evaluations.submit(db, actor, placement, "periodic")
+
+
+# The accepted week 1 report of a student of an earlier cycle (Increment 3 demo, step 1): submitting a weekly report
+# that copies its first half shows a similarity flag. README shows the paragraph to paste.
+EARLIER_REPORT = ("This week I worked on the order service of the e-commerce platform. I wrote a new endpoint "
+                  "that returns the order history of a customer with pagination and filters by date and status. To "
+                  "make the query fast I added a composite index on the customer and created date columns, which "
+                  "reduced the response time from two seconds to about two hundred milliseconds. I also wrote "
+                  "integration tests that run against a test database in Docker.")
+
+
+def _demo_earlier_cycle(db: Session, coord: User, as1: User, ca: User, college: College, vacancy: Vacancy) -> None:
+    """A closed Co-op cycle of the spring with one former student and an accepted week 1 report."""
+    if db.scalar(select(TrainingCycle).where(TrainingCycle.college_id == college.id,
+                                             TrainingCycle.name == "Co-op Spring 2026 (demo)")):
+        return
+    coord_actor = Actor(coord, None)
+    start = date(2026, 2, 1)
+    end = start + timedelta(weeks=12) - timedelta(days=1)
+    final = clock.riyadh_to_utc(end + timedelta(days=7), time(23, 59))
+    earlier = cycles.create(db, coord_actor, {
+        "name": "Co-op Spring 2026 (demo)", "type": "coop", "start_date": start, "end_date": end, "weeks": 12,
+        "working_days": [7, 1, 2, 3, 4], "report_weekday": 4, "report_time": time(23, 59),
+        "periodic_eval_due_at": clock.riyadh_to_utc(start + timedelta(weeks=6), time(23, 59)),
+        "final_eval_due_at": final, "final_report_due_at": final})
+    former = _user(db, "s0@iau.edu.sa", "student", "Yousef Al-Qahtani", "يوسف القحطاني", college_id=college.id)
+    if db.get(StudentProfile, former.id) is None:
+        db.add(StudentProfile(user_id=former.id, student_number="2190007",
+                              major_id=db.scalar(select(Major.id).where(Major.name_en == "Computer Science")),
+                              gpa=Decimal("3.90"), level=10, languages=["Arabic", "English"]))
+    db.add(Enrollment(cycle_id=earlier.id, student_id=former.id, created_by=coord.id))
+    db.flush()
+    application = Application(vacancy_id=vacancy.id, student_id=former.id, status="placed", decided_by=ca.id,
+                              decided_at=clock.now())
+    db.add(application)
+    db.flush()
+    placement = Placement(application_id=application.id, student_id=former.id, cycle_id=earlier.id,
+                          vacancy_id=vacancy.id, company_supervisor_id=ca.id, academic_supervisor_id=as1.id,
+                          status="completed", confirmed_by=coord.id, confirmed_at=clock.now())
+    db.add(placement)
+    db.flush()
+    week1 = db.scalar(select(CycleWeek).where(CycleWeek.cycle_id == earlier.id, CycleWeek.week_no == 1))
+    slot = ReportSlot(placement_id=placement.id, kind="weekly", week_no=1, due_at=week1.report_due_at,
+                      status="accepted", accepted_at=week1.report_due_at)
+    db.add(slot)
+    db.flush()
+    fields = {"tasks_performed": EARLIER_REPORT, "learning": "Thin controllers are easier to maintain.",
+              "challenges": "Slow queries on large tables.", "next_week_plan": "Add caching for frequent queries."}
+    version = ReportVersion(slot_id=slot.id, version_no=1, submitted_at=week1.report_due_at, is_late=False,
+                            body_text="\n\n".join(fields.values()), **fields)
+    db.add(version)
+    db.flush()
+    earlier.status = "closed"
+    check = similarity.create_check(db, version)
+    similarity.check(db, check.id)  # stores the passages; without the model the retry job does it later
 
 
 def seed_demo(db: Session) -> list[tuple[str, str]]:
@@ -250,11 +310,12 @@ def seed_demo(db: Session) -> list[tuple[str, str]]:
         a2 = vacancies.apply(db, Actor(s2, None), vacancy)
         vacancies.decide(db, ca_actor, a2, accept=True)
         _demo_tracking(db, ca, placement)
+    _demo_earlier_cycle(db, coord, as1, ca, college, vacancy)
     db.flush()
     return [("Platform Admin", admin.email), ("Coordinator", coord.email), ("Academic supervisor", as1.email),
             ("Company Admin", ca.email), ("Company supervisor", "omar@nakheel.example"),
             ("Student (placed)", "s1@iau.edu.sa"), ("Student (accepted, waiting)", "s2@iau.edu.sa"),
-            ("Student (not applied)", "s3@iau.edu.sa")]
+            ("Student (not applied)", "s3@iau.edu.sa"), ("Former student (earlier cycle)", "s0@iau.edu.sa")]
 
 
 def main(argv: list[str] | None = None) -> int:

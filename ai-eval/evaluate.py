@@ -1,5 +1,6 @@
-"""AI evaluation (NFR-AI-03, Design 6.4): skill-extraction recall (FR-PRF-04) and the top-5 hit rate of matching
-(FR-MAT-01) on the labelled synthetic set in data/, with the same service code as the API.
+"""AI evaluation (NFR-AI-03, Design 6.4): skill-extraction recall (FR-PRF-04), the top-5 hit rate of matching
+(FR-MAT-01), and similarity flags (FR-SIM-02) on the labelled synthetic sets in data/, with the same service code as
+the API.
 
     python ai-eval/evaluate.py            # with the embedding model (downloads it once)
     python ai-eval/evaluate.py --basic    # rule-based matching only
@@ -9,6 +10,7 @@ the author (Increment 2 decision RQ-4)."""
 import argparse
 import json
 import os
+import re
 import sys
 from math import comb
 from pathlib import Path
@@ -22,6 +24,7 @@ from app.ai.skills import find  # noqa: E402
 from app.catalog.router import match_terms  # noqa: E402
 from app.core.config import get_settings  # noqa: E402
 from app.matching.scoring import Weights, score  # noqa: E402
+from app.similarity.passages import Candidate, overlap, split  # noqa: E402
 
 TOP = 5
 
@@ -111,6 +114,50 @@ def _row(p, ranked: list[str]) -> dict:
             "rr": 1 / first if first else 0.0, "pool": len(ranked)}
 
 
+# ---------------------------------------------------------------- similarity (FR-SIM-02, Increment 3 RQ-6)
+SENTENCE = re.compile(r"[^.!?؟]+[.!?؟]")
+SIM = {"threshold": 0.30, "cosine": 0.90, "n": 5, "share": 0.5}  # the defaults of Design Table 4.1
+
+
+def copied_text(item: dict, sources: dict) -> tuple[str, int]:
+    """A copied report: its own sentences around the chosen sentences of the source (with light edits)."""
+    sentences = [m.group().strip() for m in SENTENCE.finditer(sources[item["source"]]["text"])]
+    copied = " ".join(sentences[i] for i in item["sentences"])
+    for old, new in item["edits"]:
+        copied = copied.replace(old, new)
+    text = " ".join(part for part in (item["before"], copied, item["after"]) if part)
+    return text, len(copied)
+
+
+def similarity(embedder) -> dict:
+    data = json.loads((ROOT / "data/similarity.json").read_text(encoding="utf-8"))
+    sources = {s["id"]: s for s in data["sources"]}
+    stored = [(sid, p) for sid, s in sources.items() for p in split(s["text"])]
+    vectors = embedder.encode([QUERY + p.text for _, p in stored])
+    reports = [{**c, "text": copied_text(c, sources)[0], "copied_share": copied_text(c, sources)[1]
+                / len(copied_text(c, sources)[0]), "expected": True} for c in data["copied"]]
+    reports += [{**o, "copied_share": 0.0, "expected": False} for o in data["original"]]
+    rows = []
+    for r in reports:
+        parts = split(r["text"])
+        mine = embedder.encode([QUERY + part.text for part in parts])
+        candidates = []
+        for v in mine:
+            cosines = sorted(((sum(a * b for a, b in zip(v, w, strict=True)), i) for i, w in enumerate(vectors)),
+                             reverse=True)[:5]
+            candidates.append([Candidate(stored[i][0], stored[i][1].start, stored[i][1].end, stored[i][1].text, c)
+                               for c, i in cosines])
+        found = overlap(r["text"], parts, candidates, SIM["cosine"], SIM["n"], SIM["share"])
+        best, source = (found[0][0], found[0][1]) if found else (0.0, None)
+        rows.append({"id": r["id"], "lang": r["lang"], "expected": r["expected"], "flagged": best >= SIM["threshold"],
+                     "score": round(best, 3), "source": source, "copied_share": round(r["copied_share"], 2)})
+    copied = [r for r in rows if r["expected"]]
+    original = [r for r in rows if not r["expected"]]
+    return {"copied_flagged": sum(r["flagged"] for r in copied), "copied": len(copied),
+            "original_flagged": sum(r["flagged"] for r in original), "original": len(original),
+            "min_copied_share": min(r["copied_share"] for r in copied), "rows": rows}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--basic", action="store_true", help="rule-based matching only, no model")
@@ -121,8 +168,10 @@ def main() -> int:
     ext = extraction(skills, profiles)
     mat = matching(profiles, vacancies, embedder)
     base = chance(profiles, vacancies)
+    sim = similarity(embedder) if embedder is not None else None
     if args.json:
-        print(json.dumps({"extraction": ext, "matching": mat, "chance": base}, ensure_ascii=False, indent=1))
+        print(json.dumps({"extraction": ext, "matching": mat, "chance": base, "similarity": sim}, ensure_ascii=False,
+                         indent=1))
         return 0
     mode = "basic" if embedder is None else embedder.version
     print(f"Set: {len(profiles)} profiles (10 Arabic, 10 English), {len(vacancies)} vacancies")
@@ -144,6 +193,15 @@ def main() -> int:
         t = mat["text_alone"]
         print(f"Text similarity alone (no skill rules): top-{TOP} {t['hit_rate']:.1%}, top-1 {t['top1']:.1%}, "
               f"mean reciprocal rank {t['mrr']:.3f}")
+    if sim is None:
+        print("Similarity: needs the model (run without --basic)")
+        return 0
+    print(f"Similarity ({len(sim['rows'])} reports; copied ones hold at least {sim['min_copied_share']:.0%} copied text): "
+          f"{sim['copied_flagged']} of {sim['copied']} copied flagged (target 9 or more), "
+          f"{sim['original_flagged']} of {sim['original']} original flagged (target 1 or fewer)")
+    for r in sim["rows"]:
+        if r["flagged"] != r["expected"]:
+            print(f"  {r['id']} ({r['lang']}) score {r['score']} expected {'flag' if r['expected'] else 'no flag'}")
     return 0
 
 

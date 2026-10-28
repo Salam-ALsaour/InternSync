@@ -1,7 +1,7 @@
 """Account emails in the recipient's language (FR-AUT-02, FR-AUT-04, FR-LOC-02).
 
-Increment 1 sends confirmation, invitation, and reset emails directly after the commit; the notification
-outbox comes in Increment 3. Locally every email lands in Mailpit (http://localhost:8025)."""
+Confirmation, invitation, and reset emails are sent directly after the commit; event notifications go through the
+outbox of app.notifications (Increment 3). Locally every email lands in Mailpit (http://localhost:8025)."""
 import logging
 import smtplib
 from email.message import EmailMessage
@@ -45,19 +45,24 @@ ROLE_NAMES = {
 
 
 def send(template: str, to: str, lang: str, **params) -> None:
+    """An account email (confirmation, invitation, reset), sent at once because the user is waiting for it."""
     subject, body = TEMPLATES[template]["ar" if lang == "ar" else "en"]
+    deliver(to, subject, body.format(**params), template=template, link=params.get("link"))
+
+
+def deliver(to: str, subject: str, body: str, *, template: str = "notification", link: str | None = None) -> bool:
+    """Send one email; True when it was handed to the mail server (the notification outbox retries otherwise)."""
     settings = get_settings()
-    message = {"to": to, "subject": subject, "body": body.format(**params), "template": template,
-               "link": params.get("link")}
+    message = {"to": to, "subject": subject, "body": body, "template": template, "link": link}
     if settings.mail_backend == "memory":
         outbox.append(message)
-        return
+        return True
     if settings.mail_backend == "console":
-        log.info("email to %s: %s\n%s", to, subject, message["body"])
-        return
+        log.info("email to %s: %s\n%s", to, subject, body)
+        return True
     msg = EmailMessage()
     msg["From"], msg["To"], msg["Subject"] = settings.mail_from, to, subject
-    msg.set_content(message["body"])
+    msg.set_content(body)
     try:
         with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as smtp:
             if settings.smtp_tls:
@@ -65,6 +70,8 @@ def send(template: str, to: str, lang: str, **params) -> None:
             if settings.smtp_user:
                 smtp.login(settings.smtp_user, settings.smtp_password)
             smtp.send_message(msg)
+        return True
     except (OSError, smtplib.SMTPException):
-        # The account change is already saved; the user can ask for a new link (resend endpoints).
+        # The change is already saved: account emails can be asked for again, notifications are retried.
         log.exception("email to %s failed", to)
+        return False

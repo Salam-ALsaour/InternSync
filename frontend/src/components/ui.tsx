@@ -3,6 +3,7 @@
 import { type ReactNode, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "../api/client";
+import { useOnline } from "../lib/online";
 
 type Tone = "primary" | "secondary" | "danger" | "ghost";
 
@@ -13,18 +14,22 @@ const BUTTON: Record<Tone, string> = {
   ghost: "text-primary underline-offset-4 hover:underline disabled:text-ink-muted",
 };
 
+/** Action buttons are disabled while the browser is offline, so nothing is submitted offline (FR-PWA-03);
+ *  `offlineOk` keeps buttons that only change the screen. */
 export function Button({
   tone = "primary",
   busy,
+  offlineOk,
   className = "",
   children,
   ...rest
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone; busy?: boolean }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone; busy?: boolean; offlineOk?: boolean }) {
+  const online = useOnline();
   return (
     <button
       type="button"
       {...rest}
-      disabled={rest.disabled || busy}
+      disabled={rest.disabled || busy || (!online && !offlineOk)}
       className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-ctl px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${BUTTON[tone]} ${className}`}
     >
       {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
@@ -136,6 +141,7 @@ const STATUS_TONE: Record<string, keyof typeof CHIP> = {
   verified: "success", placed: "success", completed: "success", revision_requested: "purple", late: "warning",
   missing: "danger", closed_missing: "danger", rejected: "danger", declined: "danger", withdrawn: "neutral",
   cancelled: "danger", placement_cancelled: "danger", suspended: "danger", inactive: "neutral",
+  flagged: "danger", clear: "success",
 };
 
 /** A status chip: the translated label and its colour, never colour alone. */

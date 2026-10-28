@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout, PublicLayout } from "./components/Layout";
 import { Loading } from "./components/ui";
 import { landing, useAuth } from "./lib/auth";
+import SimilarityChecks from "./pages/academic/Similarity";
 import AcademicStudents from "./pages/academic/Students";
 import CompanyTeam from "./pages/company/Team";
 import CompanyTrainees from "./pages/company/Trainees";
@@ -13,6 +14,8 @@ import VacancyEditor from "./pages/company/VacancyEditor";
 import AuditLog from "./pages/coordinator/Audit";
 import CycleDetail from "./pages/coordinator/CycleDetail";
 import Cycles from "./pages/coordinator/Cycles";
+import Escalations from "./pages/coordinator/Escalations";
+import Exports from "./pages/coordinator/Exports";
 import Grades from "./pages/coordinator/Grades";
 import Placements from "./pages/coordinator/Placements";
 import CoordinatorStudents from "./pages/coordinator/Students";
@@ -25,6 +28,7 @@ import Login from "./pages/public/Login";
 import Register from "./pages/public/Register";
 import Consent from "./pages/shared/Consent";
 import Home from "./pages/shared/Home";
+import Notifications from "./pages/shared/Notifications";
 import PlacementReports from "./pages/shared/PlacementReports";
 import ReportSlot from "./pages/shared/ReportSlot";
 import Verification from "./pages/shared/Verification";
@@ -80,6 +84,7 @@ export default function App() {
       </Route>
       <Route element={<Guard unverified><AppLayout /></Guard>}>
         <Route path="/verification" element={<Verification />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/student" element={<Guard roles={ST} unverified><Home /></Guard>} />
         <Route path="/student/profile" element={<Guard roles={ST} unverified><Profile /></Guard>} />
         <Route path="/student/vacancies" element={<Guard roles={ST} unverified><Vacancies /></Guard>} />
@@ -95,6 +100,7 @@ export default function App() {
         <Route path="/academic" element={<Guard roles={AS}><Home /></Guard>} />
         <Route path="/academic/students" element={<Guard roles={AS}><AcademicStudents /></Guard>} />
         <Route path="/academic/grades" element={<Guard roles={AS}><Grades /></Guard>} />
+        <Route path="/academic/similarity" element={<Guard roles={AS}><SimilarityChecks /></Guard>} />
         <Route path="/coordinator" element={<Guard roles={CO}><Home /></Guard>} />
         <Route path="/coordinator/students" element={<Guard roles={CO}><CoordinatorStudents /></Guard>} />
         <Route path="/coordinator/supervisors" element={<Guard roles={CO}><Supervisors /></Guard>} />
@@ -102,6 +108,8 @@ export default function App() {
         <Route path="/coordinator/cycles/:cycleId" element={<Guard roles={CO}><CycleDetail /></Guard>} />
         <Route path="/coordinator/placements" element={<Guard roles={CO}><Placements /></Guard>} />
         <Route path="/coordinator/grades" element={<Guard roles={CO}><Grades /></Guard>} />
+        <Route path="/coordinator/escalations" element={<Guard roles={CO}><Escalations /></Guard>} />
+        <Route path="/coordinator/exports" element={<Guard roles={CO}><Exports /></Guard>} />
         <Route path="/coordinator/audit" element={<Guard roles={CO}><AuditLog /></Guard>} />
         <Route path="/platform" element={<Guard roles={PA}><Home /></Guard>} />
         <Route path="/platform/verifications" element={<Guard roles={PA}><PlatformVerifications /></Guard>} />

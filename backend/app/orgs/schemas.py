@@ -106,6 +106,11 @@ class ReasonIn(BaseModel):
     reason: str = Field("", max_length=1000)
 
 
+class TransferIn(BaseModel):
+    user_id: uuid.UUID
+    reason: str = Field("", max_length=1000)
+
+
 class ApproveIn(BaseModel):
     cycle_id: uuid.UUID | None = None
 

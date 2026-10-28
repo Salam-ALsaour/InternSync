@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { ApiError, api, type S, unwrap } from "../../api/client";
 import { Button, Card, Dialog, ErrorBox, Loading, Notice, StatusChip, Table, Td, TextArea } from "../../components/ui";
 import { formatDateTime, nameOf } from "../../lib/format";
+import { History } from "./History";
 
 type GradeOut = S<"GradeOut">;
 
@@ -110,6 +111,7 @@ export default function Grade({ placementId }: { placementId: string }) {
           </p>
         )}
         <ErrorBox error={save.error ?? submit.error ?? approve.error} />
+        {g.id && <History type="grade" id={g.id} />}
         {missing && <p className="text-sm text-[#A61B1B]">{t("grade.missing_n", { n: missing.length })}</p>}
         <div className="flex flex-wrap gap-2">
           {g.can_edit && <Button tone="secondary" busy={save.isPending} onClick={() => save.mutate()}>{t("common.save")}</Button>}

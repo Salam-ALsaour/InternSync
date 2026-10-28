@@ -34,6 +34,7 @@ from app.models import (
     VerificationDocument,
     VerificationRequest,
 )
+from app.notifications import events
 
 KIND_DOCUMENTS = {
     "student": ["course_registration"],
@@ -244,6 +245,7 @@ def register(db: Session, form: dict, docs: dict[str, UploadFile | None], lang: 
                  college_id=user.college_id, company_id=user.company_id, new={"kind": kind, "email": email})
     audit.record(db, user, "submit", "verification_request", request.id, student_id=user.id if kind == "student"
                  else None, college_id=request.college_id, company_id=request.company_id)
+    events.verification_submitted(db, user, request)
     return user, request, raw
 
 
@@ -285,6 +287,7 @@ def resubmit(db: Session, user: User, form: dict, docs: dict[str, UploadFile | N
     audit.record(db, user, "resubmit", "verification_request", request.id,
                  student_id=user.id if kind == "student" else None, college_id=request.college_id,
                  company_id=request.company_id)
+    events.verification_submitted(db, user, request)
     return request
 
 

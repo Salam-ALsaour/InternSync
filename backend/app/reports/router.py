@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, UploadFile
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -15,6 +15,7 @@ from app.core.errors import forbidden, not_found
 from app.core.scope import placement_access
 from app.models import Placement, ReportSlot, ReportVersion
 from app.reports import service
+from app.similarity import service as similarity
 
 router = APIRouter(tags=["reports"])
 
@@ -169,10 +170,13 @@ def delete_attachment(slot_id: uuid.UUID, attachment_id: uuid.UUID, actor: Actor
 
 
 @router.post("/report-slots/{slot_id}/submit", response_model=SlotOut)
-def submit(slot_id: uuid.UUID, actor: Actor = Depends(auth("st")), db: Session = Depends(get_db)):
+def submit(slot_id: uuid.UUID, background: BackgroundTasks, actor: Actor = Depends(auth("st")),
+           db: Session = Depends(get_db)):
     slot, placement, relation = _student_slot(db, actor, slot_id)
-    service.submit(db, actor, slot, placement)
+    version = service.submit(db, actor, slot, placement)
+    check = similarity.create_check(db, version)
     db.commit()
+    background.add_task(similarity.run_in_background, check.id)  # FR-SIM-01, after the answer is sent
     return service.slot_out(db, slot, placement, relation)
 
 

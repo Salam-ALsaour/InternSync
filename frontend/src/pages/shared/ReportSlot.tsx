@@ -9,6 +9,9 @@ import { api, openFile, type S, sendForm, unwrap } from "../../api/client";
 import { Button, Card, Dialog, ErrorBox, Loading, Notice, PageHeader, TextArea } from "../../components/ui";
 import { formatDateTime, nameOf } from "../../lib/format";
 import { SlotStatus, slotTitle } from "./PlacementReports";
+import { SimilarityPanel } from "./SimilarityPanel";
+import { History } from "./History";
+import { useMe } from "../../lib/auth";
 
 type Slot = S<"SlotOut">;
 type Version = S<"VersionOut">;
@@ -233,6 +236,7 @@ function Comments({ slot }: { slot: Slot }) {
 
 export default function ReportSlot() {
   const { t, i18n } = useTranslation();
+  const me = useMe();
   const { slotId = "" } = useParams();
   const queryClient = useQueryClient();
   const key = ["slot", slotId];
@@ -259,7 +263,12 @@ export default function ReportSlot() {
           {s.submitted.slice().reverse().map((v) => <VersionView key={v.id} v={v} kind={s.kind} />)}
           {s.submitted.length === 0 && !canWrite && <Notice>{t("report.nothing_submitted")}</Notice>}
         </div>
-        <div><Comments slot={s} /></div>
+        <div className="flex flex-col gap-4">
+          {(me.role === "academic_supervisor" || me.role === "coordinator") && s.submitted.length > 0 &&
+            <SimilarityPanel versionId={s.submitted[s.submitted.length - 1].id} />}
+          <Comments slot={s} />
+          <Card><History type="report_slot" id={s.id} /></Card>
+        </div>
       </div>
     </>
   );
