@@ -4,7 +4,7 @@
 CSC 305 – Semester 1 – 2026/2027
 
 **Project title:** InternSync – Cooperative Training Coordination and Tracking System  
-Version 1.4 · October 2026
+Version 1.5 · October 2026
 
 > This Markdown file is the maintained version of the SPMP. `InternSync_SPMP-1.pdf` in this folder is version 1.0 as submitted on Oct 3, 2026. Changes after 1.0 are listed in the revision history and in [Change_Requests.md](../Change_Requests.md).
 
@@ -28,6 +28,7 @@ Version 1.4 · October 2026
 | 1.2 | Oct 20, 2026 | CR-05: one platform for many universities and companies. Registration with verification and the Platform Admin added to Increment 1 (T4); CSV import and coordinator review of vacancies removed. M2 status updated; new risk for the larger Increment 1; the permission risk now covers organizations. | Salam Alsaour |
 | 1.3 | Oct 24, 2026 | Milestone status updated: Increment 1 built and tested (M3 demo on Nov 1). | Salam Alsaour |
 | 1.4 | Oct 26, 2026 | Milestone status updated: Increment 2 built and tested early (M4 demo on Nov 15). CR-08: the development plan (FR-MAT-06) moved from T6 to T5. | Salam Alsaour |
+| 1.5 | Oct 27, 2026 | Milestone status updated: Increment 3 built and tested early (M5 demo on Nov 25); FR-ORG-07 delivered in T6 as the risk plan allowed. | Salam Alsaour |
 
 ## 1. Project Organization
 
@@ -94,7 +95,7 @@ All dates are in 2026. The Gantt chart is [Figure 10 of the diagram pack](../Int
 | M2: Design complete | Architecture, ERD, API specification, and Claude Design + Figma Make wireframes reviewed and approved | Oct 15 | Done Oct 23 (8 days late after CR-05): design document 1.2, API specification 1.1, ERD in four parts, 32 wireframes, SRS 1.3 submitted; merged to main |
 | M3: Increment 1 delivered | Demo of F1, F2, F3, F5, F10 foundation; automated tests pass | Nov 1 | In progress: built and tested Oct 24 ([test report](../Increments/Increment_1/04_Test_Report.md)); demo on Nov 1 |
 | M4: Increment 2 delivered (all Must functions) | Demo of F4, F6, F7, F8, F9; every Must function passes its tests | Nov 15 | In progress: built and tested Oct 26, ahead of plan ([test report](../Increments/Increment_2/04_Test_Report.md)); demo on Nov 15 |
-| M5: Increment 3 delivered | Demo of F11–F15; Should functions pass their tests | Nov 25 | Planned |
+| M5: Increment 3 delivered | Demo of F11–F15; Should functions pass their tests | Nov 25 | In progress: built and tested Oct 27, ahead of plan ([test report](../Increments/Increment_3/04_Test_Report.md)); demo on Nov 25 |
 | M6: Testing complete | Test report; user acceptance testing with at least 8 participants, 80% or more of scenarios completed without help | Dec 10 | Planned |
 | M7: Final delivery | Final system, documentation, and presentation | Dec 15 | Planned |
 

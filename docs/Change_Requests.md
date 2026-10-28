@@ -12,6 +12,7 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 | CR-06 | Oct 23, 2026 | Training type part of eligibility | Approved |
 | CR-07 | Oct 24, 2026 | Increment 1 implementation adjustments to the design and the API | Approved |
 | CR-08 | Oct 26, 2026 | Increment 2 implementation adjustments to the design, the API, and the deployment | Approved |
+| CR-09 | Oct 27, 2026 | Increment 3 implementation adjustments: PDF library, similarity passages, API details | Approved |
 
 ## CR-01 – Zero-cost reference deployment
 
@@ -143,3 +144,27 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
   - Increment 2 design, Sections 2, 4, 8, 10, 11, and 12.
 - **Effect on schedule:** none; FR-MAT-06 is delivered earlier than planned.
 - **Decision:** approved. Design 1.4, API specification 1.3, SRS 1.5, SPMP 1.4.
+
+## CR-09 – Increment 3 implementation adjustments
+
+- **Requested by:** Salam Alsaour, Oct 27, 2026 (found while building and testing Increment 3).
+- **Change:** no requirement changes. The design and the API contract follow what the build and the tests showed was needed:
+  - **PDF library:** fpdf2 with HarfBuzz text shaping (`uharfbuzz`) instead of WeasyPrint. WeasyPrint needs Pango and GTK system libraries that do not install with pip, notably on Windows. fpdf2 installs with pip everywhere and, with the bundled Noto fonts, joins Arabic letters and orders right-to-left text (NFR-L10N-03, D-07).
+  - **Similarity passages:** about one sentence (8 to 25 words) instead of 40 to 80 words. A passage counts for a source report when the source report's passages near it, taken together, contain at least half of its word 5-grams.
+    - On the evaluation set, reports that copied about half of their text were found 4 times out of 10 with the old passages, and 10 times out of 10 with the new ones; no original report was flagged in either case.
+    - Copied sentences shared a long passage with the student's own words, and the passages of two reports seldom line up.
+    - The setting was chosen on the same set that measures it; a held-out set is planned for M6.
+  - **Data:** `report_passages` gains `slot_id`, so every version of the same report is left out without a join; `similarity_checks` gains `attempts` and `created_at` for the retry job.
+  - **API details:**
+    - The transfer rules: an active member who has set a password; a coordinator without active students. New error codes `TRANSFER_TARGET_INVALID` and `SUPERVISOR_HAS_STUDENTS`.
+    - The similarity result as built (`status` `none`; `sources` with `author` and `can_decide`).
+    - Notification items carry their text in the caller's language; the push endpoints answer `204`.
+    - The history entry fields; exports in the caller's language and audited.
+  - **Demo data:** a former student of an earlier, closed cycle with an accepted week 1 report, so the M5 demo can show a similarity flag.
+- **Reason:** the PDF library would not install on the development machines; the evaluation showed the original passage size missed half-copied reports; the rest records behaviour the screens need.
+- **Affected:**
+  - Design document 1.3, 4.3.5, 5.6, and 6.3 (version 1.5).
+  - API specification 3.2, 3.10, 3.15, 3.17, 3.18, 4.8, and 5 (version 1.4).
+  - Increment 3 design, Section 12.
+- **Effect on schedule:** none.
+- **Decision:** approved. Design 1.5, API specification 1.4.

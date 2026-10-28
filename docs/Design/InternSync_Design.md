@@ -1,7 +1,7 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.4 · October 26, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.5 · October 27, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -10,6 +10,7 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.4 · Oc
 | 1.2 | Oct 20, 2026 | CR-05: organizations (universities, colleges, companies), self-registration and verification, Platform Admin; companies publish vacancies directly; CSV import removed. Sections 1, 2, 4, 5, 6, 7, 8, 9, and 10 updated; ERD redrawn in four parts (49 tables). | Salam Alsaour |
 | 1.3 | Oct 24, 2026 | CR-07 (Increment 1 implementation): `PATCH /me` usable before consent; purged verification documents keep their file reference; jobs use transaction-level advisory locks; supervisors see the cycles of their placements; permission test described as built. Sections 2, 4, 5, and 7 updated. | Salam Alsaour |
 | 1.4 | Oct 26, 2026 | CR-08 (Increment 2 implementation): matching weights as three numeric settings; downloads always streamed by the API, so `files.signed_url_seconds` is removed; attendance rows may hold only an unlock; a final evaluation cannot be reopened while its grade is submitted or Final; row level security on every table; backup retention and GitHub Actions limits for a private repository. Sections 3.2, 3.4, 3.5, 4.3.2, 4.3.6, 5.1, and 5.5 updated. | Salam Alsaour |
+| 1.5 | Oct 27, 2026 | CR-09 (Increment 3 implementation): PDF exports with fpdf2 and HarfBuzz shaping instead of WeasyPrint; similarity passages of about one sentence, and a passage compared with the source report's nearby passages taken together; `slot_id` on passages and `attempts` on checks. Sections 1.3, 4.3.5, 5.6, and 6.3 updated. | Salam Alsaour |
 
 **Related documents**
 
@@ -65,7 +66,7 @@ Since version 1.2 (CR-05), InternSync is one platform for many organizations: a 
 | Text extraction | `pypdf` for PDF, `python-docx` for DOCX | FR-PRF-04, FR-PRF-05. |
 | File type check | Magic-byte detection (`filetype`) plus a DOCX structure check | NFR-SEC-04. |
 | Scheduler | APScheduler 3 inside the API process, with Postgres advisory locks | NFR-REL-03. |
-| PDF exports | WeasyPrint (HTML and CSS templates, HarfBuzz text shaping) with bundled Noto Naskh Arabic and Noto Sans fonts (OFL) | Correct Arabic joining and RTL order (NFR-L10N-03, D-07). |
+| PDF exports | fpdf2 with HarfBuzz text shaping (`uharfbuzz`) and bundled Noto Naskh Arabic and Noto Sans fonts (OFL) | Correct Arabic joining and RTL order (NFR-L10N-03, D-07); installs with pip on every platform, with no system libraries (CR-09). |
 | Excel exports | `openpyxl` | FR-EXP-01. |
 | QR codes | `qrcode` | FR-CER-01. |
 | Email | Python `smtplib` over TLS, Jinja2 templates per language | FR-NOT-01, FR-NOT-06. |
@@ -693,6 +694,7 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 |:---|:---|:---|:---|
 | id | bigint | PK (identity) | |
 | version_id | uuid | NN, FK | Index |
+| slot_id | uuid | NN, FK `report_slots` | Copied from the version, so the search leaves out every version of the same report without a join |
 | university_id | uuid | NN, FK `universities` | Copied from the student's college so the similarity search stays inside one university (FR-SIM-01) |
 | idx | smallint | NN | Order in the report |
 | char_start, char_end | integer | NN | Position in `body_text` |
@@ -710,6 +712,8 @@ Partial UQ (college_id) where role = `coordinator`, verification_status = `verif
 | is_flagged | boolean | NN, default false | `max_score` ≥ threshold |
 | threshold | numeric(4,3) | NN | Threshold in force when checked |
 | model_version | text | | NFR-AI-02 |
+| attempts | smallint | NN, default 0 | The retry job stops after 3 |
+| created_at | timestamptz | NN | |
 | started_at, finished_at | timestamptz | | |
 | error | text | | |
 | decision | text | CHECK in (`no_issue`, `overlap_confirmed`) | Advisory only (FR-SIM-03) |
@@ -1041,7 +1045,7 @@ All jobs run inside the API process under APScheduler. Each job runs in one tran
 
 ### 5.6 Exports and Certificates (FR-EXP, FR-CER)
 
-- **PDF:** generated from Jinja2 HTML templates with WeasyPrint. The page direction follows the user's language; Arabic text uses the bundled Noto Naskh Arabic font. Templates: grade sheet, term summary, training record, certificate.
+- **PDF:** drawn with fpdf2 and HarfBuzz text shaping. Noto Sans carries Latin text and Noto Naskh Arabic is its fallback, so a line can mix both. The page direction follows the user's language: in Arabic the text is right-aligned and table columns run from the right. Documents: grade sheet, term summary, training record, certificate.
 - **Excel:** the grade sheet is built with `openpyxl`, one row per placement. Cell values starting with `=`, `+`, `-`, or `@` are prefixed with `'` to prevent formula injection.
 - **Certificate:** the PDF holds the student name, cycle, company, training dates, the certificate code, and a QR code for `https://<frontend>/verify/<code>`. The public page calls `GET /public/certificates/{code}` and shows Valid, Revoked, or Not found, without the grade (FR-CER-02).
 
@@ -1090,14 +1094,14 @@ The method is rule-based on purpose: it is fast, explainable, and the student al
 ### 6.3 Similarity Detection (FR-SIM-01 – 03)
 
 1. **Body text:** for weekly reports, the four text fields; for the final report, the text extracted from the main document.
-2. **Passages:** split into sentences (on `.`, `!`, `?`, `؟`, and line breaks), then group them into passages of 2–3 sentences (about 40–80 words). Each passage is embedded with the `query: ` prefix and stored in `report_passages`.
+2. **Passages:** split into sentences (on `.`, `!`, `?`, `؟`, `؛`, and line breaks); a sentence shorter than 8 words joins the next one, and one longer than 25 words is cut into pieces of 25 words, so a passage is about one sentence. Each passage is embedded with the `query: ` prefix and stored in `report_passages`. Passages of 40–80 words found only 4 of 10 reports that copied about half of their text: copied sentences shared a passage with the student's own words (CR-09).
 3. **Candidates:** for each passage, take the 5 nearest passages by cosine (HNSW index) from submitted versions of **other** report slots, across all students and cycles of the same university; the search is filtered on `report_passages.university_id`, so reports of other universities are never compared (FR-SIM-01). Earlier versions of the same slot are excluded.
-4. **Confirm:** a candidate pair counts as overlap when cosine ≥ 0.90 **and** at least 50% of the passage's word 5-grams (normalized text) appear in the source passage. The lexical check stops two passages on the same topic from being flagged.
+4. **Confirm:** a passage counts as overlap with a source report when one of that report's candidates reaches cosine ≥ 0.90 **and** at least 50% of the passage's word 5-grams (normalized text) appear in that report's candidates taken together, because the passages of two reports seldom line up. The lexical check stops two passages on the same topic from being flagged. The side-by-side view shows the candidates that share words with the passage.
 5. **Score per source report:** characters of the checked report covered by confirmed passages ÷ total characters of the report.
 6. **Flag:** when any source reaches the threshold (default 30%), the check is flagged and the top 5 sources are stored with their passage pairs for the side-by-side view (FR-SIM-02).
 7. **Decision:** the academic supervisor records No issue or Overlap confirmed with a comment. Nothing else changes (FR-SIM-03).
 
-The method is measured with the evaluation script on 10 copied and 10 original reports (target: at least 9 of 10 flagged, at most 1 false flag).
+The method is measured with the evaluation script on 10 copied and 10 original reports (target: at least 9 of 10 flagged, at most 1 false flag); the Increment 3 test report gives the results.
 
 ### 6.4 Evaluation Script (NFR-AI-03)
 

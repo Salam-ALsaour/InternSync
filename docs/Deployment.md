@@ -1,6 +1,6 @@
 # InternSync – Deployment
 
-**Version 1.0 · October 26, 2026 · Increment 2 (decision RQ-8)**
+**Version 1.1 · October 27, 2026 · Increments 2 and 3 (decision RQ-8 of Increment 2)**
 
 This document describes the zero-cost reference deployment of System Design Section 3 and how to switch it on. Everything in the repository is ready. The deployment is switched on once the owner has done the steps in Section 3, which need accounts only the owner can create. Until then, the deployment workflows run and report that there is nothing to do.
 
@@ -66,6 +66,7 @@ These steps can be done with the owner's connected Supabase, Vercel, and GitHub 
    | `SMTP_USER`, `SMTP_PASSWORD` | The Gmail address and its app password |
    | `DATABASE_URL_BACKUP` | The same Session pooler string |
    | `BACKUP_PASSPHRASE` | A long passphrase kept outside GitHub as well; without it the backups cannot be opened |
+   | `VAPID_PRIVATE_KEY` | The private half of the web push key pair: `python -m app.cli vapid-keys` (from `backend/`) prints both halves. Without the pair, notifications go by email only |
 
 3. **GitHub variables** (same page, Variables tab).
 
@@ -74,6 +75,8 @@ These steps can be done with the owner's connected Supabase, Vercel, and GitHub 
    | `HF_SPACE` | `<username>/internsync-api` |
    | `API_URL` | `https://<username>-internsync-api.hf.space` (lower case; `_` and `.` become `-`) |
    | `WEB_URL` | The Vercel production address, after step 5 |
+   | `VAPID_PUBLIC_KEY` | The public half of the web push key pair |
+   | `VAPID_SUBJECT` | `mailto:` and the Gmail address that sends the emails |
 
 4. **Deploy the API.**
    - Run Actions → Deploy API → Run workflow. The first image build on the Space takes about ten minutes.
@@ -143,3 +146,4 @@ The database procedure was rehearsed on October 26, 2026 with the local demo dat
 | **Version** | **Date** | **Change** |
 |:--:|:--:|:---|
 | 1.0 | Oct 26, 2026 | First version (Increment 2, RQ-8) |
+| 1.1 | Oct 27, 2026 | Web push keys (Increment 3, FR-PWA-02): one secret and two variables, copied to the Space by the deploy script |
