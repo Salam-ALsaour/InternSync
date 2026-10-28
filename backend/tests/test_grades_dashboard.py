@@ -15,6 +15,7 @@ from app.models import (
     ReportVersion,
     VerificationRequest,
 )
+from app.notifications.scheduled import overdue_items
 
 API = "/api/v1"
 
@@ -193,8 +194,10 @@ def test_at_dsh_01_every_count_equals_the_database(client, w, f, db):
                   "applications_accepted": 0, "grade_final": 0}
     assert counts(client, f, w.cs1) == {"applicants_to_review": 1, "attendance_to_record": 1, "evaluations_due": 0}
     assert counts(client, f, w.ca1)["applicants_to_review"] == 1  # the company: own and the colleague's vacancies
-    assert counts(client, f, w.asA1) == {"reports_to_review": 1, "grades_to_submit": 0, "grades_returned": 0}
-    assert counts(client, f, w.coA1) == {"students_to_verify": 1, "placements_to_confirm": 1, "grades_to_approve": 0}
+    assert counts(client, f, w.asA1) == {"reports_to_review": 1, "similarity_flags": 0, "grades_to_submit": 0,
+                                         "grades_returned": 0}
+    assert counts(client, f, w.coA1) == {"students_to_verify": 1, "placements_to_confirm": 1, "grades_to_approve": 0,
+                                         "escalations": len(overdue_items(db, w.A1.id))}
     assert counts(client, f, w.pa) == {"verifications_pending": 1}
     clock.freeze(w.cycle.periodic_eval_due_at - timedelta(days=3))
     assert counts(client, f, w.cs1)["evaluations_due"] == 1

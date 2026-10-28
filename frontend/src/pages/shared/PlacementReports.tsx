@@ -1,10 +1,11 @@
 /** One placement and its report slots, for the student, both supervisors, and the coordinator (FR-REP-01). */
 import { useQuery } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { api, type S, unwrap } from "../../api/client";
-import { Card, Chip, DefList, ErrorBox, Loading, PageHeader, StatusChip, Table, Tabs, Td } from "../../components/ui";
+import { api, downloadFile, type S, unwrap } from "../../api/client";
+import { Button, Card, Chip, DefList, ErrorBox, Loading, PageHeader, StatusChip, Table, Tabs, Td } from "../../components/ui";
 import { useMe } from "../../lib/auth";
 import { formatDate, formatDateTime, nameOf } from "../../lib/format";
 import Attendance from "./Attendance";
@@ -24,6 +25,30 @@ export function SlotStatus({ slot }: { slot: { status: string; is_late: boolean;
 
 export function slotTitle(slot: { kind: string; week_no?: number | null }, t: TFunction) {
   return slot.kind === "final" ? t("report.final") : t("report.week", { n: slot.week_no });
+}
+
+/** FR-EXP-03: the student's training record as a PDF, for the coordinator and the assigned supervisor. */
+function TrainingRecord({ placementId }: { placementId: string }) {
+  const { t } = useTranslation();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const download = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await downloadFile(`/api/v1/placements/${placementId}/exports/training-record`, "training-record.pdf");
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="mt-3">
+      <Button tone="secondary" busy={busy} onClick={() => void download()}>{t("exports.training_record")}</Button>
+      <ErrorBox error={error} />
+    </div>
+  );
 }
 
 export function PlacementSummary({ p }: { p: S<"PlacementOut"> }) {
@@ -90,6 +115,7 @@ export function PlacementView({ placementId, header = true }: { placementId: str
             {p.grade_status && me.role !== "company_supervisor" && (me.role !== "student" || p.grade_status === "final") &&
               <Chip tone={p.grade_status === "final" ? "success" : "neutral"}>{t("grade.title")}: {t(`grade.status_${p.grade_status}`)}</Chip>}
           </div>
+          {(me.role === "academic_supervisor" || me.role === "coordinator") && <TrainingRecord placementId={p.id} />}
         </Card>
         <Tabs value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })}
           items={tabs.map((x) => ({ value: x, label: t(`placement.tab_${x}`) }))} />

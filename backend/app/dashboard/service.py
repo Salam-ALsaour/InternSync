@@ -1,5 +1,5 @@
-"""Dashboards with live counts (FR-DSH-01, FR-DSH-02, FR-DSH-05; Design 5.7; Increment 2 design, Section 8).
-Counts are queries, so they always equal the database."""
+"""Dashboards with live counts (FR-DSH-01, FR-DSH-02, FR-DSH-05; Design 5.7; Increment 2 design, Section 8;
+Increment 3 design, Section 5). Counts are queries, so they always equal the database."""
 import uuid
 from datetime import timedelta
 
@@ -21,12 +21,15 @@ from app.models import (
     Grade,
     Placement,
     ReportSlot,
+    ReportVersion,
+    SimilarityCheck,
     TrainingCycle,
     University,
     User,
     Vacancy,
     VerificationRequest,
 )
+from app.notifications.scheduled import overdue_items
 
 SOON = timedelta(days=7)
 
@@ -97,7 +100,13 @@ def _academic(db: Session, actor: Actor) -> list[dict]:
             ready += 1
         if g.return_comment:
             returned += 1
+    flags = db.scalar(select(func.count()).select_from(SimilarityCheck)
+                      .join(ReportVersion, ReportVersion.id == SimilarityCheck.version_id)
+                      .join(ReportSlot, ReportSlot.id == ReportVersion.slot_id)
+                      .where(ReportSlot.placement_id.in_(mine), SimilarityCheck.is_flagged,
+                             SimilarityCheck.decision.is_(None)))
     return [_item("reports_to_review", to_review, "/academic/students"),
+            _item("similarity_flags", flags, "/academic/similarity"),
             _item("grades_to_submit", ready, "/academic/grades?status=draft"),
             _item("grades_returned", returned, "/academic/grades?status=draft")]
 
@@ -114,7 +123,8 @@ def _coordinator(db: Session, actor: Actor) -> list[dict]:
                            .where(Placement.student_id.in_(students), Grade.status == "submitted"))
     return [_item("students_to_verify", verify, "/coordinator/students"),
             _item("placements_to_confirm", to_place, "/coordinator/placements"),
-            _item("grades_to_approve", to_approve, "/coordinator/grades?status=submitted")]
+            _item("grades_to_approve", to_approve, "/coordinator/grades?status=submitted"),
+            _item("escalations", len(overdue_items(db, college)), "/coordinator/escalations")]
 
 
 def _platform(db: Session) -> list[dict]:

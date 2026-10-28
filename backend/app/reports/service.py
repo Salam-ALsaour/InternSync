@@ -22,6 +22,7 @@ from app.models import (
     TrainingCycle,
     User,
 )
+from app.notifications import events
 
 TEXT_FIELDS = ("tasks_performed", "learning", "challenges", "next_week_plan")
 
@@ -238,6 +239,7 @@ def submit(db: Session, actor: Actor, slot: ReportSlot, placement: Placement) ->
     slot.status = new_state
     _audit(db, actor, "submit", slot, placement, old={"status": old},
            new={"status": new_state, "version_no": draft.version_no, "is_late": draft.is_late})
+    events.report_event(db, "report.submitted", slot, placement)
     return draft
 
 
@@ -258,6 +260,10 @@ def _review(db: Session, actor: Actor, slot: ReportSlot, placement: Placement, a
         slot.accepted_at = clock.now()
     _audit(db, actor, action, slot, placement, old={"status": old}, new={"status": new_state},
            reason=(comment or "").strip() or None)
+    if action == "accept":
+        events.report_event(db, "report.accepted", slot, placement)
+    else:
+        events.report_event(db, "report.revision_requested", slot, placement, comment=comment.strip())
 
 
 def accept(db, actor, slot, placement):

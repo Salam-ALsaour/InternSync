@@ -30,6 +30,8 @@ from app.models import (
     VacancySkill,
     VacancyUniversity,
 )
+from app.notifications import events
+from app.notifications.texts import names
 
 ACTIVE = ("submitted", "accepted")
 
@@ -234,6 +236,7 @@ def close_vacancy(db: Session, actor: Actor | None, v: Vacancy) -> None:
     v.status, v.closed_at = "closed", now
     for a in db.scalars(select(Application).where(Application.vacancy_id == v.id, Application.status.in_(ACTIVE))):
         a.status, a.withdraw_reason, a.withdrawn_at = "withdrawn", "vacancy_closed", now
+        events.application_withdrawn(db, a, v, "vacancy_closed")
     audit.record(db, actor.user if actor else None, "close", "vacancy", v.id, company_id=v.company_id,
                  old={"status": "published"}, new={"status": "closed"})
 
@@ -295,6 +298,7 @@ def apply(db: Session, actor: Actor, v: Vacancy) -> Application:
     matching.snapshot(db, student, a, v)
     audit.record(db, student, "apply", "application", a.id, student_id=student.id, college_id=student.college_id,
                  company_id=v.company_id, new={"vacancy_id": v.id})
+    events.application_received(db, a, v)
     return a
 
 
@@ -348,6 +352,7 @@ def decide(db: Session, actor: Actor, a: Application, accept: bool) -> None:
     audit.record(db, actor.user, "accept" if accept else "decline", "application", a.id, student_id=student.id,
                  college_id=student.college_id, company_id=v.company_id, old={"status": "submitted"},
                  new={"status": a.status})
+    events.application_decided(db, a, v)
 
 
 def withdraw(db: Session, actor: Actor, a: Application) -> None:
@@ -404,10 +409,12 @@ def confirm_placement(db: Session, actor: Actor, application_id: uuid.UUID, acad
     for other in db.scalars(select(Application).where(Application.student_id == student.id, Application.id != a.id,
                                                       Application.status.in_(ACTIVE))):
         other.status, other.withdraw_reason, other.withdrawn_at = "withdrawn", "placed_elsewhere", now
+        events.application_withdrawn(db, other, db.get(Vacancy, other.vacancy_id), "placed_elsewhere")
     audit.record(db, actor.user, "confirm", "placement", p.id, student_id=student.id, college_id=student.college_id,
                  company_id=v.company_id, cycle_id=cycle.id,
                  new={"vacancy_id": v.id, "academic_supervisor_id": academic.id,
                       "company_supervisor_id": company_sup.id})
+    events.placement_event(db, "placement.confirmed", p)
     db.flush()
     if seats_taken(db, v.id) >= v.seats and v.status == "published":
         close_vacancy(db, None, v)
@@ -472,6 +479,8 @@ def change_supervisor(db: Session, actor: Actor, p: Placement, academic_supervis
     audit.record(db, actor.user, "change_supervisor", "placement", p.id, student_id=student.id,
                  college_id=student.college_id, cycle_id=p.cycle_id, old={"academic_supervisor_id": old},
                  new={"academic_supervisor_id": academic.id}, reason=reason.strip())
+    events.placement_event(db, "placement.supervisor_changed", p,
+                           **names("supervisor", academic.name_en, academic.name_ar))
 
 
 def cancel(db: Session, actor: Actor, p: Placement, reason: str) -> None:
@@ -484,6 +493,7 @@ def cancel(db: Session, actor: Actor, p: Placement, reason: str) -> None:
     student = db.get(User, p.student_id)
     audit.record(db, actor.user, "cancel", "placement", p.id, student_id=student.id, college_id=student.college_id,
                  cycle_id=p.cycle_id, old={"status": "active"}, new={"status": "cancelled"}, reason=p.cancel_reason)
+    events.placement_event(db, "placement.cancelled", p, reason=p.cancel_reason)
 
 
 def accepted_waiting(db: Session, actor: Actor) -> list[dict]:

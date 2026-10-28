@@ -34,6 +34,10 @@ class Settings(BaseSettings):
 
     scheduler_enabled: bool = False
 
+    vapid_public_key: str = ""  # web push (FR-PWA-02); `python -m app.cli vapid-keys` makes a pair
+    vapid_private_key: str = ""
+    vapid_subject: str = "mailto:no-reply@internsync.local"
+
     ai_enabled: bool = True
     embedding_model: str = "intfloat/multilingual-e5-small"
 

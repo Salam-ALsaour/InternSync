@@ -22,6 +22,12 @@ const queryClient = new QueryClient({
   },
 });
 
+// The installable app and its offline shell (FR-PWA-01, FR-PWA-03); production builds only, so the development
+// server is never served from a cache.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => void navigator.serviceWorker.register("/sw.js"));
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

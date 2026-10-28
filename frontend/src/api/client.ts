@@ -123,6 +123,23 @@ export async function openFile(fileId: string): Promise<void> {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+/** An export built by the API (FR-EXP), saved under the name the API gives it. */
+export async function downloadFile(path: string, fallbackName: string): Promise<void> {
+  const response = await fetch(API_ORIGIN + path, { headers: headers() });
+  if (!response.ok) throw await toError(response);
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
+  const name = encoded ? decodeURIComponent(encoded) : fallbackName;
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
 /** Development-only demo clock (not part of the typed API; mounted only when ENV is development). */
 export async function demoClock(hours?: number): Promise<{ now: string; offset_hours: number } | null> {
   const response = await fetch(API_ORIGIN + (hours ? "/api/v1/dev/clock/advance" : "/api/v1/dev/clock"), {

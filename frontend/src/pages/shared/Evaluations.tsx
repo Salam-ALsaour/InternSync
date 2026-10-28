@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { api, type S, unwrap } from "../../api/client";
 import { Button, Card, Dialog, ErrorBox, Loading, Notice, StatusChip, TextArea } from "../../components/ui";
 import { formatDateTime, nameOf } from "../../lib/format";
+import { History } from "./History";
 
 type Overview = S<"EvaluationOverview">;
 type Item = S<"EvaluationItem">;
@@ -125,6 +126,7 @@ export default function Evaluations({ placementId }: { placementId: string }) {
             <Button tone="secondary" className="mt-4" onClick={() => { setReopening(item.evaluation?.id ?? null); setReason(""); }}>
               {t("evaluation.reopen")}</Button>
           )}
+          {item.evaluation && <History type="evaluation" id={item.evaluation.id} />}
         </Card>
       ))}
       {o.rubric.length === 0 && <Notice tone="warning">{t("evaluation.no_rubric")}</Notice>}

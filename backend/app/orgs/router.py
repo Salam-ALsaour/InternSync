@@ -1,4 +1,4 @@
-"""API 3.2 – Organizations, verification, and accounts (FR-ORG-07 transfers are in Increment 3)."""
+"""API 3.2 – Organizations, verification, accounts, and role transfers (FR-ORG-07)."""
 import uuid
 
 from fastapi import APIRouter, Depends, Query
@@ -73,6 +73,15 @@ def patch_college(college_id: uuid.UUID, body: s.CollegePatch, actor: Actor = De
     return service.college_detail(db, college)
 
 
+@router.post("/colleges/{college_id}/coordinator/transfer", response_model=s.CollegeDetail)
+def transfer_coordinator(college_id: uuid.UUID, body: s.TransferIn, actor: Actor = Depends(auth("pa")),
+                         db: Session = Depends(get_db)):
+    college = get_or_404(db, College, college_id)
+    service.transfer_coordinator(db, actor, college, body.user_id, body.reason)
+    db.commit()
+    return service.college_detail(db, college)
+
+
 @router.get("/colleges/{college_id}/academic-supervisors", response_model=list[s.MemberOut])
 def college_supervisors(college_id: uuid.UUID, actor: Actor = Depends(auth("co", "pa")),
                         db: Session = Depends(get_db)):
@@ -139,6 +148,15 @@ def reactivate_company(company_id: uuid.UUID, actor: Actor = Depends(auth("pa"))
     service.reactivate_company(db, actor, company)
     db.commit()
     return service.company_out(db, company)
+
+
+@router.post("/companies/{company_id}/admin/transfer", response_model=list[s.MemberOut])
+def transfer_company_admin(company_id: uuid.UUID, body: s.TransferIn, actor: Actor = Depends(auth("pa")),
+                           db: Session = Depends(get_db)):
+    company = get_or_404(db, Company, company_id)
+    service.transfer_company_admin(db, actor, company, body.user_id, body.reason)
+    db.commit()
+    return service.members(db, "company_supervisor", company_id=company_id)
 
 
 @router.get("/companies/{company_id}/supervisors", response_model=list[s.MemberOut])

@@ -9,6 +9,7 @@ from app.core import audit, clock
 from app.core.deps import Actor
 from app.core.errors import ApiError, conflict, forbidden
 from app.models import Evaluation, EvaluationScore, Grade, Placement, RubricCriterion, TrainingCycle, User
+from app.notifications import events
 from app.reports.service import ensure_writable
 
 TYPES = ("periodic", "final")
@@ -131,6 +132,7 @@ def submit(db: Session, actor: Actor, placement: Placement, type_: str) -> Evalu
     student = db.get(User, placement.student_id)
     audit.record(db, actor.user, "submit", "evaluation", e.id, student_id=student.id, college_id=student.college_id,
                  cycle_id=placement.cycle_id, new={"type": type_, "mean_score": e.mean_score})
+    events.evaluation_submitted(db, e, placement)
     return e
 
 

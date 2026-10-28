@@ -17,6 +17,10 @@ def start() -> BackgroundScheduler:
                       max_instances=1, coalesce=True, next_run_time=datetime.now(RIYADH) + timedelta(seconds=30))
     scheduler.add_job(run, IntervalTrigger(minutes=15), args=[SessionLocal, "embed_missing"], id="embed_missing",
                       max_instances=1, coalesce=True, next_run_time=datetime.now(RIYADH) + timedelta(seconds=60))
+    for name, minutes, first in (("send_reminders", 15, 40), ("escalate_overdue", 15, 50),
+                                 ("deliver_notifications", 1, 20), ("similarity_retry", 5, 70)):
+        scheduler.add_job(run, IntervalTrigger(minutes=minutes), args=[SessionLocal, name], id=name, max_instances=1,
+                          coalesce=True, next_run_time=datetime.now(RIYADH) + timedelta(seconds=first))
     scheduler.add_job(run, CronTrigger(hour=3, minute=0), args=[SessionLocal, "purge_verification_documents"],
                       id="purge_verification_documents", max_instances=1, coalesce=True)
     scheduler.add_job(run, CronTrigger(hour=3, minute=30), args=[SessionLocal, "cleanup"], id="cleanup",

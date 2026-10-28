@@ -1,10 +1,12 @@
 /** Sidebar plus content in one wrapping row; the sidebar stacks above the content on phones (Design 8.2). */
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, Outlet } from "react-router-dom";
-import { demoClock } from "../api/client";
+import { Link, NavLink, Outlet } from "react-router-dom";
+import { api, demoClock, unwrap } from "../api/client";
 import { useAuth, useMe } from "../lib/auth";
 import { formatDateTime, nameOf } from "../lib/format";
+import { useOnline } from "../lib/online";
 
 export interface MenuItem {
   to: string;
@@ -26,11 +28,12 @@ export function menuFor(role: string, isCompanyAdmin: boolean, verified: boolean
         ...(isCompanyAdmin ? [{ to: "/company/team", key: "team" }] : []), ...own];
     case "academic_supervisor":
       return [{ to: "/academic", key: "home", end: true }, { to: "/academic/students", key: "my_students" },
-        { to: "/academic/grades", key: "grades" }];
+        { to: "/academic/similarity", key: "similarity" }, { to: "/academic/grades", key: "grades" }];
     case "coordinator":
       return [{ to: "/coordinator", key: "home", end: true }, { to: "/coordinator/students", key: "students" },
         { to: "/coordinator/supervisors", key: "supervisors" }, { to: "/coordinator/cycles", key: "cycles" },
         { to: "/coordinator/placements", key: "placements" }, { to: "/coordinator/grades", key: "grades" },
+        { to: "/coordinator/escalations", key: "escalations" }, { to: "/coordinator/exports", key: "exports" },
         { to: "/coordinator/audit", key: "audit" }, ...own];
     case "platform_admin":
       return [{ to: "/platform", key: "home", end: true }, { to: "/platform/verifications", key: "verifications" },
@@ -73,6 +76,38 @@ function DemoClock() {
   );
 }
 
+/** The bell with the unread count (FR-NOT-01), refreshed every minute. */
+function Bell() {
+  const { t } = useTranslation();
+  const unread = useQuery({ queryKey: ["notifications", "unread"], refetchInterval: 60_000, queryFn: () =>
+    unwrap(api.GET("/api/v1/notifications", { params: { query: { unread_only: true, page_size: 1 } } })) });
+  const count = unread.data?.unread_count ?? 0;
+  return (
+    <Link to="/notifications" aria-label={t("notifications.title_n", { n: count })}
+      className="relative inline-flex h-11 w-11 items-center justify-center rounded-ctl border border-line bg-white text-primary hover:bg-ground">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" />
+      </svg>
+      {count > 0 && (
+        <span className="absolute -top-1 -end-1 min-w-[20px] rounded-full bg-[#A61B1B] px-1 text-center text-xs font-bold leading-5 text-white" dir="ltr">
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+/** Shown while the browser is offline (FR-PWA-03); action buttons are disabled at the same time. */
+function OfflineBanner() {
+  const { t } = useTranslation();
+  if (useOnline()) return null;
+  return (
+    <div role="status" className="border-b border-[#F2D9A6] bg-[#FFF1D6] px-6 py-2 text-sm font-semibold text-[#8A4B00]">
+      {t("offline.banner")}
+    </div>
+  );
+}
+
 export function AppLayout() {
   const { t, i18n } = useTranslation();
   const me = useMe();
@@ -110,8 +145,12 @@ export function AppLayout() {
             <p className="text-sm font-semibold text-ink">{nameOf(me, i18n.language)}</p>
             <p className="text-xs text-ink-muted">{orgName}</p>
           </div>
-          <LanguageSwitch />
+          <div className="flex items-center gap-2">
+            <Bell />
+            <LanguageSwitch />
+          </div>
         </header>
+        <OfflineBanner />
         <main className="mx-auto max-w-6xl p-4 md:p-8">
           <Outlet />
         </main>

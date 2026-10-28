@@ -22,6 +22,7 @@ from app.models import (
     VerificationDocument,
     VerificationRequest,
 )
+from app.notifications import events
 
 
 # ---------------------------------------------------------------- universities and colleges
@@ -271,6 +272,7 @@ def approve(db: Session, actor: Actor, req: VerificationRequest, cycle_id: uuid.
                  student_id=user.id if req.kind == "student" else None, college_id=req.college_id,
                  company_id=req.company_id, cycle_id=req.cycle_id, old={"status": "pending"},
                  new={"status": "approved"})
+    events.verification_decided(db, req)
 
 
 def reject(db: Session, actor: Actor, req: VerificationRequest, reason: str) -> None:
@@ -289,6 +291,7 @@ def reject(db: Session, actor: Actor, req: VerificationRequest, reason: str) -> 
                  student_id=user.id if req.kind == "student" else None, college_id=req.college_id,
                  company_id=req.company_id, reason=req.reason, old={"status": "pending"},
                  new={"status": "rejected"})
+    events.verification_decided(db, req)
 
 
 def requests_query(actor: Actor, status: str | None, kind: str | None):
@@ -368,3 +371,57 @@ def get_user(db: Session, user_id: uuid.UUID) -> User:
     if u is None:
         raise not_found()
     return u
+
+
+# ---------------------------------------------------------------- role transfer (FR-ORG-07)
+def _reason(reason: str) -> str:
+    if not reason.strip():
+        raise ApiError(422, "REASON_REQUIRED")
+    return reason.strip()
+
+
+def _target(user: User | None, role: str, **org) -> User:
+    if user is None or user.role != role or not user.is_active or user.password_hash is None \
+            or any(getattr(user, k) != v for k, v in org.items()):
+        raise ApiError(422, "TRANSFER_TARGET_INVALID", errors=[{"field": "user_id", "code": "TRANSFER_TARGET_INVALID"}])
+    return user
+
+
+def transfer_coordinator(db: Session, actor: Actor, college: College, user_id: uuid.UUID, reason: str) -> User:
+    """The coordinator role moves to an academic supervisor of the same college; the previous coordinator keeps an
+    academic supervisor's account. One college has one coordinator, so the previous holder changes first."""
+    reason = _reason(reason)
+    new = _target(db.get(User, user_id), "academic_supervisor", college_id=college.id)
+    if db.scalar(select(Placement.id).where(Placement.academic_supervisor_id == new.id, Placement.status == "active")
+                 .limit(1)):
+        raise conflict("SUPERVISOR_HAS_STUDENTS")
+    old = db.scalar(select(User).where(User.college_id == college.id, User.role == "coordinator",
+                                       User.verification_status == "verified", User.is_active))
+    if old is not None:
+        old.role, old.verification_status = "academic_supervisor", "not_required"
+        db.flush()
+    new.role, new.verification_status = "coordinator", "verified"
+    db.flush()
+    audit.record(db, actor.user, "transfer_role", "college", college.id, college_id=college.id, reason=reason,
+                 old={"coordinator_id": str(old.id) if old else None}, new={"coordinator_id": str(new.id)})
+    events.role_transferred(db, "coordinator", old, new, college.name_en, college.name_ar, reason)
+    return new
+
+
+def transfer_company_admin(db: Session, actor: Actor, company: Company, user_id: uuid.UUID, reason: str) -> User:
+    """The Company Admin right moves to another supervisor of the same company."""
+    reason = _reason(reason)
+    new = _target(db.get(User, user_id), "company_supervisor", company_id=company.id)
+    if new.is_company_admin:
+        raise conflict("INVALID_TRANSITION")
+    old = db.scalar(select(User).where(User.company_id == company.id, User.is_company_admin))
+    if old is not None:
+        old.is_company_admin = False
+        db.flush()
+    new.is_company_admin = True
+    db.flush()
+    audit.record(db, actor.user, "transfer_role", "company", company.id, company_id=company.id, reason=reason,
+                 old={"company_admin_id": str(old.id) if old else None}, new={"company_admin_id": str(new.id)})
+    events.role_transferred(db, "company_admin", old, new, company.name, company.name, reason)
+    return new
+

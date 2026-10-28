@@ -29,6 +29,12 @@ SPECS: dict[str, tuple[Number, Number, Number]] = {
     "matching.weight_preferred": (0.1, 0.0, 1.0),
     "matching.semantic_floor": (0.70, 0.0, 0.99),
     "matching.semantic_ceiling": (0.95, 0.01, 1.0),
+    "similarity.threshold": (0.30, 0.05, 1.0),
+    "similarity.passage_cosine": (0.90, 0.5, 1.0),
+    "similarity.ngram_size": (5, 2, 10),
+    "similarity.ngram_containment": (0.5, 0.1, 1.0),
+    "notifications.reminder_hours_before": (24, 1, 168),
+    "notifications.escalation_days": (3, 1, 30),
 }
 
 

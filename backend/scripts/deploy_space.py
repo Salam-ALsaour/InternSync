@@ -31,7 +31,8 @@ Deployed from GitHub; do not edit the files here.
 # Settings of the reference deployment that are not secret.
 VARIABLES = {"ENV": "production", "PORT": "7860", "STORAGE_BACKEND": "supabase", "SCHEDULER_ENABLED": "true",
              "SMTP_HOST": "smtp.gmail.com", "SMTP_PORT": "587", "SMTP_TLS": "true", "FORWARDED_ALLOW_IPS": "*"}
-SECRETS = ["DATABASE_URL", "JWT_SECRET", "SUPABASE_URL", "SUPABASE_SERVICE_KEY", "SMTP_USER", "SMTP_PASSWORD"]
+SECRETS = ["DATABASE_URL", "JWT_SECRET", "SUPABASE_URL", "SUPABASE_SERVICE_KEY", "SMTP_USER", "SMTP_PASSWORD",
+           "VAPID_PRIVATE_KEY"]
 
 
 def space_url(space: str) -> str:
@@ -62,6 +63,9 @@ def main() -> int:
     web = os.environ.get("WEB_URL", "").rstrip("/")
     if web:
         variables.update(FRONTEND_BASE_URL=web, CORS_ORIGINS=web)
+    for key in ("VAPID_PUBLIC_KEY", "VAPID_SUBJECT"):  # web push (FR-PWA-02); the public key is not secret
+        if os.environ.get(key):
+            variables[key] = os.environ[key]
     if os.environ.get("SMTP_USER"):
         variables["MAIL_FROM"] = f"InternSync <{os.environ['SMTP_USER']}>"
     for key, value in variables.items():

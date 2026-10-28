@@ -153,7 +153,7 @@ function Settings() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Object.keys(values).map((k) => (
           <Input key={k} label={t(`setting.${k.replace(".", "_")}`)} type="number" dir="ltr" value={values[k]}
-            step={k.startsWith("matching.") ? "0.01" : "1"}
+            step={k.startsWith("matching.") || (k.startsWith("similarity.") && k !== "similarity.ngram_size") ? "0.01" : "1"}
             onChange={(e) => setValues({ ...values, [k]: e.target.value })}
             error={save.error instanceof ApiError ? save.error.fieldMessage(k) : undefined} />
         ))}

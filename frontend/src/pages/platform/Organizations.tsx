@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, type S, unwrap } from "../../api/client";
-import { Button, Card, Dialog, Empty, ErrorBox, Input, Loading, PageHeader, Select, StatusChip, Table, Tabs, Td, TextArea } from "../../components/ui";
+import { Button, Card, Dialog, Empty, ErrorBox, Input, Loading, Notice, PageHeader, Select, StatusChip, Table, Tabs, Td, TextArea } from "../../components/ui";
 import { formatDate, nameOf } from "../../lib/format";
 
 function UniversityForm({ uni, onDone }: { uni?: S<"UniversityOut">; onDone: () => void }) {
@@ -33,12 +33,69 @@ function UniversityForm({ uni, onDone }: { uni?: S<"UniversityOut">; onDone: () 
   );
 }
 
+/** FR-ORG-07: the coordinator role of a college, or the Company Admin right of a company, moves to another active
+ *  member of the same organization, with a reason kept in the audit log. */
+function TransferDialog({ target, onClose }: { target: { kind: "college" | "company"; id: string; name: string } | null;
+  onClose: () => void }) {
+  const { t, i18n } = useTranslation();
+  const queryClient = useQueryClient();
+  const [userId, setUserId] = useState("");
+  const [reason, setReason] = useState("");
+  const members = useQuery({ queryKey: ["transfer-candidates", target?.kind, target?.id], enabled: !!target, queryFn: () =>
+    target?.kind === "college"
+      ? unwrap(api.GET("/api/v1/colleges/{college_id}/academic-supervisors", { params: { path: { college_id: target.id } } }))
+      : unwrap(api.GET("/api/v1/companies/{company_id}/supervisors", { params: { path: { company_id: target?.id ?? "" } } })) });
+  const close = () => {
+    setUserId("");
+    setReason("");
+    onClose();
+  };
+  const transfer = useMutation({
+    mutationFn: async () => {
+      if (target?.kind === "college") {
+        await unwrap(api.POST("/api/v1/colleges/{college_id}/coordinator/transfer", { params: { path: { college_id: target.id } },
+          body: { user_id: userId, reason } }));
+      } else {
+        await unwrap(api.POST("/api/v1/companies/{company_id}/admin/transfer", { params: { path: { company_id: target?.id ?? "" } },
+          body: { user_id: userId, reason } }));
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-universities"] });
+      void queryClient.invalidateQueries({ queryKey: ["companies"] });
+      close();
+    },
+  });
+  const options = (members.data ?? []).filter((m) => m.is_active && !m.invitation_pending && !m.is_company_admin)
+    .map((m) => ({ value: m.id, label: `${nameOf(m, i18n.language)} (${m.email})` }));
+  return (
+    <Dialog open={!!target} title={target ? `${t(target.kind === "college" ? "orgs.transfer_coordinator" : "orgs.transfer_admin")} – ${target.name}` : ""}
+      onClose={close}>
+      <p className="mb-3 text-sm text-ink-muted">{t(target?.kind === "college" ? "orgs.transfer_coordinator_note" : "orgs.transfer_admin_note")}</p>
+      {members.isLoading ? <Loading /> : (
+        <div className="flex flex-col gap-3">
+          <Select label={t("orgs.new_holder")} value={userId} onChange={(e) => setUserId(e.target.value)}
+            placeholder={t("common.choose")} options={options} />
+          {options.length === 0 && <Notice tone="warning">{t("orgs.no_candidates")}</Notice>}
+          <TextArea label={t("common.reason")} value={reason} onChange={(e) => setReason(e.target.value)} />
+          <ErrorBox error={members.error ?? transfer.error} />
+          <div className="flex gap-2">
+            <Button busy={transfer.isPending} disabled={!userId || !reason.trim()} onClick={() => transfer.mutate()}>{t("orgs.transfer")}</Button>
+            <Button tone="secondary" onClick={close}>{t("common.cancel")}</Button>
+          </div>
+        </div>
+      )}
+    </Dialog>
+  );
+}
+
 function Universities() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const list = useQuery({ queryKey: ["admin-universities"], queryFn: () => unwrap(api.GET("/api/v1/admin/universities")) });
   const [editing, setEditing] = useState<S<"UniversityOut"> | "new" | null>(null);
   const [college, setCollege] = useState<{ uni: string; name_ar: string; name_en: string } | null>(null);
+  const [transferring, setTransferring] = useState<{ kind: "college"; id: string; name: string } | null>(null);
   const refresh = () => {
     setEditing(null);
     setCollege(null);
@@ -70,13 +127,18 @@ function Universities() {
               <tr key={c.id}>
                 <Td>{nameOf(c, i18n.language)}</Td>
                 <Td><StatusChip status={c.is_active ? "active" : "inactive"} label={t(c.is_active ? "team.active" : "team.inactive")} /></Td>
-                <Td><Button tone="ghost" onClick={() => toggleCollege.mutate(c)}>{t(c.is_active ? "team.deactivate" : "team.reactivate")}</Button></Td>
+                <Td>
+                  <Button tone="ghost" onClick={() => toggleCollege.mutate(c)}>{t(c.is_active ? "team.deactivate" : "team.reactivate")}</Button>
+                  <Button tone="ghost" onClick={() => setTransferring({ kind: "college", id: c.id, name: nameOf(c, i18n.language) })}>
+                    {t("orgs.transfer_coordinator")}</Button>
+                </Td>
               </tr>
             ))}
           </Table>
           <Button tone="secondary" className="mt-3" onClick={() => setCollege({ uni: u.id, name_ar: "", name_en: "" })}>{t("orgs.add_college")}</Button>
         </Card>
       ))}
+      <TransferDialog target={transferring} onClose={() => setTransferring(null)} />
       <Dialog open={!!editing} title={editing === "new" ? t("orgs.new_university") : t("common.edit")} onClose={() => setEditing(null)}>
         {editing && <UniversityForm uni={editing === "new" ? undefined : editing} onDone={refresh} />}
       </Dialog>
@@ -101,6 +163,7 @@ function Companies() {
   const list = useQuery({ queryKey: ["companies", status], queryFn: () =>
     unwrap(api.GET("/api/v1/companies", { params: { query: { ...(status ? { status } : {}), page_size: 100 } } })) });
   const [suspending, setSuspending] = useState<S<"CompanyOut"> | null>(null);
+  const [transferring, setTransferring] = useState<{ kind: "company"; id: string; name: string } | null>(null);
   const [reason, setReason] = useState("");
   const refresh = () => {
     setSuspending(null);
@@ -129,12 +192,15 @@ function Companies() {
               <Td><StatusChip status={c.status} /></Td>
               <Td>
                 {c.status === "verified" && <Button tone="ghost" onClick={() => { setSuspending(c); setReason(""); }}>{t("orgs.suspend")}</Button>}
+                {c.status === "verified" && c.supervisors > 1 &&
+                  <Button tone="ghost" onClick={() => setTransferring({ kind: "company", id: c.id, name: c.name })}>{t("orgs.transfer_admin")}</Button>}
                 {c.status === "suspended" && <Button tone="ghost" onClick={() => reactivate.mutate(c.id)}>{t("team.reactivate")}</Button>}
               </Td>
             </tr>
           ))}
         </Table>
       )}
+      <TransferDialog target={transferring} onClose={() => setTransferring(null)} />
       <Dialog open={!!suspending} title={t("orgs.suspend")} onClose={() => setSuspending(null)}>
         <TextArea label={t("common.reason")} value={reason} onChange={(e) => setReason(e.target.value)} />
         <ErrorBox error={suspend.error} />
