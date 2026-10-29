@@ -20,6 +20,18 @@ export async function signIn(page: Page, who: Who): Promise<void> {
   await expect(page.locator("main")).toBeVisible();
 }
 
+/** On phones the menu (with its links and "Log out") is folded behind a button. */
+export async function openMenu(page: Page): Promise<void> {
+  const toggle = page.locator('button[aria-controls="main-menu"]');
+  if (await toggle.isVisible() && (await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+}
+
+/** Follows a menu link. */
+export async function navTo(page: Page, href: string): Promise<void> {
+  await openMenu(page);
+  await page.locator(`nav a[href="${href}"]`).click();
+}
+
 /** A bearer token for API calls made by the test itself (to find IDs), not by the page. */
 export async function token(request: APIRequestContext, who: Who): Promise<string> {
   const r = await request.post("/api/v1/auth/login", { data: { email: ACCOUNTS[who], password: PASSWORD } });

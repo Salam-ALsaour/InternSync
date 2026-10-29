@@ -105,6 +105,17 @@ def test_weak_password_refused(client, w):
     assert r.status_code == 422 and r.json()["errors"][0]["code"] == "WEAK_PASSWORD"
 
 
+def test_at_usa_05_field_errors_name_the_field_and_the_fix_in_the_users_language(client, w):
+    """NFR-USA-05: the error names the field (the form shows it next to that field) and says how to correct it."""
+    form = {"kind": "coordinator", "email": "c@iau.edu.sa", "password": "onlyletters", "name_en": "C",
+            "name_ar": "ج", "college_id": str(w.A2.id)}
+    files = {"appointment_letter": ("letter.png", PNG, "image/png")}
+    for lang, expected in (("ar", "8 أحرف"), ("en", "at least 8 characters")):
+        r = client.post(f"{API}/auth/register", data=form, files=files, headers={"Accept-Language": lang})
+        error = r.json()["errors"][0]
+        assert r.status_code == 422 and error["field"] == "password" and expected in error["message"], lang
+
+
 def test_registration_rate_limit(client, w, db):
     codes = [register_student(client, w, email=f"s{i}@iau.edu.sa", number=f"22990{i:02d}").status_code
              for i in range(6)]

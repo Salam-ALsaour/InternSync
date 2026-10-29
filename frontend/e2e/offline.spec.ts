@@ -1,7 +1,7 @@
 /** AT-PWA-03 as changed by CR-10: offline, a page opened before shows its saved copy, a page never opened says so,
  *  a report draft typed offline is saved when the connection returns, and nothing is left after sign-out. */
 import { expect, test } from "@playwright/test";
-import { apiGet, signIn, token } from "./helpers";
+import { apiGet, navTo, openMenu, signIn, token } from "./helpers";
 
 test("offline: saved copy, not-saved notice, draft saved on reconnect, nothing left after sign-out",
   async ({ page, context, request }) => {
@@ -13,16 +13,16 @@ test("offline: saved copy, not-saved notice, draft saved on reconnect, nothing l
       request, `/placements/${active.id}/report-slots`, bearer);
     const open = slots.filter((s) => s.kind === "weekly" && s.status === "draft").at(-1)!;
 
-    await page.locator('nav a[href="/student/reports"]').click();
+    await navTo(page, "/student/reports");
     await expect(page.locator("main table").first()).toBeVisible();
     await page.goto(`/reports/${open.id}`);  // a full reload: the saved copy of the session comes back
     await expect(page.locator("textarea").first()).toBeVisible();
 
     await context.setOffline(true);
-    await page.locator('nav a[href="/student/reports"]').click();
+    await navTo(page, "/student/reports");
     await expect(page.locator("main table").first()).toBeVisible();
     await expect(page.getByRole("status")).toContainText(/نسخة محفوظة|Saved copy/);
-    await page.locator('nav a[href="/student/profile"]').click();
+    await navTo(page, "/student/profile");
     await expect(page.getByRole("status")).toContainText(/غير محفوظ على هذا الجهاز|not saved on this device/);
 
     await page.goBack();
@@ -38,6 +38,7 @@ test("offline: saved copy, not-saved notice, draft saved on reconnect, nothing l
     await expect.poll(async () => (await apiGet<{ draft: { learning: string | null } | null }>(
       request, `/report-slots/${open.id}`, bearer)).draft?.learning).toBe(text);
 
+    await openMenu(page);
     await page.getByRole("button", { name: /تسجيل الخروج|Log out|Sign out/ }).click();
     await expect(page).toHaveURL(/\/login/);
     const left = await page.evaluate(() => ({
