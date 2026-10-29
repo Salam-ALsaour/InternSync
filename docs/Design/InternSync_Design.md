@@ -1,7 +1,7 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.6 · October 28, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.7 · October 29, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -12,6 +12,7 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.6 · Oc
 | 1.4 | Oct 26, 2026 | CR-08 (Increment 2 implementation): matching weights as three numeric settings; downloads always streamed by the API, so `files.signed_url_seconds` is removed; attendance rows may hold only an unlock; a final evaluation cannot be reopened while its grade is submitted or Final; row level security on every table; backup retention and GitHub Actions limits for a private repository. Sections 3.2, 3.4, 3.5, 4.3.2, 4.3.6, 5.1, and 5.5 updated. | Salam Alsaour |
 | 1.5 | Oct 27, 2026 | CR-09 (Increment 3 implementation): PDF exports with fpdf2 and HarfBuzz shaping instead of WeasyPrint; similarity passages of about one sentence, and a passage compared with the source report's nearby passages taken together; `slot_id` on passages and `attempts` on checks. Sections 1.3, 4.3.5, 5.6, and 6.3 updated. | Salam Alsaour |
 | 1.6 | Oct 28, 2026 | CR-10: offline mode with a saved copy of the session and drafts kept on the device (Sections 7.3 and 8.3). CR-11 (Increment 4 implementation): retention period per college, anonymization as built, `anonymized_at` on cycles and users, `purged_at` on files, the certificate page and public answer as built, the idle limit applied on the device. Sections 4.3.1, 4.3.2, 4.3.8, 4.5, 5.6, 5.7, 7.1, 7.3, and 8.3 updated. | Salam Alsaour |
+| 1.7 | Oct 29, 2026 | Increment 5: on phones the menu folds behind a button (Section 8.2), found while taking the user guide's screenshots. | Salam Alsaour |
 
 **Related documents**
 
@@ -1205,7 +1206,7 @@ Not yet drawn: the student's evaluation of the company and the outcome survey (F
 | Status chips | Draft `#4A5363`/`#EEF1F5`; Submitted `#1F4E9A`/`#E6EEFB`; Accepted, Final `#1E6B34`/`#E3F3E7`; Late `#8A4B00`/`#FFF1D6`; Missing, error `#A61B1B`/`#FCE8E8`; Revision requested `#6B3FA0`/`#F1EAFB` | Status text always shown with its colour |
 | Shape | Cards 12 px radius; inputs and buttons 8 px; chips fully rounded | – |
 | Touch targets | 44 px minimum (48 px for main actions) | NFR-USA-04 |
-| Layout | Sidebar plus content in one wrapping row; the sidebar stacks above the content on phones | NFR-USA-03 |
+| Layout | Sidebar plus content in one wrapping row; on phones the menu folds behind a "Main menu" button above the content, so each page opens on its content | NFR-USA-03 |
 | Dates | `DD/MM/YYYY HH:mm`, Western digits | NFR-L10N-02 |
 
 ### 8.3 Rules for the Frontend
