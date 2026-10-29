@@ -12,6 +12,7 @@ import Applicants from "./pages/company/Applicants";
 import CompanyVacancies from "./pages/company/Vacancies";
 import VacancyEditor from "./pages/company/VacancyEditor";
 import AuditLog from "./pages/coordinator/Audit";
+import Certificates from "./pages/coordinator/Certificates";
 import CycleDetail from "./pages/coordinator/CycleDetail";
 import Cycles from "./pages/coordinator/Cycles";
 import Escalations from "./pages/coordinator/Escalations";
@@ -26,6 +27,7 @@ import PlatformVerifications from "./pages/platform/Verifications";
 import { AcceptInvite, ConfirmEmail, ForgotPassword, ResetPassword } from "./pages/public/Links";
 import Login from "./pages/public/Login";
 import Register from "./pages/public/Register";
+import Verify from "./pages/public/Verify";
 import Consent from "./pages/shared/Consent";
 import Home from "./pages/shared/Home";
 import Notifications from "./pages/shared/Notifications";
@@ -33,6 +35,7 @@ import PlacementReports from "./pages/shared/PlacementReports";
 import ReportSlot from "./pages/shared/ReportSlot";
 import Verification from "./pages/shared/Verification";
 import Applications from "./pages/student/Applications";
+import Feedback from "./pages/student/Feedback";
 import Profile from "./pages/student/Profile";
 import StudentReports from "./pages/student/Reports";
 import Vacancies from "./pages/student/Vacancies";
@@ -81,6 +84,8 @@ export default function App() {
         <Route path="/forgot" element={<ForgotPassword />} />
         <Route path="/reset/:token" element={<ResetPassword />} />
         <Route path="/consent" element={<SignedIn><Consent /></SignedIn>} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="/verify/:code" element={<Verify />} />
       </Route>
       <Route element={<Guard unverified><AppLayout /></Guard>}>
         <Route path="/verification" element={<Verification />} />
@@ -90,6 +95,7 @@ export default function App() {
         <Route path="/student/vacancies" element={<Guard roles={ST} unverified><Vacancies /></Guard>} />
         <Route path="/student/applications" element={<Guard roles={ST}><Applications /></Guard>} />
         <Route path="/student/reports" element={<Guard roles={ST}><StudentReports /></Guard>} />
+        <Route path="/student/feedback" element={<Guard roles={ST}><Feedback /></Guard>} />
         <Route path="/company" element={<Guard roles={CS}><Home /></Guard>} />
         <Route path="/company/vacancies" element={<Guard roles={CS}><CompanyVacancies /></Guard>} />
         <Route path="/company/vacancies/new" element={<Guard roles={CS}><VacancyEditor /></Guard>} />
@@ -110,6 +116,7 @@ export default function App() {
         <Route path="/coordinator/grades" element={<Guard roles={CO}><Grades /></Guard>} />
         <Route path="/coordinator/escalations" element={<Guard roles={CO}><Escalations /></Guard>} />
         <Route path="/coordinator/exports" element={<Guard roles={CO}><Exports /></Guard>} />
+        <Route path="/coordinator/certificates" element={<Guard roles={CO}><Certificates /></Guard>} />
         <Route path="/coordinator/audit" element={<Guard roles={CO}><AuditLog /></Guard>} />
         <Route path="/platform" element={<Guard roles={PA}><Home /></Guard>} />
         <Route path="/platform/verifications" element={<Guard roles={PA}><PlatformVerifications /></Guard>} />

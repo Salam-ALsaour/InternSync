@@ -201,6 +201,8 @@ def close(db: Session, actor: Actor, cycle: TrainingCycle) -> None:
 def reopen(db: Session, actor: Actor, cycle: TrainingCycle, reason: str) -> None:
     if cycle.status != "closed":
         raise conflict("INVALID_TRANSITION")
+    if cycle.anonymized_at is not None:  # its personal data is gone (NFR-PRV-04)
+        raise conflict("ALREADY_ANONYMIZED")
     if not reason.strip():
         raise ApiError(422, "REASON_REQUIRED")
     cycle.status, cycle.closed_at = "open", None

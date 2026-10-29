@@ -1635,6 +1635,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/placements/{placement_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Feedback
+         * @description UC-14: the evaluation of the company and the survey answer, with what the student can still do.
+         */
+        get: operations["get_feedback_api_v1_placements__placement_id__feedback_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/company-evaluation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Company Evaluation */
+        get: operations["get_company_evaluation_api_v1_placements__placement_id__company_evaluation_get"];
+        /** Put Company Evaluation */
+        put: operations["put_company_evaluation_api_v1_placements__placement_id__company_evaluation_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/placements/{placement_id}/outcome-survey": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Outcome Survey */
+        get: operations["get_outcome_survey_api_v1_placements__placement_id__outcome_survey_get"];
+        /** Put Outcome Survey */
+        put: operations["put_outcome_survey_api_v1_placements__placement_id__outcome_survey_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cycles/{cycle_id}/company-evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cycle Company Evaluations */
+        get: operations["cycle_company_evaluations_api_v1_cycles__cycle_id__company_evaluations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/evaluations/{evaluation_id}/reopen": {
         parameters: {
             query?: never;
@@ -1815,6 +1888,47 @@ export interface paths {
         };
         /** Get Cycle Stats */
         get: operations["get_cycle_stats_api_v1_cycles__cycle_id__stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cycles/{cycle_id}/outcomes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Outcomes
+         * @description FR-DSH-03: the job-offer rate per cycle and per company.
+         */
+        get: operations["get_outcomes_api_v1_cycles__cycle_id__outcomes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cycles/{cycle_id}/leniency-alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Leniency
+         * @description FR-DSH-04: each company's mean final evaluation against the cycle mean; `alert` marks the informational
+         *     alerts.
+         */
+        get: operations["get_leniency_api_v1_cycles__cycle_id__leniency_alerts_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2065,6 +2179,147 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/placements/{placement_id}/certificate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Placement Certificate */
+        get: operations["placement_certificate_api_v1_placements__placement_id__certificate_get"];
+        put?: never;
+        /** Issue Certificate */
+        post: operations["issue_certificate_api_v1_placements__placement_id__certificate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certificates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Certificates */
+        get: operations["list_certificates_api_v1_certificates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certificates/{certificate_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Certificate */
+        get: operations["get_certificate_api_v1_certificates__certificate_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certificates/{certificate_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke Certificate */
+        post: operations["revoke_certificate_api_v1_certificates__certificate_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/certificates/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Certificate
+         * @description Public (FR-CER-02): `200` in every case, `not_found` for an unknown or altered code.
+         */
+        get: operations["verify_certificate_api_v1_public_certificates__code__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/colleges/{college_id}/retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Retention */
+        get: operations["get_retention_api_v1_colleges__college_id__retention_get"];
+        /** Put Retention */
+        put: operations["put_retention_api_v1_colleges__college_id__retention_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cycles/{cycle_id}/anonymization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Anonymization */
+        get: operations["get_anonymization_api_v1_cycles__cycle_id__anonymization_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cycles/{cycle_id}/anonymize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Anonymize */
+        post: operations["anonymize_api_v1_cycles__cycle_id__anonymize_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2102,6 +2357,31 @@ export interface components {
             cycle_id: string | null;
             /** Cycle Name */
             cycle_name: string | null;
+        };
+        /** Anonymization */
+        Anonymization: {
+            /**
+             * Cycle Id
+             * Format: uuid
+             */
+            cycle_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "waiting" | "ready" | "done";
+            /** Closed At */
+            closed_at: string | null;
+            /** Eligible At */
+            eligible_at: string | null;
+            /** Retention Months */
+            retention_months: number;
+            /** Students */
+            students: number;
+            /** Skipped */
+            skipped: number;
+            /** Anonymized At */
+            anonymized_at: string | null;
         };
         /** ApplicationOut */
         ApplicationOut: {
@@ -2389,6 +2669,46 @@ export interface components {
             /** Code */
             code: string | null;
         };
+        /** CertificateOut */
+        CertificateOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Placement Id
+             * Format: uuid
+             */
+            placement_id: string;
+            /** Code */
+            code: string;
+            /** Status */
+            status: string;
+            /** Verify Url */
+            verify_url: string;
+            /**
+             * File Id
+             * Format: uuid
+             */
+            file_id: string;
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /** Revoked At */
+            revoked_at: string | null;
+            /** Revoke Reason */
+            revoke_reason: string | null;
+            student: components["schemas"]["StudentRef"];
+            /** Cycle */
+            cycle: string;
+            /** Company */
+            company: string;
+            /** Can Revoke */
+            can_revoke: boolean;
+        };
         /** Check */
         Check: {
             /** Item */
@@ -2489,6 +2809,52 @@ export interface components {
             /** Author Role */
             author_role: string;
         };
+        /** CompanyEvaluationIn */
+        CompanyEvaluationIn: {
+            /** Learning Opportunities */
+            learning_opportunities: number;
+            /** Supervision Quality */
+            supervision_quality: number;
+            /** Work Environment */
+            work_environment: number;
+            /** Relevance To Major */
+            relevance_to_major: number;
+            /** Would Recommend */
+            would_recommend: boolean;
+            /** Comment */
+            comment?: string | null;
+        };
+        /** CompanyEvaluationOut */
+        CompanyEvaluationOut: {
+            /** Learning Opportunities */
+            learning_opportunities: number;
+            /** Supervision Quality */
+            supervision_quality: number;
+            /** Work Environment */
+            work_environment: number;
+            /** Relevance To Major */
+            relevance_to_major: number;
+            /** Would Recommend */
+            would_recommend: boolean;
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Submitted At
+             * Format: date-time
+             */
+            submitted_at: string;
+        };
+        /** CompanyEvaluationSummary */
+        CompanyEvaluationSummary: {
+            /**
+             * Cycle Id
+             * Format: uuid
+             */
+            cycle_id: string;
+            overall: components["schemas"]["RatingFigures"];
+            /** Companies */
+            companies: components["schemas"]["CompanyRatingFigures"][];
+        };
         /** CompanyFigures */
         CompanyFigures: {
             /** Placed */
@@ -2525,6 +2891,24 @@ export interface components {
             /** Company Name */
             company_name: string;
         };
+        /** CompanyLeniency */
+        CompanyLeniency: {
+            /**
+             * Company Id
+             * Format: uuid
+             */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+            /** Evaluations */
+            evaluations: number;
+            /** Mean */
+            mean: string;
+            /** Difference */
+            difference: string;
+            /** Alert */
+            alert: boolean;
+        };
         /** CompanyOut */
         CompanyOut: {
             /**
@@ -2548,12 +2932,54 @@ export interface components {
             /** Supervisors */
             supervisors: number;
         };
+        /** CompanyOutcome */
+        CompanyOutcome: {
+            /** Answers */
+            answers: number;
+            /** Yes */
+            yes: number;
+            /** No */
+            no: number;
+            /** Pending */
+            pending: number;
+            /** Job Offer Rate */
+            job_offer_rate: number | null;
+            /**
+             * Company Id
+             * Format: uuid
+             */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+        };
         /** CompanyPatch */
         CompanyPatch: {
             /** City */
             city?: string | null;
             /** Website */
             website?: string | null;
+        };
+        /** CompanyRatingFigures */
+        CompanyRatingFigures: {
+            /** Answers */
+            answers: number;
+            /** Learning Opportunities */
+            learning_opportunities: string | null;
+            /** Supervision Quality */
+            supervision_quality: string | null;
+            /** Work Environment */
+            work_environment: string | null;
+            /** Relevance To Major */
+            relevance_to_major: string | null;
+            /** Recommend Rate */
+            recommend_rate: number | null;
+            /**
+             * Company Id
+             * Format: uuid
+             */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
         };
         /** ComponentIO */
         "ComponentIO-Input": {
@@ -2611,6 +3037,14 @@ export interface components {
         ComponentsIn: {
             /** Components */
             components: components["schemas"]["ComponentIO-Input"][];
+        };
+        /** ConfirmIn */
+        ConfirmIn: {
+            /**
+             * Confirm
+             * @default false
+             */
+            confirm: boolean;
         };
         /** ConfirmedSkill */
         ConfirmedSkill: {
@@ -3123,6 +3557,31 @@ export interface components {
             /** Evidence */
             evidence: string | null;
         };
+        /** Feedback */
+        Feedback: {
+            /**
+             * Placement Id
+             * Format: uuid
+             */
+            placement_id: string;
+            /** Company */
+            company: string;
+            /** Vacancy */
+            vacancy: string;
+            /**
+             * Open From
+             * Format: date
+             */
+            open_from: string;
+            /** Is Open */
+            is_open: boolean;
+            evaluation: components["schemas"]["CompanyEvaluationOut"] | null;
+            survey: components["schemas"]["SurveyOut"] | null;
+            /** Can Evaluate */
+            can_evaluate: boolean;
+            /** Can Answer */
+            can_answer: boolean;
+        };
         /** Figures */
         Figures: {
             /** Placed */
@@ -3278,6 +3737,24 @@ export interface components {
             /** Name Ar */
             name_ar: string;
         };
+        /** Leniency */
+        Leniency: {
+            /**
+             * Cycle Id
+             * Format: uuid
+             */
+            cycle_id: string;
+            /** Cycle Mean */
+            cycle_mean: string | null;
+            /** Evaluations */
+            evaluations: number;
+            /** Min Evaluations */
+            min_evaluations: number;
+            /** Delta */
+            delta: string;
+            /** Companies */
+            companies: components["schemas"]["CompanyLeniency"][];
+        };
         /** LevelText */
         LevelText: {
             /** En */
@@ -3392,6 +3869,11 @@ export interface components {
             verification_status: string;
             /** Is Company Admin */
             is_company_admin: boolean;
+            /**
+             * Idle Timeout Minutes
+             * @default 30
+             */
+            idle_timeout_minutes: number;
             organization: components["schemas"]["OrganizationOut"];
         };
         /** MePatch */
@@ -3451,6 +3933,13 @@ export interface components {
             /** Documents */
             documents: components["schemas"]["DocumentOut"][];
         };
+        /** Names */
+        Names: {
+            /** En */
+            en: string;
+            /** Ar */
+            ar: string;
+        };
         /** NotificationOut */
         NotificationOut: {
             /**
@@ -3507,6 +3996,30 @@ export interface components {
             company?: string | null;
             /** Company Status */
             company_status?: string | null;
+        };
+        /** OutcomeFigures */
+        OutcomeFigures: {
+            /** Answers */
+            answers: number;
+            /** Yes */
+            yes: number;
+            /** No */
+            no: number;
+            /** Pending */
+            pending: number;
+            /** Job Offer Rate */
+            job_offer_rate: number | null;
+        };
+        /** Outcomes */
+        Outcomes: {
+            /**
+             * Cycle Id
+             * Format: uuid
+             */
+            cycle_id: string;
+            overall: components["schemas"]["OutcomeFigures"];
+            /** Companies */
+            companies: components["schemas"]["CompanyOutcome"][];
         };
         /** Page[ApplicationOut] */
         Page_ApplicationOut_: {
@@ -3631,6 +4144,12 @@ export interface components {
             name_ar: string;
             /** Email */
             email: string;
+        };
+        /** PlacementCertificate */
+        PlacementCertificate: {
+            certificate: components["schemas"]["CertificateOut"] | null;
+            /** Can Issue */
+            can_issue: boolean;
         };
         /** PlacementIn */
         PlacementIn: {
@@ -3796,6 +4315,45 @@ export interface components {
             /** Level */
             level?: number | null;
         };
+        /** PublicCertificate */
+        PublicCertificate: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "valid" | "revoked" | "not_found";
+            /**
+             * Name Removed
+             * @default false
+             */
+            name_removed: boolean;
+            student_name?: components["schemas"]["Names"] | null;
+            university?: components["schemas"]["Names"] | null;
+            college?: components["schemas"]["Names"] | null;
+            /** Cycle */
+            cycle?: string | null;
+            /** Company */
+            company?: string | null;
+            /** Training Start */
+            training_start?: string | null;
+            /** Training End */
+            training_end?: string | null;
+        };
+        /** RatingFigures */
+        RatingFigures: {
+            /** Answers */
+            answers: number;
+            /** Learning Opportunities */
+            learning_opportunities: string | null;
+            /** Supervision Quality */
+            supervision_quality: string | null;
+            /** Work Environment */
+            work_environment: string | null;
+            /** Relevance To Major */
+            relevance_to_major: string | null;
+            /** Recommend Rate */
+            recommend_rate: number | null;
+        };
         /** ReasonIn */
         ReasonIn: {
             /**
@@ -3873,6 +4431,11 @@ export interface components {
             estimated_effort?: string | null;
             /** Language */
             language?: string | null;
+        };
+        /** Retention */
+        Retention: {
+            /** Retention Months */
+            retention_months: number;
         };
         /** ReviewOut */
         ReviewOut: {
@@ -4212,6 +4775,32 @@ export interface components {
              * @default
              */
             reason: string;
+        };
+        /** SurveyIn */
+        SurveyIn: {
+            /**
+             * Job Offer
+             * @enum {string}
+             */
+            job_offer: "yes" | "no" | "pending";
+        };
+        /** SurveyOut */
+        SurveyOut: {
+            /**
+             * Job Offer
+             * @enum {string}
+             */
+            job_offer: "yes" | "no" | "pending";
+            /**
+             * Submitted At
+             * Format: date-time
+             */
+            submitted_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** TokenCheckOut */
         TokenCheckOut: {
@@ -8412,6 +9001,200 @@ export interface operations {
             };
         };
     };
+    get_feedback_api_v1_placements__placement_id__feedback_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feedback"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_company_evaluation_api_v1_placements__placement_id__company_evaluation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyEvaluationOut"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_company_evaluation_api_v1_placements__placement_id__company_evaluation_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyEvaluationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feedback"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_outcome_survey_api_v1_placements__placement_id__outcome_survey_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SurveyOut"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_outcome_survey_api_v1_placements__placement_id__outcome_survey_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SurveyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feedback"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cycle_company_evaluations_api_v1_cycles__cycle_id__company_evaluations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cycle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyEvaluationSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     reopen_evaluation_api_v1_evaluations__evaluation_id__reopen_post: {
         parameters: {
             query?: never;
@@ -8781,6 +9564,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CycleStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_outcomes_api_v1_cycles__cycle_id__outcomes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cycle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Outcomes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_leniency_api_v1_cycles__cycle_id__leniency_alerts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cycle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Leniency"];
                 };
             };
             /** @description Validation Error */
@@ -9228,6 +10073,329 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HistoryEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    placement_certificate_api_v1_placements__placement_id__certificate_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlacementCertificate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issue_certificate_api_v1_placements__placement_id__certificate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                placement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlacementCertificate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_certificates_api_v1_certificates_get: {
+        parameters: {
+            query?: {
+                cycle_id?: string | null;
+                status?: ("valid" | "revoked") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificateOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_certificate_api_v1_certificates__certificate_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                certificate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_certificate_api_v1_certificates__certificate_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                certificate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_certificate_api_v1_public_certificates__code__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicCertificate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_retention_api_v1_colleges__college_id__retention_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                college_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Retention"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_retention_api_v1_colleges__college_id__retention_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                college_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Retention"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Retention"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_anonymization_api_v1_cycles__cycle_id__anonymization_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cycle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Anonymization"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anonymize_api_v1_cycles__cycle_id__anonymize_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cycle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Anonymization"];
                 };
             };
             /** @description Validation Error */

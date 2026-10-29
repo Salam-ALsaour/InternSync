@@ -41,6 +41,8 @@ class TrainingCycle(Base):
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default="open", default="open")
     rubric_locked_at: Mapped[datetime | None] = ts()
     closed_at: Mapped[datetime | None] = ts()
+    anonymized_at: Mapped[datetime | None] = ts()  # NFR-PRV-04
+    anonymized_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = created_at()
     updated_at: Mapped[datetime] = updated_at()

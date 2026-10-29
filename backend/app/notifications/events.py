@@ -129,3 +129,10 @@ def grade_event(db: Session, event: str, grade: Grade, p: Placement, **extra) ->
     else:  # final, reopened
         notify(db, [p.student_id], event, params, "/student/reports?tab=grade")
         notify(db, [p.academic_supervisor_id], event, params, link)
+
+
+def certificate_event(db: Session, event: str, p: Placement, **extra) -> None:
+    """`certificate.issued` and `certificate.revoked` (FR-CER-01, FR-CER-03) to the student."""
+    v = db.get(Vacancy, p.vacancy_id)
+    notify(db, [p.student_id], event, {"company": db.get(Company, v.company_id).name, **extra},
+           "/student/reports?tab=grade")

@@ -10,6 +10,7 @@ import {
 } from "../../components/ui";
 import { formatDate, formatDateTime, fromRiyadhInput, toRiyadhInput } from "../../lib/format";
 import CycleStats from "./CycleStats";
+import Privacy from "./Privacy";
 import { ScheduleFields, type ScheduleForm, scheduleBody } from "./Cycles";
 
 type Cycle = S<"CycleWithWeeks">;
@@ -223,7 +224,7 @@ export default function CycleDetail() {
         { value: "weights", label: t("cycles.weights") }, { value: "rubric", label: t("cycles.rubric") },
         { value: "stats", label: t("stats.tab") }]} />
       <div className="flex flex-col gap-4">
-        {tab === "schedule" && <><Schedule cycle={c} onSaved={(n) => queryClient.setQueryData(key, n)} /><OpenClose cycle={c} onSaved={reload} /></>}
+        {tab === "schedule" && <><Schedule cycle={c} onSaved={(n) => queryClient.setQueryData(key, n)} /><OpenClose cycle={c} onSaved={reload} /><Privacy cycleId={c.id} /></>}
         {tab === "weeks" && <Weeks cycle={c} onSaved={reload} />}
         {tab === "weights" && <Weights cycle={c} />}
         {tab === "rubric" && <Rubric cycle={c} />}

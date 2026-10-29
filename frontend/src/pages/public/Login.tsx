@@ -5,10 +5,12 @@ import { useTranslation } from "react-i18next";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Button, Card, ErrorBox, Input, Notice } from "../../components/ui";
 import { landing, useAuth } from "../../lib/auth";
+import { useOnline } from "../../lib/online";
 
 export default function Login() {
   const { t } = useTranslation();
   const { login, me } = useAuth();
+  const online = useOnline();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [email, setEmail] = useState("");
@@ -29,6 +31,7 @@ export default function Login() {
     <Card title={t("login.title")}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         {params.get("expired") && <Notice tone="warning">{t("login.expired")}</Notice>}
+        {!online && <Notice tone="warning">{t("offline.sign_in")}</Notice>}
         <ErrorBox error={action.error} />
         <Input label={t("field.email")} type="email" autoComplete="username" required value={email}
           onChange={(e) => setEmail(e.target.value)} dir="ltr" />

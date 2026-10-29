@@ -13,6 +13,8 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 | CR-07 | Oct 24, 2026 | Increment 1 implementation adjustments to the design and the API | Approved |
 | CR-08 | Oct 26, 2026 | Increment 2 implementation adjustments to the design, the API, and the deployment | Approved |
 | CR-09 | Oct 27, 2026 | Increment 3 implementation adjustments: PDF library, similarity passages, API details | Approved |
+| CR-10 | Oct 28, 2026 | Offline mode: a saved copy of the pages opened in the session, and drafts kept on the device until saved | Approved |
+| CR-11 | Oct 28, 2026 | Increment 4 implementation adjustments: retention and anonymization endpoints, certificate details, idle limit on the device | Approved |
 
 ## CR-01 – Zero-cost reference deployment
 
@@ -168,3 +170,52 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
   - Increment 3 design, Section 12.
 - **Effect on schedule:** none.
 - **Decision:** approved. Design 1.5, API specification 1.4.
+
+## CR-10 – Offline mode
+
+- **Requested by:** Salam Alsaour (project owner), Oct 28, 2026: the app should still do something useful without a connection.
+- **Change:** FR-PWA-03 is extended. Until now the app opened offline with a message only, and Increment 3 kept no API answers on the device (its decision RQ-5).
+  - Pages opened earlier in the same signed-in window stay readable offline, marked "Saved copy" with the time of the copy. A page never opened says that it is not saved on the device.
+  - Text typed into a weekly or final report, or into an evaluation, is kept on the device and saved to the server as a draft when the connection returns. If a newer draft was saved meanwhile, the user chooses which text to keep.
+  - Submitting and every other change still need the connection, so deadlines and Late flags keep using server time.
+- **Privacy (NFR-PRV):**
+  - The saved copy lives in the window's session storage. It ends when the window closes, at sign-out, and at the idle limit, which the app now also applies offline (FR-AUT-03).
+  - Drafts are kept in local storage under the user's ID until they reach the server, for 7 days at most, and are deleted at sign-out.
+  - Files, exports, the audit log, notification counts, and the Platform Admin's pages are never kept.
+- **Reason:** students write reports at training sites with a weak connection; supervisors read reports on the move.
+- **Affected:**
+  - SRS FR-PWA-03 and its acceptance criterion (version 1.6).
+  - Design document 7.1, 7.3, and 8.3 (version 1.6).
+  - Increment 4 requirements RQ-1 and RQ-2, and design Section 8.
+- **Effect on schedule:** none; built in Increment 4.
+- **Decision:** approved. SRS 1.6.
+
+## CR-11 – Increment 4 implementation adjustments
+
+- **Requested by:** Salam Alsaour, Oct 28, 2026 (found while designing and building Increment 4).
+- **Change:** no requirement changes. The design and the API contract record what the build needed:
+  - **Retention and anonymization (NFR-PRV-04):**
+    - `colleges.retention_months` (default 12) with `GET` and `PUT /colleges/{id}/retention`;
+    - `GET /cycles/{id}/anonymization` with the counts, and `POST /cycles/{id}/anonymize` with a confirmation;
+    - `training_cycles.anonymized_at` and `anonymized_by`, `users.anonymized_at`, and `files.purged_at`;
+    - an anonymized cycle cannot be reopened;
+    - the audit log stays append-only and hides the values of anonymized students when it is read;
+    - the registration entry no longer stores the email address.
+  - **Certificates:**
+    - `GET /placements/{id}/certificate` for the grade page;
+    - the public answer names the university and college in both languages and says when the name was removed;
+    - the code is accepted with or without dashes and in any case;
+    - the notifications `certificate.issued` and `certificate.revoked`.
+  - **Evaluation of the company and survey:** `GET /placements/{id}/feedback` with what the student can still do; the dashboard items `feedback_due` (student) and `leniency_alerts` (coordinator).
+  - **Idle limit:** `GET /me` returns `idle_timeout_minutes`, so the app ends the session after the same idle time online and offline. The notification count, which the app asks for every minute, had kept the server session alive while a window stayed open.
+  - **New error codes:**
+    - `CERTIFICATE_REVOKED`, `FEEDBACK_NOT_OPEN`, `ALREADY_SUBMITTED`;
+    - `CYCLE_NOT_CLOSED`, `RETENTION_NOT_OVER`, `ALREADY_ANONYMIZED`, `CONFIRM_REQUIRED`.
+  - **Demo data:** a closed summer 2025 cycle with Final grades, a certificate, answers, a generous company, and an ended retention period.
+- **Reason:** the design described these functions but left the endpoints, the retention setting, and the audit log rule open.
+- **Affected:**
+  - Design document 4.3.1, 4.3.2, 4.3.8, 4.5, 5.6, and 5.7 (version 1.6).
+  - API specification 3.3, 3.12, 3.14, 3.16, 4.11, and 5 (version 1.5).
+  - Increment 4 design, Section 12.
+- **Effect on schedule:** none.
+- **Decision:** approved. Design 1.6, API specification 1.5.

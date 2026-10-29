@@ -60,3 +60,40 @@ jobs:
       - run: npx tsc -b
       - run: npx vitest run
       - run: npx vite build
+
+  # Browser tests (NFR-PRT-01, NFR-USA-03, NFR-USA-04; Increment 4, RQ-7) against the Docker stack with the demo
+  # data, on pull requests only, to keep within the free Actions minutes.
+  e2e:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE: docker compose -p internsync -f docker-compose.yml -f docker-compose.check.yml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start the stack on its own database, with the demo data
+        run: |
+          $COMPOSE up -d --wait db mailpit
+          $COMPOSE exec -T db psql -U internsync -d postgres -c "CREATE DATABASE internsync_check"
+          $COMPOSE up -d --build api web
+          for i in $(seq 1 60); do curl -sf http://localhost:8000/api/v1/health && break; sleep 5; done
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:5173/login && break; sleep 5; done
+          $COMPOSE exec -T api python -m app.seed --demo
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: frontend
+      - run: npx playwright test
+        working-directory: frontend
+        env:
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7

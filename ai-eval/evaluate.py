@@ -4,9 +4,10 @@ the API.
 
     python ai-eval/evaluate.py            # with the embedding model (downloads it once)
     python ai-eval/evaluate.py --basic    # rule-based matching only
+    python ai-eval/evaluate.py --heldout  # the held-out sets, written after the settings were frozen
 
-Run from the repository root with the backend's Python environment. The set is synthetic (C-09) and labelled by
-the author (Increment 2 decision RQ-4)."""
+Run from the repository root with the backend's Python environment. The sets are synthetic (C-09) and labelled by
+the author (Increment 2 decision RQ-4; Increment 4 decision RQ-6)."""
 import argparse
 import json
 import os
@@ -129,13 +130,21 @@ def copied_text(item: dict, sources: dict) -> tuple[str, int]:
     return text, len(copied)
 
 
-def similarity(embedder) -> dict:
-    data = json.loads((ROOT / "data/similarity.json").read_text(encoding="utf-8"))
+def _copied(c: dict, sources: dict) -> dict:
+    """A copied report built from the source's sentences (the tuning set), or written out with its copied part (the
+    held-out set, where some parts are reworded)."""
+    if "text" in c:
+        return {**c, "copied_share": len(c["copied_part"]) / len(c["text"]), "expected": True}
+    text, copied = copied_text(c, sources)
+    return {**c, "text": text, "copied_share": copied / len(text), "expected": True}
+
+
+def similarity(embedder, name: str = "similarity.json") -> dict:
+    data = json.loads((ROOT / "data" / name).read_text(encoding="utf-8"))
     sources = {s["id"]: s for s in data["sources"]}
     stored = [(sid, p) for sid, s in sources.items() for p in split(s["text"])]
     vectors = embedder.encode([QUERY + p.text for _, p in stored])
-    reports = [{**c, "text": copied_text(c, sources)[0], "copied_share": copied_text(c, sources)[1]
-                / len(copied_text(c, sources)[0]), "expected": True} for c in data["copied"]]
+    reports = [_copied(c, sources) for c in data["copied"]]
     reports += [{**o, "copied_share": 0.0, "expected": False} for o in data["original"]]
     rows = []
     for r in reports:
@@ -150,21 +159,57 @@ def similarity(embedder) -> dict:
         found = overlap(r["text"], parts, candidates, SIM["cosine"], SIM["n"], SIM["share"])
         best, source = (found[0][0], found[0][1]) if found else (0.0, None)
         rows.append({"id": r["id"], "lang": r["lang"], "expected": r["expected"], "flagged": best >= SIM["threshold"],
-                     "score": round(best, 3), "source": source, "copied_share": round(r["copied_share"], 2)})
+                     "score": round(best, 3), "source": source, "copied_share": round(r["copied_share"], 2),
+                     "reworded": r.get("reworded", False)})
     copied = [r for r in rows if r["expected"]]
     original = [r for r in rows if not r["expected"]]
+    word_for_word = [r for r in copied if not r["reworded"]]
     return {"copied_flagged": sum(r["flagged"] for r in copied), "copied": len(copied),
+            "verbatim_flagged": sum(r["flagged"] for r in word_for_word), "verbatim": len(word_for_word),
             "original_flagged": sum(r["flagged"] for r in original), "original": len(original),
             "min_copied_share": min(r["copied_share"] for r in copied), "rows": rows}
+
+
+def heldout(embedder) -> int:
+    """RQ-6 of Increment 4: the sets written after the settings were frozen, run once with those settings."""
+    data = json.loads((ROOT / "data/heldout_matching.json").read_text(encoding="utf-8"))
+    vacancies = [{**v, "majors": data["majors"]} for v in data["vacancies"]]
+    mat = matching(data["profiles"], vacancies, embedder)
+    base = chance(data["profiles"], vacancies)
+    mode = "basic" if embedder is None else embedder.version
+    print(f"Held-out matching: {len(data['profiles'])} profiles, {len(vacancies)} vacancies, "
+          f"{mat['pool']:.0f} eligible per profile")
+    print(f"Top-{TOP} hit rate ({mode}): {mat['hit_rate']:.1%} (English {mat['by_lang']['en']:.1%}, "
+          f"Arabic {mat['by_lang']['ar']:.1%}); target 80%; a random order would score {base['hit_rate']:.1%}")
+    print(f"Top-1 relevant: {mat['top1']:.1%} (random {base['top1']:.1%}); mean reciprocal rank {mat['mrr']:.3f} "
+          f"(random {base['mrr']:.3f})")
+    for r in mat["rows"]:
+        if not r["hit"]:
+            print(f"  {r['id']} top {r['top']} relevant {r['relevant']}")
+    if embedder is None:
+        print("Held-out similarity: needs the model (run without --basic)")
+        return 0
+    sim = similarity(embedder, "heldout_similarity.json")
+    print(f"Held-out similarity: {sim['copied_flagged']} of {sim['copied']} copied flagged (target 9 or more), of "
+          f"which {sim['verbatim_flagged']} of {sim['verbatim']} copied word for word; {sim['original_flagged']} of "
+          f"{sim['original']} original flagged (target 1 or fewer)")
+    for r in sim["rows"]:
+        if r["flagged"] != r["expected"]:
+            kind = "reworded" if r["reworded"] else "copied" if r["expected"] else "original"
+            print(f"  {r['id']} ({r['lang']}, {kind}, {r['copied_share']:.0%} copied) score {r['score']}")
+    return 0
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--basic", action="store_true", help="rule-based matching only, no model")
     parser.add_argument("--json", action="store_true", help="print the full results as JSON")
+    parser.add_argument("--heldout", action="store_true", help="the held-out sets of Increment 4 instead")
     args = parser.parse_args()
     skills, profiles, vacancies = load()
     embedder = None if args.basic else ModelEmbedder(get_settings().embedding_model)
+    if args.heldout:
+        return heldout(embedder)
     ext = extraction(skills, profiles)
     mat = matching(profiles, vacancies, embedder)
     base = chance(profiles, vacancies)

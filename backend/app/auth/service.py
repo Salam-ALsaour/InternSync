@@ -242,7 +242,7 @@ def register(db: Session, form: dict, docs: dict[str, UploadFile | None], lang: 
     _store_documents(db, kind, docs, request, user)
     raw = send_confirmation(db, user)
     audit.record(db, user, "register", "user", user.id, student_id=user.id if kind == "student" else None,
-                 college_id=user.college_id, company_id=user.company_id, new={"kind": kind, "email": email})
+                 college_id=user.college_id, company_id=user.company_id, new={"kind": kind})  # no contact details
     audit.record(db, user, "submit", "verification_request", request.id, student_id=user.id if kind == "student"
                  else None, college_id=request.college_id, company_id=request.company_id)
     events.verification_submitted(db, user, request)
@@ -346,7 +346,9 @@ def me(db: Session, user: User) -> dict:
     return {"id": user.id, "email": user.email, "role": user.role, "name_en": user.name_en, "name_ar": user.name_ar,
             "language": user.language, "consent_required": user.consent_at is None,
             "verification_status": user.verification_status, "is_company_admin": user.is_company_admin,
-            "organization": organization(db, user)}
+            "organization": organization(db, user),
+            # the app applies the same idle limit while offline (Increment 4, RQ-2)
+            "idle_timeout_minutes": settings.get(db, "auth.idle_timeout_minutes")}
 
 
 def my_requests(db: Session, user: User) -> list[dict]:

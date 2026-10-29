@@ -1,0 +1,49 @@
+# OWASP ZAP scans of NFR-SEC-05 (Increment 4, RQ-8): the passive baseline of the web app and the API scan in safe
+# mode (requests from the OpenAPI document, no attack). A high-risk alert fails the run; the reports are kept.
+name: Security scan
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 23 * * 4"  # Friday 02:00 Riyadh time
+
+permissions:
+  contents: read
+
+jobs:
+  zap:
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE: docker compose -p internsync -f docker-compose.yml -f docker-compose.check.yml
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start the stack on its own database, with the demo data
+        run: |
+          $COMPOSE up -d --wait db mailpit
+          $COMPOSE exec -T db psql -U internsync -d postgres -c "CREATE DATABASE internsync_check"
+          $COMPOSE up -d --build api web
+          for i in $(seq 1 60); do curl -sf http://localhost:8000/api/v1/health && break; sleep 5; done
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:5173/login && break; sleep 5; done
+          $COMPOSE exec -T api python -m app.seed --demo
+      - name: ZAP baseline of the web app and API scan in safe mode
+        run: |
+          mkdir -p zap && chmod 777 zap
+          docker run --rm --network internsync_default -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://web:5173 -r web.html -J web.json -I
+          docker run --rm --network internsync_default -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
+            zap-api-scan.py -t http://api:8000/api/v1/openapi.json -f openapi -S -r api.html -J api.json -I
+      - name: No high-risk alert
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+          high = [(f, a["name"]) for f in ("zap/web.json", "zap/api.json")
+                  for site in json.load(open(f))["site"] for a in site["alerts"] if a["riskcode"] == "3"]
+          print("\n".join(f"{f}: {name}" for f, name in high) or "no high-risk alerts")
+          sys.exit(1 if high else 0)
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-reports
+          path: zap/
+          retention-days: 30

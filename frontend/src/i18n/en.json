@@ -224,7 +224,9 @@
     "revisions_requested": "Reports to revise",
     "similarity_flags": "Similarity flags to decide",
     "students_to_verify": "Students to verify",
-    "verifications_pending": "Verification requests"
+    "verifications_pending": "Verification requests",
+    "feedback_due": "Training evaluation and survey to answer",
+    "leniency_alerts": "Companies grading well above the cycle mean"
   },
   "dev": {
     "clock": "Demo clock (development only)",
@@ -455,7 +457,9 @@
     "trainees": "Trainees and reports",
     "vacancies": "Training opportunities",
     "verification": "My verification",
-    "verifications": "Verification requests"
+    "verifications": "Verification requests",
+    "feedback": "Evaluate my training",
+    "certificates": "Certificates"
   },
   "menu_hint": {
     "applications": "Follow your applications and withdraw one.",
@@ -478,7 +482,9 @@
     "trainees": "Your trainees: record weekly attendance, evaluate them, and read their reports.",
     "vacancies": "Browse and filter the opportunities open to you and apply.",
     "verification": "The status of your verification request.",
-    "verifications": "Approve coordinators and companies."
+    "verifications": "Approve coordinators and companies.",
+    "feedback": "Rate the training company and say whether it offered you a job.",
+    "certificates": "Completion certificates issued to your students, with their QR codes."
   },
   "notifications": {
     "older": "Older notifications are not shown.",
@@ -498,7 +504,10 @@
     "unread_n": "{{n}} unread"
   },
   "offline": {
-    "banner": "You are offline. Pages you opened before still show, but nothing can be saved or sent until you are back online."
+    "banner": "You are offline. You see the copy saved on this device; nothing can be sent until you are back online.",
+    "saved_copy": "Saved copy",
+    "not_saved": "Part of this page is not saved on this device. Open it when you are online.",
+    "sign_in": "Signing in needs a connection."
   },
   "orgs": {
     "add_college": "Add a college",
@@ -767,7 +776,9 @@
     "submitted": "Submitted — awaiting review",
     "suspended": "Suspended",
     "verified": "Verified",
-    "withdrawn": "Withdrawn"
+    "withdrawn": "Withdrawn",
+    "valid": "Valid",
+    "revoked": "Revoked"
   },
   "students": {
     "enrolled": "Enrolled students",
@@ -851,5 +862,104 @@
     "placed_elsewhere": "Withdrawn: placed in another opportunity",
     "student": "Withdrawn by you",
     "vacancy_closed": "Withdrawn: the opportunity was closed"
+  },
+  "draft": {
+    "on_device": "Your text is kept on this device. It is saved as a draft when you are online, or press Save draft.",
+    "saving": "Saving the text kept on this device…",
+    "conflict": "A newer draft was saved from another device. Which text do you want to keep?",
+    "keep_mine": "Keep my text",
+    "keep_saved": "Keep the saved text"
+  },
+  "certificate": {
+    "title": "Completion certificate",
+    "issue": "Issue certificate",
+    "issue_note": "Available once the grade is final. The certificate shows no grade.",
+    "open_pdf": "Open the PDF",
+    "code": "Code",
+    "page": "Verification page",
+    "revoke": "Revoke certificate",
+    "revoke_note": "The verification page will show Revoked. You can issue a new certificate afterwards.",
+    "issued": "Issued",
+    "revoked_at": "Revoked",
+    "none": "No certificate yet.",
+    "subtitle": "Certificates issued to students of your college."
+  },
+  "verify": {
+    "title": "Verify a certificate",
+    "code": "Certificate code",
+    "check": "Check",
+    "valid": "Valid certificate",
+    "revoked": "This certificate was revoked",
+    "not_found": "No certificate has this code. Check the code and try again.",
+    "student": "Student",
+    "university": "University",
+    "college": "College",
+    "cycle": "Training cycle",
+    "company": "Training company",
+    "dates": "Training dates",
+    "name_removed": "The name was removed after the college's retention period.",
+    "no_grade": "This page confirms completion only. It never shows the grade."
+  },
+  "feedback": {
+    "title": "Evaluate your training",
+    "subtitle": "Only your training coordinator sees your answers. The company never sees them.",
+    "opens": "Opens on {{date}}, when your training ends, or earlier when your grade is final.",
+    "evaluation": "Evaluation of the training company",
+    "learning_opportunities": "Learning opportunities",
+    "supervision_quality": "Quality of supervision",
+    "work_environment": "Work environment",
+    "relevance_to_major": "Relevance to your major",
+    "would_recommend": "Would you recommend this company to other students?",
+    "yes": "Yes",
+    "no": "No",
+    "comment": "Comment (optional)",
+    "submit": "Submit evaluation",
+    "once": "The evaluation is submitted once and cannot be changed afterwards.",
+    "submitted": "Evaluation submitted",
+    "survey": "Job offer",
+    "survey_question": "Did the training company offer you a job?",
+    "offer_yes": "Yes",
+    "offer_no": "No",
+    "offer_pending": "Not decided yet",
+    "save_answer": "Save answer",
+    "answer_saved": "Answer saved. You can change it later.",
+    "none": "No training to evaluate yet.",
+    "of_five": "{{n}} of 5"
+  },
+  "outcomes": {
+    "title": "Job offers from the training companies",
+    "rate": "Job-offer rate",
+    "answers": "Answers",
+    "yes": "Yes",
+    "no": "No",
+    "pending": "Not decided",
+    "note": "Yes answers divided by all answers. Students who did not answer are not counted.",
+    "none": "No answers yet."
+  },
+  "ratings": {
+    "title": "Students' evaluation of the companies",
+    "all": "All companies",
+    "recommend": "Would recommend"
+  },
+  "leniency": {
+    "title": "Final evaluations by company",
+    "note": "Informational only. A company with at least {{min}} final evaluations whose mean is {{delta}} or more above the cycle mean ({{mean}}) is marked.",
+    "alert": "Well above the cycle mean",
+    "mean": "Mean (1–5)",
+    "difference": "Difference",
+    "evaluations": "Final evaluations",
+    "none": "No final evaluations yet."
+  },
+  "privacy": {
+    "title": "Data retention",
+    "retention": "Keep personal data for (months after a cycle closes)",
+    "retention_note": "Set for the whole college, 0 to 120 months.",
+    "open": "Close the cycle first. Its personal data can be anonymized after the retention period.",
+    "waiting": "Personal data can be anonymized from {{date}}.",
+    "ready": "{{n}} students can be anonymized now. {{skipped}} are skipped because another of their cycles is still kept.",
+    "done": "Anonymized on {{date}}.",
+    "anonymize": "Anonymize personal data",
+    "confirm_title": "Anonymize this cycle?",
+    "confirm_note": "The names, contact details, CVs, report texts, comments, and certificate files of these students are removed for good. The statistics stay. This cannot be undone."
   }
 }

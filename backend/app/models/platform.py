@@ -24,6 +24,7 @@ class StoredFile(Base):
     purpose: Mapped[str] = mapped_column(Text, nullable=False)
     uploaded_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     created_at: Mapped[datetime] = created_at()
+    purged_at: Mapped[datetime | None] = ts()  # removed from storage by an anonymization (NFR-PRV-04)
     __table_args__ = (CheckConstraint(f"purpose IN {FILE_PURPOSES}", name="purpose"),)
 
 

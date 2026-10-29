@@ -37,9 +37,12 @@ class College(Base):
     name_en: Mapped[str] = mapped_column(Text, nullable=False)
     name_ar: Mapped[str] = mapped_column(Text, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"), default=True)
+    # NFR-PRV-04: months after a cycle closes before its personal data may be anonymized (Increment 4, RQ-5)
+    retention_months: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="12", default=12)
     created_at: Mapped[datetime] = created_at()
     __table_args__ = (
         Index("uq_colleges_university_lower_name_en", "university_id", func.lower(text("name_en")), unique=True),
+        CheckConstraint("retention_months BETWEEN 0 AND 120", name="retention_months"),
     )
 
 
@@ -77,6 +80,7 @@ class User(Base):
     locked_until: Mapped[datetime | None] = ts()
     consent_at: Mapped[datetime | None] = ts()
     last_login_at: Mapped[datetime | None] = ts()
+    anonymized_at: Mapped[datetime | None] = ts()  # NFR-PRV-04
     created_at: Mapped[datetime] = created_at()
     updated_at: Mapped[datetime] = updated_at()
     __table_args__ = (

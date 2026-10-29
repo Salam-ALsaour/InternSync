@@ -11,6 +11,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ApiError } from "./api/client";
 import App from "./App";
 import { AuthProvider } from "./lib/auth";
+import { pruneDrafts, restoreCopy, savedMe, watchCache } from "./lib/offline";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +22,16 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// The saved copy of this window's session (CR-10); never for the Platform Admin.
+const savedUser = () => {
+  const me = savedMe<{ id: string; role: string }>();
+  return me && me.role !== "platform_admin" ? me.id : null;
+};
+const user = savedUser();
+if (user) restoreCopy(queryClient, user);
+watchCache(queryClient, savedUser);
+pruneDrafts();
 
 // The installable app and its offline shell (FR-PWA-01, FR-PWA-03); production builds only, so the development
 // server is never served from a cache.

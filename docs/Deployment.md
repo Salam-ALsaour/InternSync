@@ -1,6 +1,6 @@
 # InternSync – Deployment
 
-**Version 1.1 · October 27, 2026 · Increments 2 and 3 (decision RQ-8 of Increment 2)**
+**Version 1.2 · October 28, 2026 · Increments 2 to 4 (decision RQ-8 of Increment 2)**
 
 This document describes the zero-cost reference deployment of System Design Section 3 and how to switch it on. Everything in the repository is ready. The deployment is switched on once the owner has done the steps in Section 3, which need accounts only the owner can create. Until then, the deployment workflows run and report that there is nothing to do.
 
@@ -29,6 +29,8 @@ The design of this deployment is in the [Increment 2 design, Section 10](Increme
 | `.github/workflows/deploy-api.yml` | Runs the script after every change to `backend/` on `main`, or by hand. |
 | `.github/workflows/keepalive.yml` | Calls `/api/v1/health?deep=true` every 6 hours: the Space sleeps after 48 hours without visits, and the free database pauses after 7 days without use. |
 | `.github/workflows/backup.yml` | Nightly at 02:00 Riyadh time: a `pg_dump` of the database and a copy of the bucket (`backend/scripts/backup_files.py`), each encrypted with a passphrase and kept as an artifact of the private repository: the database for 30 days, the files for 7 days. |
+| `.github/workflows/security-scan.yml` | Weekly and on request: the OWASP ZAP baseline of the web app and the API scan in safe mode, against the Docker stack with `docker-compose.check.yml` (NFR-SEC-05). A high-risk alert fails it; the reports are kept for 30 days. |
+| `frontend/vercel.json` headers | Content-Security-Policy (scripts, styles, and fonts from the app only, small fonts inlined by the build as `data:`; API calls to `*.hf.space`), `frame-ancestors 'none'`, `X-Frame-Options`, `nosniff`, Referrer and Permissions policies. If the API moves to another host, add it to `connect-src` |
 
 ## 3. Owner Steps (Once)
 
@@ -137,7 +139,7 @@ The database procedure was rehearsed on October 26, 2026 with the local demo dat
   - **Space:** sleeps after 48 hours without visits; its disk is not kept, which is why files live in Supabase Storage.
   - **Supabase Free:** 500 MB of database and 1 GB of files; pauses after 7 days of low activity.
   - **Vercel Hobby:** non-commercial use only.
-  - **GitHub Actions:** 2,000 minutes a month for a private repository. CI, keep-alive (about 120 runs a month), and backups stay well under it. Artifact storage is limited to 500 MB: 30 database copies and 7 file copies fit while the files stay under about 60 MB. If they grow beyond that, shorten the file retention in `backup.yml`.
+  - **GitHub Actions:** 2,000 minutes a month for a private repository. CI, keep-alive (about 120 runs a month), and backups stay well under it. The browser tests run on pull requests only (about 15 minutes each) and the ZAP scan once a week (about 15 minutes), so 20 pull requests a month and the weekly scan add about 360 minutes. Artifact storage is limited to 500 MB: 30 database copies and 7 file copies fit while the files stay under about 60 MB. If they grow beyond that, shorten the file retention in `backup.yml`.
   - **Gmail:** about 500 emails a day.
 - **Fallback:** if a provider is unavailable, run the same containers locally with `docker compose up` (README). The local demo with demo accounts is also how the milestone demos run: demo accounts are refused when `ENV=production`.
 
@@ -147,3 +149,4 @@ The database procedure was rehearsed on October 26, 2026 with the local demo dat
 |:--:|:--:|:---|
 | 1.0 | Oct 26, 2026 | First version (Increment 2, RQ-8) |
 | 1.1 | Oct 27, 2026 | Web push keys (Increment 3, FR-PWA-02): one secret and two variables, copied to the Space by the deploy script |
+| 1.2 | Oct 28, 2026 | Increment 4: the weekly ZAP scan workflow, the Content-Security-Policy in `vercel.json`, and the Actions minutes of the browser tests and the scan |

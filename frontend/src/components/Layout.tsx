@@ -1,11 +1,12 @@
 /** Sidebar plus content in one wrapping row; the sidebar stacks above the content on phones (Design 8.2). */
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { api, demoClock, unwrap } from "../api/client";
 import { useAuth, useMe } from "../lib/auth";
 import { formatDateTime, nameOf } from "../lib/format";
+import { NEVER_SAVED } from "../lib/offline";
 import { useOnline } from "../lib/online";
 
 export interface MenuItem {
@@ -21,7 +22,7 @@ export function menuFor(role: string, isCompanyAdmin: boolean, verified: boolean
     case "student":
       return [{ to: "/student", key: "home", end: true }, { to: "/student/profile", key: "profile" },
         { to: "/student/vacancies", key: "vacancies" }, { to: "/student/applications", key: "applications" },
-        { to: "/student/reports", key: "reports" }, ...own];
+        { to: "/student/reports", key: "reports" }, { to: "/student/feedback", key: "feedback" }, ...own];
     case "company_supervisor":
       return [{ to: "/company", key: "home", end: true }, { to: "/company/vacancies", key: "company_vacancies" },
         { to: "/company/trainees", key: "trainees" },
@@ -34,6 +35,7 @@ export function menuFor(role: string, isCompanyAdmin: boolean, verified: boolean
         { to: "/coordinator/supervisors", key: "supervisors" }, { to: "/coordinator/cycles", key: "cycles" },
         { to: "/coordinator/placements", key: "placements" }, { to: "/coordinator/grades", key: "grades" },
         { to: "/coordinator/escalations", key: "escalations" }, { to: "/coordinator/exports", key: "exports" },
+        { to: "/coordinator/certificates", key: "certificates" },
         { to: "/coordinator/audit", key: "audit" }, ...own];
     case "platform_admin":
       return [{ to: "/platform", key: "home", end: true }, { to: "/platform/verifications", key: "verifications" },
@@ -69,8 +71,8 @@ function DemoClock() {
       <p className="font-semibold">{t("dev.clock")}</p>
       <p dir="ltr" className="text-start">{formatDateTime(state.now)} (+{state.offset_hours}h)</p>
       <div className="mt-2 flex gap-2">
-        <button type="button" className="rounded bg-white/20 px-2 py-1" onClick={() => void move(24)}>{t("dev.plus_day")}</button>
-        <button type="button" className="rounded bg-white/20 px-2 py-1" onClick={() => void move(24 * 7)}>{t("dev.plus_week")}</button>
+        <button type="button" className="rounded bg-white/20 px-2 py-1 text-white" onClick={() => void move(24)}>{t("dev.plus_day")}</button>
+        <button type="button" className="rounded bg-white/20 px-2 py-1 text-white" onClick={() => void move(24 * 7)}>{t("dev.plus_week")}</button>
       </div>
     </div>
   );
@@ -97,13 +99,37 @@ function Bell() {
   );
 }
 
-/** Shown while the browser is offline (FR-PWA-03); action buttons are disabled at the same time. */
+/** What the page shows offline: the time of its saved copy, and whether a part of it was never saved (CR-10). The
+ *  snapshot is a string, so the subscription re-renders only when it changes. */
+function savedState(client: QueryClient): string {
+  let oldest = 0;
+  let missing = false;
+  for (const q of client.getQueryCache().getAll()) {
+    if (q.getObserversCount() === 0 || NEVER_SAVED.has(String(q.queryKey[0]))) continue;
+    if (q.state.data === undefined) missing = true;
+    else if (!oldest || q.state.dataUpdatedAt < oldest) oldest = q.state.dataUpdatedAt;
+  }
+  return `${oldest}|${missing}`;
+}
+
+function useSavedState(): { at: number; missing: boolean } {
+  const client = useQueryClient();
+  const snapshot = useSyncExternalStore((cb) => client.getQueryCache().subscribe(cb), () => savedState(client));
+  const [at, missing] = snapshot.split("|");
+  return { at: Number(at), missing: missing === "true" };
+}
+
+/** Shown while the browser is offline (FR-PWA-03, CR-10); action buttons are disabled at the same time. */
 function OfflineBanner() {
   const { t } = useTranslation();
-  if (useOnline()) return null;
+  const online = useOnline();
+  const { at, missing } = useSavedState();
+  if (online) return null;
   return (
-    <div role="status" className="border-b border-[#F2D9A6] bg-[#FFF1D6] px-6 py-2 text-sm font-semibold text-[#8A4B00]">
-      {t("offline.banner")}
+    <div role="status" className="border-b border-[#F2D9A6] bg-[#FFF1D6] px-6 py-2 text-sm text-[#8A4B00]">
+      <p className="font-semibold">{t("offline.banner")}</p>
+      {at > 0 && <p>{t("offline.saved_copy")} · <span dir="ltr">{formatDateTime(new Date(at).toISOString())}</span></p>}
+      {missing && <p>{t("offline.not_saved")}</p>}
     </div>
   );
 }

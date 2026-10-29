@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.attendance import service as attendance
 from app.dashboard.service import cycle_stats
+from app.evaluations import feedback
 from app.exports.pdf import Document, stamp_text
 from app.grades import service as grades
 from app.models import (
@@ -27,6 +28,7 @@ from app.models import (
     User,
     Vacancy,
 )
+from app.models.tracking import RATINGS
 
 L = {
     "en": {
@@ -45,6 +47,10 @@ L = {
         "attendance_rate": "Attendance", "evaluation_completion": "Evaluations completed",
         "final_report": "Final report",
         "not_recorded": "Not recorded", "no_rows": "No placements in this cycle.",
+        "outcomes": "Job offers from the training company", "answers": "Answers", "job_offer_rate": "Job offers",
+        "company_ratings": "Students' evaluation of the companies", "learning_opportunities": "Learning",
+        "supervision_quality": "Supervision", "work_environment": "Environment", "relevance_to_major": "Relevance",
+        "recommend_rate": "Would recommend", "overall_row": "All companies",
     },
     "ar": {
         "grade_sheet": "كشف الدرجات", "term_summary": "ملخص الفصل التدريبي", "training_record": "سجل التدريب",
@@ -61,6 +67,10 @@ L = {
         "submission_rate": "التقارير المُسلّمة", "late_rate": "سُلّمت متأخرة",
         "attendance_rate": "الحضور", "evaluation_completion": "التقييمات المكتملة", "final_report": "التقرير النهائي",
         "not_recorded": "لم يُسجَّل", "no_rows": "لا توزيعات في هذه الدورة.",
+        "outcomes": "عروض العمل من جهة التدريب", "answers": "الإجابات", "job_offer_rate": "عروض العمل",
+        "company_ratings": "تقييم الطلاب لجهات التدريب", "learning_opportunities": "فرص التعلّم",
+        "supervision_quality": "الإشراف", "work_environment": "بيئة العمل", "relevance_to_major": "صلة بالتخصص",
+        "recommend_rate": "يوصون بها", "overall_row": "كل الجهات",
     },
 }
 STATUS = {
@@ -204,7 +214,30 @@ def term_summary_pdf(db: Session, cycle: TrainingCycle, lang: str) -> bytes:
         doc.grid([t["company"], *[t[f] for f in names]],
                  [[c["company_name"], *[_figure(f, c, lang) for f in names]] for c in stats["companies"]],
                  [52, *[(182 - 52) / len(names)] * len(names)], set(range(1, len(names) + 1)), size=8)
+    _feedback_tables(doc, db, cycle, t, lang)
     return doc.render()
+
+
+def _feedback_tables(doc: Document, db: Session, cycle: TrainingCycle, t: dict, lang: str) -> None:
+    """FR-DSH-03 and FR-EVL-05 in the term summary, when students have answered."""
+    out = feedback.outcomes(db, cycle)
+    if out["overall"]["answers"]:
+        doc.heading(t["outcomes"])
+        rows = [[t["overall_row"], str(out["overall"]["answers"]), _pct(out["overall"]["job_offer_rate"], lang)]]
+        rows += [[c["company_name"], str(c["answers"]), _pct(c["job_offer_rate"], lang)] for c in out["companies"]]
+        doc.grid([t["company"], t["answers"], t["job_offer_rate"]], rows, [102, 40, 40], {1, 2})
+    ratings = feedback.company_evaluations(db, cycle)
+    if ratings["overall"]["answers"]:
+        doc.heading(t["company_ratings"])
+        names = [*RATINGS, "recommend_rate"]
+
+        def cells(c: dict) -> list[str]:
+            return [str(c["answers"]), *["—" if c[r] is None else f"{c[r]:.2f}" for r in RATINGS],
+                    _pct(c["recommend_rate"], lang)]
+        rows = [[t["overall_row"], *cells(ratings["overall"])]]
+        rows += [[c["company_name"], *cells(c)] for c in ratings["companies"]]
+        doc.grid([t["company"], t["answers"], *[t[n] for n in names]], rows,
+                 [46, 18, *[(182 - 64) / len(names)] * len(names)], set(range(1, len(names) + 2)), size=8)
 
 
 # ---------------------------------------------------------------- training record (FR-EXP-03)

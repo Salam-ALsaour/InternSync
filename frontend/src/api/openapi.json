@@ -5653,6 +5653,297 @@
     }
    }
   },
+  "/api/v1/placements/{placement_id}/feedback": {
+   "get": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Get Feedback",
+    "description": "UC-14: the evaluation of the company and the survey answer, with what the student can still do.",
+    "operationId": "get_feedback_api_v1_placements__placement_id__feedback_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Feedback"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/company-evaluation": {
+   "get": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Get Company Evaluation",
+    "operationId": "get_company_evaluation_api_v1_placements__placement_id__company_evaluation_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "anyOf": [
+          {
+           "$ref": "#/components/schemas/CompanyEvaluationOut"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "title": "Response Get Company Evaluation Api V1 Placements  Placement Id  Company Evaluation Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Put Company Evaluation",
+    "operationId": "put_company_evaluation_api_v1_placements__placement_id__company_evaluation_put",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CompanyEvaluationIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Feedback"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/placements/{placement_id}/outcome-survey": {
+   "get": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Get Outcome Survey",
+    "operationId": "get_outcome_survey_api_v1_placements__placement_id__outcome_survey_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "anyOf": [
+          {
+           "$ref": "#/components/schemas/SurveyOut"
+          },
+          {
+           "type": "null"
+          }
+         ],
+         "title": "Response Get Outcome Survey Api V1 Placements  Placement Id  Outcome Survey Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Put Outcome Survey",
+    "operationId": "put_outcome_survey_api_v1_placements__placement_id__outcome_survey_put",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SurveyIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Feedback"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/cycles/{cycle_id}/company-evaluations": {
+   "get": {
+    "tags": [
+     "evaluations"
+    ],
+    "summary": "Cycle Company Evaluations",
+    "operationId": "cycle_company_evaluations_api_v1_cycles__cycle_id__company_evaluations_get",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cycle Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CompanyEvaluationSummary"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/v1/evaluations/{evaluation_id}/reopen": {
    "post": {
     "tags": [
@@ -6223,6 +6514,94 @@
        "application/json": {
         "schema": {
          "$ref": "#/components/schemas/CycleStats"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/cycles/{cycle_id}/outcomes": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Outcomes",
+    "description": "FR-DSH-03: the job-offer rate per cycle and per company.",
+    "operationId": "get_outcomes_api_v1_cycles__cycle_id__outcomes_get",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cycle Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Outcomes"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/cycles/{cycle_id}/leniency-alerts": {
+   "get": {
+    "tags": [
+     "dashboard"
+    ],
+    "summary": "Get Leniency",
+    "description": "FR-DSH-04: each company's mean final evaluation against the cycle mean; `alert` marks the informational\nalerts.",
+    "operationId": "get_leniency_api_v1_cycles__cycle_id__leniency_alerts_get",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cycle Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Leniency"
         }
        }
       }
@@ -6930,6 +7309,494 @@
      }
     }
    }
+  },
+  "/api/v1/placements/{placement_id}/certificate": {
+   "get": {
+    "tags": [
+     "certificates"
+    ],
+    "summary": "Placement Certificate",
+    "operationId": "placement_certificate_api_v1_placements__placement_id__certificate_get",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PlacementCertificate"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "certificates"
+    ],
+    "summary": "Issue Certificate",
+    "operationId": "issue_certificate_api_v1_placements__placement_id__certificate_post",
+    "parameters": [
+     {
+      "name": "placement_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Placement Id"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PlacementCertificate"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/certificates": {
+   "get": {
+    "tags": [
+     "certificates"
+    ],
+    "summary": "List Certificates",
+    "operationId": "list_certificates_api_v1_certificates_get",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cycle Id"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "valid",
+          "revoked"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/CertificateOut"
+         },
+         "title": "Response List Certificates Api V1 Certificates Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/certificates/{certificate_id}": {
+   "get": {
+    "tags": [
+     "certificates"
+    ],
+    "summary": "Get Certificate",
+    "operationId": "get_certificate_api_v1_certificates__certificate_id__get",
+    "parameters": [
+     {
+      "name": "certificate_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Certificate Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CertificateOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/certificates/{certificate_id}/revoke": {
+   "post": {
+    "tags": [
+     "certificates"
+    ],
+    "summary": "Revoke Certificate",
+    "operationId": "revoke_certificate_api_v1_certificates__certificate_id__revoke_post",
+    "parameters": [
+     {
+      "name": "certificate_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Certificate Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReasonIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CertificateOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/public/certificates/{code}": {
+   "get": {
+    "tags": [
+     "certificates"
+    ],
+    "summary": "Verify Certificate",
+    "description": "Public (FR-CER-02): `200` in every case, `not_found` for an unknown or altered code.",
+    "operationId": "verify_certificate_api_v1_public_certificates__code__get",
+    "parameters": [
+     {
+      "name": "code",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "maxLength": 64,
+       "title": "Code"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PublicCertificate"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/colleges/{college_id}/retention": {
+   "get": {
+    "tags": [
+     "privacy"
+    ],
+    "summary": "Get Retention",
+    "operationId": "get_retention_api_v1_colleges__college_id__retention_get",
+    "parameters": [
+     {
+      "name": "college_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "College Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Retention"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "privacy"
+    ],
+    "summary": "Put Retention",
+    "operationId": "put_retention_api_v1_colleges__college_id__retention_put",
+    "parameters": [
+     {
+      "name": "college_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "College Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Retention"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Retention"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/cycles/{cycle_id}/anonymization": {
+   "get": {
+    "tags": [
+     "privacy"
+    ],
+    "summary": "Get Anonymization",
+    "operationId": "get_anonymization_api_v1_cycles__cycle_id__anonymization_get",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cycle Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Anonymization"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/cycles/{cycle_id}/anonymize": {
+   "post": {
+    "tags": [
+     "privacy"
+    ],
+    "summary": "Anonymize",
+    "operationId": "anonymize_api_v1_cycles__cycle_id__anonymize_post",
+    "parameters": [
+     {
+      "name": "cycle_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Cycle Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConfirmIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Anonymization"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
   }
  },
  "components": {
@@ -7028,6 +7895,85 @@
      "cycle_name"
     ],
     "title": "AcceptedApplicant"
+   },
+   "Anonymization": {
+    "properties": {
+     "cycle_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Cycle Id"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "open",
+       "waiting",
+       "ready",
+       "done"
+      ],
+      "title": "Status"
+     },
+     "closed_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Closed At"
+     },
+     "eligible_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Eligible At"
+     },
+     "retention_months": {
+      "type": "integer",
+      "title": "Retention Months"
+     },
+     "students": {
+      "type": "integer",
+      "title": "Students"
+     },
+     "skipped": {
+      "type": "integer",
+      "title": "Skipped"
+     },
+     "anonymized_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Anonymized At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cycle_id",
+     "status",
+     "closed_at",
+     "eligible_at",
+     "retention_months",
+     "students",
+     "skipped",
+     "anonymized_at"
+    ],
+    "title": "Anonymization"
    },
    "ApplicationOut": {
     "properties": {
@@ -8000,6 +8946,97 @@
     ],
     "title": "BulkResult"
    },
+   "CertificateOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "placement_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Placement Id"
+     },
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "verify_url": {
+      "type": "string",
+      "title": "Verify Url"
+     },
+     "file_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "File Id"
+     },
+     "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Issued At"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     },
+     "revoke_reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoke Reason"
+     },
+     "student": {
+      "$ref": "#/components/schemas/StudentRef"
+     },
+     "cycle": {
+      "type": "string",
+      "title": "Cycle"
+     },
+     "company": {
+      "type": "string",
+      "title": "Company"
+     },
+     "can_revoke": {
+      "type": "boolean",
+      "title": "Can Revoke"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "placement_id",
+     "code",
+     "status",
+     "verify_url",
+     "file_id",
+     "issued_at",
+     "revoked_at",
+     "revoke_reason",
+     "student",
+     "cycle",
+     "company",
+     "can_revoke"
+    ],
+    "title": "CertificateOut"
+   },
    "Check": {
     "properties": {
      "item": {
@@ -8264,6 +9301,144 @@
     ],
     "title": "CommentOut"
    },
+   "CompanyEvaluationIn": {
+    "properties": {
+     "learning_opportunities": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Learning Opportunities"
+     },
+     "supervision_quality": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Supervision Quality"
+     },
+     "work_environment": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Work Environment"
+     },
+     "relevance_to_major": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Relevance To Major"
+     },
+     "would_recommend": {
+      "type": "boolean",
+      "title": "Would Recommend"
+     },
+     "comment": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Comment"
+     }
+    },
+    "type": "object",
+    "required": [
+     "learning_opportunities",
+     "supervision_quality",
+     "work_environment",
+     "relevance_to_major",
+     "would_recommend"
+    ],
+    "title": "CompanyEvaluationIn"
+   },
+   "CompanyEvaluationOut": {
+    "properties": {
+     "learning_opportunities": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Learning Opportunities"
+     },
+     "supervision_quality": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Supervision Quality"
+     },
+     "work_environment": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Work Environment"
+     },
+     "relevance_to_major": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Relevance To Major"
+     },
+     "would_recommend": {
+      "type": "boolean",
+      "title": "Would Recommend"
+     },
+     "comment": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Comment"
+     },
+     "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Submitted At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "learning_opportunities",
+     "supervision_quality",
+     "work_environment",
+     "relevance_to_major",
+     "would_recommend",
+     "submitted_at"
+    ],
+    "title": "CompanyEvaluationOut"
+   },
+   "CompanyEvaluationSummary": {
+    "properties": {
+     "cycle_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Cycle Id"
+     },
+     "overall": {
+      "$ref": "#/components/schemas/RatingFigures"
+     },
+     "companies": {
+      "items": {
+       "$ref": "#/components/schemas/CompanyRatingFigures"
+      },
+      "type": "array",
+      "title": "Companies"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cycle_id",
+     "overall",
+     "companies"
+    ],
+    "title": "CompanyEvaluationSummary"
+   },
    "CompanyFigures": {
     "properties": {
      "placed": {
@@ -8388,6 +9563,45 @@
     ],
     "title": "CompanyFigures"
    },
+   "CompanyLeniency": {
+    "properties": {
+     "company_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Company Id"
+     },
+     "company_name": {
+      "type": "string",
+      "title": "Company Name"
+     },
+     "evaluations": {
+      "type": "integer",
+      "title": "Evaluations"
+     },
+     "mean": {
+      "type": "string",
+      "title": "Mean"
+     },
+     "difference": {
+      "type": "string",
+      "title": "Difference"
+     },
+     "alert": {
+      "type": "boolean",
+      "title": "Alert"
+     }
+    },
+    "type": "object",
+    "required": [
+     "company_id",
+     "company_name",
+     "evaluations",
+     "mean",
+     "difference",
+     "alert"
+    ],
+    "title": "CompanyLeniency"
+   },
    "CompanyOut": {
     "properties": {
      "id": {
@@ -8463,6 +9677,57 @@
     ],
     "title": "CompanyOut"
    },
+   "CompanyOutcome": {
+    "properties": {
+     "answers": {
+      "type": "integer",
+      "title": "Answers"
+     },
+     "yes": {
+      "type": "integer",
+      "title": "Yes"
+     },
+     "no": {
+      "type": "integer",
+      "title": "No"
+     },
+     "pending": {
+      "type": "integer",
+      "title": "Pending"
+     },
+     "job_offer_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Job Offer Rate"
+     },
+     "company_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Company Id"
+     },
+     "company_name": {
+      "type": "string",
+      "title": "Company Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "answers",
+     "yes",
+     "no",
+     "pending",
+     "job_offer_rate",
+     "company_id",
+     "company_name"
+    ],
+    "title": "CompanyOutcome"
+   },
    "CompanyPatch": {
     "properties": {
      "city": {
@@ -8493,6 +9758,90 @@
     },
     "type": "object",
     "title": "CompanyPatch"
+   },
+   "CompanyRatingFigures": {
+    "properties": {
+     "answers": {
+      "type": "integer",
+      "title": "Answers"
+     },
+     "learning_opportunities": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Learning Opportunities"
+     },
+     "supervision_quality": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Supervision Quality"
+     },
+     "work_environment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Work Environment"
+     },
+     "relevance_to_major": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Relevance To Major"
+     },
+     "recommend_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recommend Rate"
+     },
+     "company_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Company Id"
+     },
+     "company_name": {
+      "type": "string",
+      "title": "Company Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "answers",
+     "learning_opportunities",
+     "supervision_quality",
+     "work_environment",
+     "relevance_to_major",
+     "recommend_rate",
+     "company_id",
+     "company_name"
+    ],
+    "title": "CompanyRatingFigures"
    },
    "ComponentIO-Input": {
     "properties": {
@@ -8667,6 +10016,17 @@
      "components"
     ],
     "title": "ComponentsIn"
+   },
+   "ConfirmIn": {
+    "properties": {
+     "confirm": {
+      "type": "boolean",
+      "title": "Confirm",
+      "default": false
+     }
+    },
+    "type": "object",
+    "title": "ConfirmIn"
    },
    "ConfirmedSkill": {
     "properties": {
@@ -10002,6 +11362,73 @@
     ],
     "title": "ExtractedSkill"
    },
+   "Feedback": {
+    "properties": {
+     "placement_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Placement Id"
+     },
+     "company": {
+      "type": "string",
+      "title": "Company"
+     },
+     "vacancy": {
+      "type": "string",
+      "title": "Vacancy"
+     },
+     "open_from": {
+      "type": "string",
+      "format": "date",
+      "title": "Open From"
+     },
+     "is_open": {
+      "type": "boolean",
+      "title": "Is Open"
+     },
+     "evaluation": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CompanyEvaluationOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "survey": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SurveyOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "can_evaluate": {
+      "type": "boolean",
+      "title": "Can Evaluate"
+     },
+     "can_answer": {
+      "type": "boolean",
+      "title": "Can Answer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "placement_id",
+     "company",
+     "vacancy",
+     "open_from",
+     "is_open",
+     "evaluation",
+     "survey",
+     "can_evaluate",
+     "can_answer"
+    ],
+    "title": "Feedback"
+   },
    "Figures": {
     "properties": {
      "placed": {
@@ -10468,6 +11895,55 @@
     ],
     "title": "InviteIn"
    },
+   "Leniency": {
+    "properties": {
+     "cycle_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Cycle Id"
+     },
+     "cycle_mean": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cycle Mean"
+     },
+     "evaluations": {
+      "type": "integer",
+      "title": "Evaluations"
+     },
+     "min_evaluations": {
+      "type": "integer",
+      "title": "Min Evaluations"
+     },
+     "delta": {
+      "type": "string",
+      "title": "Delta"
+     },
+     "companies": {
+      "items": {
+       "$ref": "#/components/schemas/CompanyLeniency"
+      },
+      "type": "array",
+      "title": "Companies"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cycle_id",
+     "cycle_mean",
+     "evaluations",
+     "min_evaluations",
+     "delta",
+     "companies"
+    ],
+    "title": "Leniency"
+   },
    "LevelText": {
     "properties": {
      "en": {
@@ -10771,6 +12247,11 @@
       "type": "boolean",
       "title": "Is Company Admin"
      },
+     "idle_timeout_minutes": {
+      "type": "integer",
+      "title": "Idle Timeout Minutes",
+      "default": 30
+     },
      "organization": {
       "$ref": "#/components/schemas/OrganizationOut"
      }
@@ -10921,6 +12402,24 @@
      "documents"
     ],
     "title": "MyRequestOut"
+   },
+   "Names": {
+    "properties": {
+     "en": {
+      "type": "string",
+      "title": "En"
+     },
+     "ar": {
+      "type": "string",
+      "title": "Ar"
+     }
+    },
+    "type": "object",
+    "required": [
+     "en",
+     "ar"
+    ],
+    "title": "Names"
    },
    "NotificationOut": {
     "properties": {
@@ -11125,6 +12624,72 @@
     },
     "type": "object",
     "title": "OrganizationOut"
+   },
+   "OutcomeFigures": {
+    "properties": {
+     "answers": {
+      "type": "integer",
+      "title": "Answers"
+     },
+     "yes": {
+      "type": "integer",
+      "title": "Yes"
+     },
+     "no": {
+      "type": "integer",
+      "title": "No"
+     },
+     "pending": {
+      "type": "integer",
+      "title": "Pending"
+     },
+     "job_offer_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Job Offer Rate"
+     }
+    },
+    "type": "object",
+    "required": [
+     "answers",
+     "yes",
+     "no",
+     "pending",
+     "job_offer_rate"
+    ],
+    "title": "OutcomeFigures"
+   },
+   "Outcomes": {
+    "properties": {
+     "cycle_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Cycle Id"
+     },
+     "overall": {
+      "$ref": "#/components/schemas/OutcomeFigures"
+     },
+     "companies": {
+      "items": {
+       "$ref": "#/components/schemas/CompanyOutcome"
+      },
+      "type": "array",
+      "title": "Companies"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cycle_id",
+     "overall",
+     "companies"
+    ],
+    "title": "Outcomes"
    },
    "Page_ApplicationOut_": {
     "properties": {
@@ -11478,6 +13043,30 @@
      "email"
     ],
     "title": "PersonOut"
+   },
+   "PlacementCertificate": {
+    "properties": {
+     "certificate": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CertificateOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "can_issue": {
+      "type": "boolean",
+      "title": "Can Issue"
+     }
+    },
+    "type": "object",
+    "required": [
+     "certificate",
+     "can_issue"
+    ],
+    "title": "PlacementCertificate"
    },
    "PlacementIn": {
     "properties": {
@@ -11991,6 +13580,178 @@
     "type": "object",
     "title": "ProfilePatch"
    },
+   "PublicCertificate": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "valid",
+       "revoked",
+       "not_found"
+      ],
+      "title": "Status"
+     },
+     "name_removed": {
+      "type": "boolean",
+      "title": "Name Removed",
+      "default": false
+     },
+     "student_name": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Names"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "university": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Names"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "college": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Names"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "cycle": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cycle"
+     },
+     "company": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Company"
+     },
+     "training_start": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Training Start"
+     },
+     "training_end": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Training End"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "PublicCertificate"
+   },
+   "RatingFigures": {
+    "properties": {
+     "answers": {
+      "type": "integer",
+      "title": "Answers"
+     },
+     "learning_opportunities": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Learning Opportunities"
+     },
+     "supervision_quality": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Supervision Quality"
+     },
+     "work_environment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Work Environment"
+     },
+     "relevance_to_major": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Relevance To Major"
+     },
+     "recommend_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recommend Rate"
+     }
+    },
+    "type": "object",
+    "required": [
+     "answers",
+     "learning_opportunities",
+     "supervision_quality",
+     "work_environment",
+     "relevance_to_major",
+     "recommend_rate"
+    ],
+    "title": "RatingFigures"
+   },
    "ReasonIn": {
     "properties": {
      "reason": {
@@ -12209,6 +13970,21 @@
      "url"
     ],
     "title": "ResourceIO"
+   },
+   "Retention": {
+    "properties": {
+     "retention_months": {
+      "type": "integer",
+      "maximum": 120.0,
+      "minimum": 0.0,
+      "title": "Retention Months"
+     }
+    },
+    "type": "object",
+    "required": [
+     "retention_months"
+    ],
+    "title": "Retention"
    },
    "ReviewOut": {
     "properties": {
@@ -13156,6 +14932,54 @@
      "academic_supervisor_id"
     ],
     "title": "SupervisorChange"
+   },
+   "SurveyIn": {
+    "properties": {
+     "job_offer": {
+      "type": "string",
+      "enum": [
+       "yes",
+       "no",
+       "pending"
+      ],
+      "title": "Job Offer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "job_offer"
+    ],
+    "title": "SurveyIn"
+   },
+   "SurveyOut": {
+    "properties": {
+     "job_offer": {
+      "type": "string",
+      "enum": [
+       "yes",
+       "no",
+       "pending"
+      ],
+      "title": "Job Offer"
+     },
+     "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Submitted At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "job_offer",
+     "submitted_at",
+     "updated_at"
+    ],
+    "title": "SurveyOut"
    },
    "TokenCheckOut": {
     "properties": {
