@@ -39,6 +39,8 @@ jobs:
       - run: pytest -p no:logging --cov=app --cov-report=term --cov-fail-under=70
       - name: OpenAPI document matches the committed copy
         run: python scripts/export_openapi.py ../frontend/src/api/openapi.json && git diff --exit-code ../frontend/src/api/openapi.json
+      - name: Requirements status up to date and document links valid (Increment 5)
+        run: python ../docs/tools/trace.py --check && python ../docs/tools/check_links.py
 
   frontend:
     runs-on: ubuntu-latest

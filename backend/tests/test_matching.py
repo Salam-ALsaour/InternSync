@@ -179,7 +179,7 @@ def test_embed_missing_job_fills_the_gaps(client, w, f, db):
     assert db.get(StudentProfile, w.stA.id).embedding is not None
 
 
-def test_development_plan_lists_missing_skills_with_resources(client, w, f, db):
+def test_at_mat_06_development_plan_lists_missing_skills_with_resources(client, w, f, db):
     db.add(SkillResource(skill_id=w.sql.id, title="SQL basics", url="https://example.org/sql", position=1))
     v = f.vacancy(w.ca2, [w.cs_major], required=(w.python, w.sql, w.js))
     f.commit()

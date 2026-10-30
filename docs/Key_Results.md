@@ -1,6 +1,6 @@
 # InternSync – Key Results
 
-**Updated Oct 28, 2026, at the end of Increment 4** · Author: Salam Alsaour
+**Updated Oct 29, 2026, at the end of Increment 5 (final delivery)** · Author: Salam Alsaour
 
 Every measured result of the project in one place, for the final presentation. Each number is copied from a test report or a run of a script in the repository, with its target and the way to repeat it. Numbers measured on the local Docker stack (a laptop) say so; they are repeated on the reference deployment once it is switched on ([Deployment](Deployment.md)).
 
@@ -8,7 +8,7 @@ Every measured result of the project in one place, for the final presentation. E
 
 | **What** | **Result** | **Target** |
 |:---|:---|:---|
-| Automated tests | **201 backend tests**, **19 frontend unit tests**, **34 browser tests** on four browser engines and sizes, all passing | All pass |
+| Automated tests | **202 backend tests**, **19 frontend unit tests**, **34 browser tests** on four browser engines and sizes, all passing | All pass |
 | Code covered by the backend tests | **95%** | 70% |
 | Permission checks | **810** calls by users who must be refused, over **163** endpoints: **0** got through | 0 (O1) |
 | Matching: a relevant vacancy in the top 5 | **100%** of profiles on the tuning set and **100%** on the held-out set (a random order: 80% and 36%) | 80% (O2) |
@@ -27,9 +27,10 @@ Every measured result of the project in one place, for the final presentation. E
 
 | **Check** | **Result** | **Repeat with** | **Source** |
 |:---|:---|:---|:---|
-| Backend tests on a real PostgreSQL | 108 → 158 → 187 → **201** passing at the end of Increments 1 to 4 | `pytest --cov=app` in `backend/` | Test reports 1–4, Section 1 |
+| Backend tests on a real PostgreSQL | 108 → 158 → 187 → 201 → **202** passing at the end of Increments 1 to 5 | `pytest --cov=app` in `backend/` | Test reports 1–4, Section 1 |
 | Backend line coverage | 95% at the end of every increment | same | same |
 | Permission matrix | 107 → 129 → 145 → **163** endpoints; **810** refused calls checked, none allowed | same (`tests/permissions`) | same |
+| Requirements traced | 125 requirements of the SRS: 90 with an automated test named after them, 32 with a recorded result, 3 open (they need people or the hosted system), none untraced | `python docs/tools/trace.py --check` | [Requirements_Status.md](Requirements_Status.md) |
 | Acceptance tests | Increment 1: 43 of 43 · Increment 2: 27 of 27 · Increment 3: 21 of 21 · Increment 4: 12 of 13; AT-AI-03 is met for matching and not for reworded copies (7 of 10 flagged, target 9) | same | Test reports, Section 3 |
 | Demo scenarios automated end to end | M4, M5, and M6 scenarios run through the API in the test suite | `pytest tests/test_demo_m*.py` | `backend/tests` |
 | Browser tests | **34 passed** on Chromium, WebKit (the Safari engine), an Android phone size, and an iPhone size, including a keyboard-only task; Firefox runs in CI | `npx playwright test` in `frontend/` | Test report 4, Section 4 |
@@ -102,7 +103,7 @@ backend/.venv/Scripts/python ai-eval/evaluate.py --heldout   # held-out sets
 
 | **What** | **When** |
 |:---|:---|
-| User acceptance testing, at least 8 participants, 80% of scenarios without help (O8) | Sessions run by the owner before Dec 10 ([plan](Increments/Increment_4/05_UAT_Plan.md)) |
+| User acceptance testing, at least 8 participants, 80% of scenarios without help (O8) | Postponed by the owner on Oct 29; the plan is ready to run at any time ([plan](Increments/Increment_4/05_UAT_Plan.md)) |
 | Install, push, and airplane mode on real Android and iPhone devices | In the UAT sessions |
 | NFR-PER-01 and the ZAP scan on the reference deployment | After the switch-on ([Deployment](Deployment.md)) |
 
@@ -111,3 +112,4 @@ backend/.venv/Scripts/python ai-eval/evaluate.py --heldout   # held-out sets
 | **Date** | **Change** |
 |:--:|:---|
 | Oct 28, 2026 | First version, at the end of Increment 4 |
+| Oct 29, 2026 | Increment 5: 202 backend tests; the UAT postponed; requirements status in Section 2 |

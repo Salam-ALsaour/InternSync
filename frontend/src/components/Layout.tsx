@@ -1,8 +1,8 @@
-/** Sidebar plus content in one wrapping row; the sidebar stacks above the content on phones (Design 8.2). */
+/** Sidebar plus content in one wrapping row; on phones the menu folds behind a button above the content (Design 8.2). */
 import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { api, demoClock, unwrap } from "../api/client";
 import { useAuth, useMe } from "../lib/auth";
 import { formatDateTime, nameOf } from "../lib/format";
@@ -142,27 +142,39 @@ export function AppLayout() {
   const items = menuFor(me.role, me.is_company_admin, verified);
   const org = me.organization;
   const orgName = org.company ?? (i18n.language === "en" ? org.college_en : org.college_ar) ?? "";
+  // On phones the menu is folded behind a button, so every page opens on its content (Increment 5 test report).
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => setMenuOpen(false), [pathname]);
   return (
     <div className="flex min-h-screen flex-col bg-ground md:flex-row">
-      <aside className="flex flex-col bg-primary px-4 py-6 text-white md:min-h-screen md:w-64 md:shrink-0">
-        <div className="mb-6 px-2">
-          <p className="text-2xl font-bold">InternSync</p>
-          <p className="mt-1 text-sm text-white/70">{t(`portal.${me.role}`)}</p>
-        </div>
-        <nav className="flex flex-row flex-wrap gap-1 md:flex-col" aria-label={t("common.menu")}>
-          {items.map((it) => (
-            <NavLink key={it.to} to={it.to} end={it.end}
-              className={({ isActive }) => `flex min-h-[44px] items-center rounded-ctl px-3 text-sm font-medium ${isActive ? "bg-primary-active text-white" : "text-white/85 hover:bg-white/10"}`}>
-              {t(`menu.${it.key}`)}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="mt-auto pt-6">
-          {import.meta.env.DEV && <DemoClock />}
-          <button type="button" onClick={() => void logout()}
-            className="mt-3 flex min-h-[44px] w-full items-center rounded-ctl px-3 text-sm text-white/85 hover:bg-white/10">
-            {t("common.logout")}
+      <aside className="flex flex-col bg-primary px-4 py-3 text-white md:min-h-screen md:w-64 md:shrink-0 md:py-6">
+        <div className="flex items-center justify-between gap-3 px-2 md:mb-6 md:block">
+          <div>
+            <p className="text-2xl font-bold">InternSync</p>
+            <p className="mt-1 text-sm text-white/70">{t(`portal.${me.role}`)}</p>
+          </div>
+          <button type="button" aria-expanded={menuOpen} aria-controls="main-menu" onClick={() => setMenuOpen((o) => !o)}
+            className="min-h-[44px] rounded-ctl border border-white/30 px-4 text-sm font-semibold md:hidden">
+            {t("common.menu")}
           </button>
+        </div>
+        <div id="main-menu" className={`${menuOpen ? "flex" : "hidden"} mt-3 flex-1 flex-col md:mt-0 md:flex`}>
+          <nav className="flex flex-col gap-1" aria-label={t("common.menu")}>
+            {items.map((it) => (
+              <NavLink key={it.to} to={it.to} end={it.end}
+                className={({ isActive }) => `flex min-h-[44px] items-center rounded-ctl px-3 text-sm font-medium ${isActive ? "bg-primary-active text-white" : "text-white/85 hover:bg-white/10"}`}>
+                {t(`menu.${it.key}`)}
+              </NavLink>
+            ))}
+          </nav>
+          <div className="mt-auto pt-6">
+            {import.meta.env.DEV && <DemoClock />}
+            <button type="button" onClick={() => void logout()}
+              className="mt-3 flex min-h-[44px] w-full items-center rounded-ctl px-3 text-sm text-white/85 hover:bg-white/10">
+              {t("common.logout")}
+            </button>
+          </div>
         </div>
       </aside>
       <div className="min-w-0 flex-1">
