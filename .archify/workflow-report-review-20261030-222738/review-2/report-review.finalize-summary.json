@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/workflow-report-review-20261030-222738/candidate.json",
+    "sha256": "a630cdf2002412b90279dc36a1a537f369b848dcb2b594b820262d786917fa12",
+    "bytes": 14038
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/workflow-report-review-20261030-222738/report-review.html",
+    "sha256": "7c5f3b95df06ece49fe9816944d6650a1ebb4f9920ba6ca889a4f1f506184871",
+    "bytes": 865384
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/workflow-report-review-20261030-222738/review-2/report-review.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/workflow-report-review-20261030-222738/review-2/report-review.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/workflow-report-review-20261030-222738/review-2/report-review.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3561,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

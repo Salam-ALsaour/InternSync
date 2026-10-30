@@ -1,0 +1,350 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Notification Outbox Event Flow",
+    "output": ".archify/dataflow-notification-outbox-20261030-223151/notification-outbox.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Salam-ALsaour/InternSync",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+    }
+  },
+  "stages": [
+    {
+      "label": "Producers"
+    },
+    {
+      "label": "Event write"
+    },
+    {
+      "label": "Outbox table"
+    },
+    {
+      "label": "Processor"
+    },
+    {
+      "label": "Consumers"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "services",
+      "type": "backend",
+      "label": "Domain services",
+      "sublabel": "reports, vacancies, grades…",
+      "stage": 0,
+      "row": 0,
+      "tag": "in request txn",
+      "sources": [
+        {
+          "path": "backend/app/notifications/events.py",
+          "line": 1,
+          "end_line": 2,
+          "label": "called in the same txn"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 242,
+          "label": "report.submitted"
+        },
+        {
+          "path": "backend/app/notifications/events.py",
+          "line": 104,
+          "end_line": 109,
+          "label": "recipients + link"
+        }
+      ]
+    },
+    {
+      "id": "scheduled",
+      "type": "messagebus",
+      "label": "Scheduled producers",
+      "sublabel": "reminder, missing, escalation",
+      "stage": 0,
+      "row": 2,
+      "tag": "keyed",
+      "sources": [
+        {
+          "path": "backend/app/notifications/scheduled.py",
+          "line": 28,
+          "end_line": 48,
+          "label": "reminders + missing"
+        },
+        {
+          "path": "backend/app/notifications/scheduled.py",
+          "line": 100,
+          "end_line": 109,
+          "label": "escalations"
+        },
+        {
+          "path": "backend/app/jobs/scheduler.py",
+          "line": 16,
+          "end_line": 23,
+          "label": "every 15 min"
+        }
+      ]
+    },
+    {
+      "id": "notify",
+      "type": "backend",
+      "label": "notify()",
+      "sublabel": "1 row per active user",
+      "stage": 1,
+      "row": 1,
+      "sources": [
+        {
+          "path": "backend/app/notifications/service.py",
+          "line": 1,
+          "end_line": 5,
+          "label": "outbox contract"
+        },
+        {
+          "path": "backend/app/notifications/service.py",
+          "line": 20,
+          "end_line": 33,
+          "label": "insert, on conflict skip"
+        }
+      ]
+    },
+    {
+      "id": "outbox",
+      "type": "database",
+      "label": "notifications",
+      "sublabel": "outbox + in-app list",
+      "stage": 2,
+      "row": 1,
+      "tag": "PostgreSQL",
+      "sources": [
+        {
+          "path": "backend/app/models/notices.py",
+          "line": 26,
+          "label": "status values"
+        },
+        {
+          "path": "backend/app/models/notices.py",
+          "line": 29,
+          "end_line": 51,
+          "label": "Notification"
+        }
+      ]
+    },
+    {
+      "id": "deliver",
+      "type": "messagebus",
+      "label": "deliver job",
+      "sublabel": "every minute, ≤200 rows",
+      "stage": 3,
+      "row": 1,
+      "tag": "single runner",
+      "sources": [
+        {
+          "path": "backend/app/notifications/delivery.py",
+          "line": 81,
+          "end_line": 110,
+          "label": "deliver"
+        },
+        {
+          "path": "backend/app/jobs/jobs.py",
+          "line": 85,
+          "end_line": 98,
+          "label": "advisory lock"
+        },
+        {
+          "path": "backend/app/jobs/scheduler.py",
+          "line": 20,
+          "end_line": 23,
+          "label": "1-minute interval"
+        }
+      ]
+    },
+    {
+      "id": "subs",
+      "type": "database",
+      "label": "push_subscriptions",
+      "sublabel": "browser endpoints",
+      "stage": 3,
+      "row": 2,
+      "sources": [
+        {
+          "path": "backend/app/models/notices.py",
+          "line": 54,
+          "end_line": 63,
+          "label": "PushSubscription"
+        }
+      ]
+    },
+    {
+      "id": "smtp",
+      "type": "external",
+      "label": "SMTP email",
+      "sublabel": "Mailpit / Gmail",
+      "stage": 4,
+      "row": 0,
+      "sources": [
+        {
+          "path": "backend/app/core/mail.py",
+          "line": 53,
+          "end_line": 77,
+          "label": "deliver"
+        }
+      ]
+    },
+    {
+      "id": "push",
+      "type": "external",
+      "label": "Web Push",
+      "sublabel": "service worker shows it",
+      "stage": 4,
+      "row": 1,
+      "sources": [
+        {
+          "path": "backend/app/notifications/delivery.py",
+          "line": 28,
+          "end_line": 38,
+          "label": "webpush"
+        },
+        {
+          "path": "backend/app/notifications/delivery.py",
+          "line": 64,
+          "end_line": 78,
+          "label": "per subscription"
+        },
+        {
+          "path": "frontend/public/sw.js",
+          "line": 42,
+          "end_line": 52,
+          "label": "showNotification"
+        }
+      ]
+    },
+    {
+      "id": "inapp",
+      "type": "frontend",
+      "label": "In-app list",
+      "sublabel": "bell polls every 60 s",
+      "stage": 4,
+      "row": 3,
+      "sources": [
+        {
+          "path": "backend/app/notifications/router.py",
+          "line": 61,
+          "end_line": 64,
+          "label": "GET /notifications"
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "line": 81,
+          "end_line": 86,
+          "label": "unread bell"
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "domain-event",
+      "from": "services",
+      "to": "notify",
+      "label": "event + params",
+      "classification": "same transaction",
+      "variant": "emphasis"
+    },
+    {
+      "id": "timed-event",
+      "from": "scheduled",
+      "to": "notify",
+      "label": "keyed event",
+      "classification": "idempotency key"
+    },
+    {
+      "id": "insert-row",
+      "from": "notify",
+      "to": "outbox",
+      "label": "INSERT row",
+      "classification": "duplicate key skipped",
+      "variant": "emphasis"
+    },
+    {
+      "id": "claim-rows",
+      "from": "outbox",
+      "to": "deliver",
+      "label": "oldest pending",
+      "classification": "skip locked",
+      "variant": "emphasis"
+    },
+    {
+      "id": "send-email",
+      "from": "deliver",
+      "to": "smtp",
+      "label": "localized email",
+      "classification": "up to 5 attempts",
+      "variant": "emphasis"
+    },
+    {
+      "id": "send-push",
+      "from": "deliver",
+      "to": "push",
+      "label": "title + link",
+      "classification": "one attempt"
+    },
+    {
+      "id": "read-endpoints",
+      "from": "subs",
+      "to": "deliver",
+      "label": "endpoints",
+      "classification": "404/410 deleted"
+    },
+    {
+      "id": "write-status",
+      "from": "deliver",
+      "to": "outbox",
+      "label": "status, attempts",
+      "classification": "pending rows rerun",
+      "variant": "dashed",
+      "route": "top-channel"
+    },
+    {
+      "id": "read-list",
+      "from": "outbox",
+      "to": "inapp",
+      "label": "unread list",
+      "classification": "GET /notifications",
+      "fromSide": "bottom",
+      "toSide": "left"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Event path",
+      "items": [
+        "Services call events.* right after the change, so the notification row commits with it or not at all",
+        "notify() writes one notifications row per active recipient; a repeated idempotency key is skipped",
+        "The deliver job reads pending rows oldest first, sends email and push, and writes the result back"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Replay and failure",
+      "items": [
+        "Replay: rows left pending are selected again on the next one-minute run",
+        "Email: email_attempts grows on each SMTP failure; at 5 the row becomes failed",
+        "Push: one attempt; sent, failed, or skipped without VAPID keys or a subscription",
+        "No DLQ: failed rows stay in notifications and nothing reads them again"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Not in this system",
+      "items": [
+        "No broker, topics, partitions or consumer groups; the notifications table is the only queue",
+        "One deliver run at a time: a PostgreSQL advisory lock skips a second runner",
+        "Ownership: every producer and the processor run inside the one API process"
+      ]
+    }
+  ]
+}

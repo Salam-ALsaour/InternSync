@@ -1,0 +1,453 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Report Submit Request, Caller to Response",
+    "output": ".archify/sequence-report-submit-20261030-223009/report-submit.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Salam-ALsaour/InternSync",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+    },
+    "legend": {
+      "entries": {
+        "dashed": {
+          "label": "async or device write"
+        },
+        "emphasis": {
+          "label": "main request"
+        }
+      }
+    }
+  },
+  "participants": [
+    {
+      "id": "pwa",
+      "type": "frontend",
+      "label": "Web app",
+      "sublabel": "ReportSlot",
+      "sources": [
+        {
+          "path": "frontend/src/pages/shared/ReportSlot.tsx",
+          "line": 77,
+          "end_line": 96,
+          "label": "PUT then POST submit"
+        }
+      ]
+    },
+    {
+      "id": "device",
+      "type": "database",
+      "label": "Device draft",
+      "sublabel": "localStorage",
+      "sources": [
+        {
+          "path": "frontend/src/lib/offline.ts",
+          "line": 1,
+          "end_line": 6,
+          "label": "offline drafts"
+        },
+        {
+          "path": "frontend/src/lib/offline.ts",
+          "line": 225,
+          "end_line": 248,
+          "label": "write / saved / push"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Reports router",
+      "sublabel": "FastAPI",
+      "sources": [
+        {
+          "path": "backend/app/reports/router.py",
+          "line": 145,
+          "end_line": 150,
+          "label": "PUT draft"
+        },
+        {
+          "path": "backend/app/reports/router.py",
+          "line": 172,
+          "end_line": 180,
+          "label": "POST submit"
+        }
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "Auth gate",
+      "sublabel": "auth(\"st\")",
+      "sources": [
+        {
+          "path": "backend/app/core/deps.py",
+          "line": 43,
+          "end_line": 72,
+          "label": "authenticate"
+        },
+        {
+          "path": "backend/app/core/deps.py",
+          "line": 75,
+          "end_line": 88,
+          "label": "gates"
+        }
+      ]
+    },
+    {
+      "id": "svc",
+      "type": "backend",
+      "label": "Reports service",
+      "sublabel": "submit()",
+      "sources": [
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 211,
+          "end_line": 243,
+          "label": "submit"
+        }
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "one session",
+      "sources": [
+        {
+          "path": "backend/app/core/db.py",
+          "line": 22,
+          "end_line": 31,
+          "label": "session per request"
+        },
+        {
+          "path": "backend/app/notifications/service.py",
+          "line": 20,
+          "end_line": 33,
+          "label": "outbox insert"
+        },
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 38,
+          "end_line": 42,
+          "label": "pending check"
+        }
+      ]
+    },
+    {
+      "id": "bg",
+      "type": "messagebus",
+      "label": "Similarity task",
+      "sublabel": "BackgroundTasks",
+      "sources": [
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 91,
+          "end_line": 105,
+          "label": "run_in_background"
+        }
+      ]
+    },
+    {
+      "id": "model",
+      "type": "backend",
+      "label": "Embedder",
+      "sublabel": "in-process cache",
+      "sources": [
+        {
+          "path": "backend/app/ai/embeddings.py",
+          "line": 57,
+          "end_line": 76,
+          "label": "get_embedder"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 196,
+      "label": "Device fallback"
+    },
+    {
+      "from": 202,
+      "to": 464,
+      "label": "Save + authenticate"
+    },
+    {
+      "from": 470,
+      "to": 732,
+      "label": "Validate + commit"
+    },
+    {
+      "from": 738,
+      "to": 800,
+      "label": "Response"
+    },
+    {
+      "from": 806,
+      "to": 1062,
+      "label": "After response"
+    }
+  ],
+  "messages": [
+    {
+      "id": "keep-draft",
+      "from": "pwa",
+      "to": "device",
+      "y": 172,
+      "label": "write draft",
+      "variant": "dashed"
+    },
+    {
+      "id": "put-draft",
+      "from": "pwa",
+      "to": "api",
+      "y": 228,
+      "label": "PUT /draft",
+      "variant": "emphasis",
+      "note": "same gate; 200 saves the text"
+    },
+    {
+      "id": "draft-saved",
+      "from": "api",
+      "to": "pwa",
+      "y": 286,
+      "label": "200 saved",
+      "variant": "return"
+    },
+    {
+      "id": "post-submit",
+      "from": "pwa",
+      "to": "api",
+      "y": 316,
+      "label": "POST /submit",
+      "variant": "emphasis"
+    },
+    {
+      "id": "authenticate",
+      "from": "api",
+      "to": "auth",
+      "y": 346,
+      "label": "auth(\"st\")",
+      "variant": "security"
+    },
+    {
+      "id": "load-session",
+      "from": "auth",
+      "to": "db",
+      "y": 376,
+      "label": "session, user",
+      "variant": "security"
+    },
+    {
+      "id": "session-rows",
+      "from": "db",
+      "to": "auth",
+      "y": 406,
+      "label": "rows",
+      "variant": "return"
+    },
+    {
+      "id": "actor",
+      "from": "auth",
+      "to": "api",
+      "y": 434,
+      "label": "Actor",
+      "variant": "return",
+      "note": "else 401 / 403"
+    },
+    {
+      "id": "call-submit",
+      "from": "api",
+      "to": "svc",
+      "y": 488,
+      "label": "submit()"
+    },
+    {
+      "id": "read-draft",
+      "from": "svc",
+      "to": "db",
+      "y": 518,
+      "label": "draft, settings"
+    },
+    {
+      "id": "draft-rows",
+      "from": "db",
+      "to": "svc",
+      "y": 548,
+      "label": "rows",
+      "variant": "return"
+    },
+    {
+      "id": "write-state",
+      "from": "svc",
+      "to": "db",
+      "y": 578,
+      "label": "submitted + audit + outbox",
+      "variant": "emphasis",
+      "note": "outbox row = report.submitted event"
+    },
+    {
+      "id": "version",
+      "from": "svc",
+      "to": "api",
+      "y": 638,
+      "label": "version",
+      "variant": "return",
+      "note": "409 / 422: no commit"
+    },
+    {
+      "id": "commit",
+      "from": "api",
+      "to": "db",
+      "y": 684,
+      "label": "pending check, COMMIT",
+      "variant": "emphasis"
+    },
+    {
+      "id": "committed",
+      "from": "db",
+      "to": "api",
+      "y": 714,
+      "label": "ok",
+      "variant": "return"
+    },
+    {
+      "id": "response",
+      "from": "api",
+      "to": "pwa",
+      "y": 750,
+      "label": "200 SlotOut",
+      "variant": "return"
+    },
+    {
+      "id": "clear-draft",
+      "from": "pwa",
+      "to": "device",
+      "y": 782,
+      "label": "remove draft",
+      "variant": "dashed"
+    },
+    {
+      "id": "start-check",
+      "from": "api",
+      "to": "bg",
+      "y": 826,
+      "label": "run check",
+      "variant": "dashed",
+      "note": "starts after the response"
+    },
+    {
+      "id": "get-model",
+      "from": "bg",
+      "to": "model",
+      "y": 872,
+      "label": "get_embedder()",
+      "note": "hit: loaded model; miss: load once"
+    },
+    {
+      "id": "vectors",
+      "from": "model",
+      "to": "bg",
+      "y": 930,
+      "label": "vectors or None",
+      "variant": "return"
+    },
+    {
+      "id": "save-check",
+      "from": "bg",
+      "to": "db",
+      "y": 960,
+      "label": "kNN, passages, COMMIT",
+      "variant": "emphasis"
+    },
+    {
+      "id": "mark-failed",
+      "from": "bg",
+      "to": "db",
+      "y": 992,
+      "label": "on error: failed",
+      "variant": "dashed",
+      "note": "retry job re-runs it, max 3"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "pwa",
+      "from": 166,
+      "to": 788,
+      "type": "frontend"
+    },
+    {
+      "participant": "api",
+      "from": 222,
+      "to": 292,
+      "type": "backend"
+    },
+    {
+      "participant": "api",
+      "from": 310,
+      "to": 832,
+      "type": "backend"
+    },
+    {
+      "participant": "auth",
+      "from": 340,
+      "to": 440,
+      "type": "security"
+    },
+    {
+      "participant": "svc",
+      "from": 482,
+      "to": 644,
+      "type": "backend"
+    },
+    {
+      "participant": "bg",
+      "from": 820,
+      "to": 998,
+      "type": "messagebus"
+    },
+    {
+      "participant": "model",
+      "from": 866,
+      "to": 936,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Request path",
+      "items": [
+        "The Submit button first saves the draft (PUT), then calls POST /api/v1/report-slots/{id}/submit",
+        "Gate failures stop at 401/403; submit checks stop at 409/422 before db.commit(), so nothing is saved",
+        "One commit stores the new status, the audit entry, the report.submitted outbox row and a pending similarity check"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Cache and fallbacks",
+      "items": [
+        "No HTTP or Redis cache exists; system settings are read from the database on each request",
+        "The only hit/miss is the embedding model held in process memory; it is None when AI is off or loading failed",
+        "The draft text stays in localStorage until the server has it and is removed after a successful save or submit",
+        "A failed or model-less check is saved as failed; similarity_retry re-runs it every 5 minutes, up to 3 attempts"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Asynchronous work",
+      "items": [
+        "The similarity check runs in a Starlette background task after the 200 is sent, in its own session",
+        "The outbox row is the event: the deliver_notifications job emails and pushes it to the supervisor within about a minute",
+        "There is no distributed tracing; failures go to the Python log and job results to job_runs"
+      ]
+    }
+  ]
+}
