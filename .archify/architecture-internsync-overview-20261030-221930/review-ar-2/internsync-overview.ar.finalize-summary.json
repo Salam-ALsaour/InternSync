@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/candidate.ar.json",
+    "sha256": "3293b680e1ac5b8799982ae846ee2f4f61d0470ff5e83bd9eda9b0cf081c4744",
+    "bytes": 13022
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.ar.html",
+    "sha256": "003fed13a092e851e23b072a770f521855ec65d95141f0c00951c2a53c2244a2",
+    "bytes": 876057
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/review-ar-2/internsync-overview.ar.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/review-ar-2/internsync-overview.ar.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/review-ar-2/internsync-overview.ar.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3419,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "lifecycle",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/lifecycle-report-slot-20261030-223423/candidate.ar.json",
+    "sha256": "1fb410ffd104794abb64c9121510d39c7ca0d3b0d1105e6222d47fbc06fc5e8a",
+    "bytes": 7239
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/lifecycle-report-slot-20261030-223423/report-slot.ar.html",
+    "sha256": "d9e76bb2f83cd23597c9d61cd9187752c0cfc2530731a95ef7e829c10c3345eb",
+    "bytes": 859942
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/lifecycle-report-slot-20261030-223423/report-slot.ar.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/lifecycle-report-slot-20261030-223423/report-slot.ar.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/lifecycle-report-slot-20261030-223423/report-slot.ar.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2282,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "resolvedCrossovers": 2
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [
+        {
+          "left": {
+            "id": "late-submit",
+            "from": "missing",
+            "to": "submitted",
+            "label": "إرسال متأخر",
+            "collectionIndex": 5,
+            "artifactIndex": 6
+          },
+          "right": {
+            "id": "freeze-draft",
+            "from": "draft",
+            "to": "frozen",
+            "label": "انتهاء التوزيع أو الدورة",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "point": [
+            467,
+            144.00000000000003
+          ]
+        },
+        {
+          "left": {
+            "id": "late-submit",
+            "from": "missing",
+            "to": "submitted",
+            "label": "إرسال متأخر",
+            "collectionIndex": 5,
+            "artifactIndex": 6
+          },
+          "right": {
+            "id": "freeze-submitted",
+            "from": "submitted",
+            "to": "frozen",
+            "label": "انتهاء التوزيع أو الدورة",
+            "collectionIndex": 8,
+            "artifactIndex": 9
+          },
+          "point": [
+            467,
+            144.00000000000003
+          ],
+          "sharedNode": "submitted"
+        }
+      ],
+      "detours": [],
+      "truncated": false
+    },
+    "repair": "Advisory only: this mode places or routes these relationships itself. Report them; do not remove relationships or meaning to reduce crossings."
+  }
+}

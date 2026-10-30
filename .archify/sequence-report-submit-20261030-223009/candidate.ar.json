@@ -1,0 +1,453 @@
+{
+ "schema_version": 1,
+ "diagram_type": "sequence",
+ "meta": {
+  "title": "طلب إرسال التقرير من المستدعي حتى الرد",
+  "output": ".archify/sequence-report-submit-20261030-223009/report-submit.ar.html",
+  "locale": "ar",
+  "quality_profile": "showcase",
+  "repository": {
+   "url": "https://github.com/Salam-ALsaour/InternSync",
+   "provider": "github",
+   "link_mode": "web",
+   "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+  },
+  "legend": {
+   "entries": {
+    "dashed": {
+     "label": "غير متزامن أو كتابة على الجهاز"
+    },
+    "emphasis": {
+     "label": "الطلب الرئيسي"
+    }
+   }
+  }
+ },
+ "participants": [
+  {
+   "id": "pwa",
+   "type": "frontend",
+   "label": "تطبيق الويب",
+   "sublabel": "ReportSlot",
+   "sources": [
+    {
+     "path": "frontend/src/pages/shared/ReportSlot.tsx",
+     "line": 77,
+     "end_line": 96,
+     "label": "⁧PUT ثم POST submit⁩"
+    }
+   ]
+  },
+  {
+   "id": "device",
+   "type": "database",
+   "label": "مسودة الجهاز",
+   "sublabel": "localStorage",
+   "sources": [
+    {
+     "path": "frontend/src/lib/offline.ts",
+     "line": 1,
+     "end_line": 6,
+     "label": "مسودات بلا اتصال"
+    },
+    {
+     "path": "frontend/src/lib/offline.ts",
+     "line": 225,
+     "end_line": 248,
+     "label": "write / saved / push"
+    }
+   ]
+  },
+  {
+   "id": "api",
+   "type": "backend",
+   "label": "⁧router التقارير⁩",
+   "sublabel": "FastAPI",
+   "sources": [
+    {
+     "path": "backend/app/reports/router.py",
+     "line": 145,
+     "end_line": 150,
+     "label": "⁧PUT المسودة⁩"
+    },
+    {
+     "path": "backend/app/reports/router.py",
+     "line": 172,
+     "end_line": 180,
+     "label": "POST submit"
+    }
+   ]
+  },
+  {
+   "id": "auth",
+   "type": "security",
+   "label": "بوابة التحقق",
+   "sublabel": "auth(\"st\")",
+   "sources": [
+    {
+     "path": "backend/app/core/deps.py",
+     "line": 43,
+     "end_line": 72,
+     "label": "authenticate"
+    },
+    {
+     "path": "backend/app/core/deps.py",
+     "line": 75,
+     "end_line": 88,
+     "label": "البوابات"
+    }
+   ]
+  },
+  {
+   "id": "svc",
+   "type": "backend",
+   "label": "خدمة التقارير",
+   "sublabel": "submit()",
+   "sources": [
+    {
+     "path": "backend/app/reports/service.py",
+     "line": 211,
+     "end_line": 243,
+     "label": "الإرسال"
+    }
+   ]
+  },
+  {
+   "id": "db",
+   "type": "database",
+   "label": "PostgreSQL",
+   "sublabel": "جلسة واحدة",
+   "sources": [
+    {
+     "path": "backend/app/core/db.py",
+     "line": 22,
+     "end_line": 31,
+     "label": "جلسة لكل طلب"
+    },
+    {
+     "path": "backend/app/notifications/service.py",
+     "line": 20,
+     "end_line": 33,
+     "label": "⁧إدراج في الـ outbox⁩"
+    },
+    {
+     "path": "backend/app/similarity/service.py",
+     "line": 38,
+     "end_line": 42,
+     "label": "فحص معلّق"
+    }
+   ]
+  },
+  {
+   "id": "bg",
+   "type": "messagebus",
+   "label": "مهمة التشابه",
+   "sublabel": "BackgroundTasks",
+   "sources": [
+    {
+     "path": "backend/app/similarity/service.py",
+     "line": 91,
+     "end_line": 105,
+     "label": "run_in_background"
+    }
+   ]
+  },
+  {
+   "id": "model",
+   "type": "backend",
+   "label": "نموذج التضمين",
+   "sublabel": "ذاكرة داخل العملية",
+   "sources": [
+    {
+     "path": "backend/app/ai/embeddings.py",
+     "line": 57,
+     "end_line": 76,
+     "label": "get_embedder"
+    }
+   ]
+  }
+ ],
+ "segments": [
+  {
+   "from": 150,
+   "to": 196,
+   "label": "حفظ على الجهاز"
+  },
+  {
+   "from": 202,
+   "to": 464,
+   "label": "حفظ المسودة والمصادقة"
+  },
+  {
+   "from": 470,
+   "to": 732,
+   "label": "التحقق والحفظ"
+  },
+  {
+   "from": 738,
+   "to": 800,
+   "label": "الرد"
+  },
+  {
+   "from": 806,
+   "to": 1062,
+   "label": "بعد الرد"
+  }
+ ],
+ "messages": [
+  {
+   "id": "keep-draft",
+   "from": "pwa",
+   "to": "device",
+   "y": 172,
+   "label": "حفظ المسودة",
+   "variant": "dashed"
+  },
+  {
+   "id": "put-draft",
+   "from": "pwa",
+   "to": "api",
+   "y": 228,
+   "label": "PUT /draft",
+   "variant": "emphasis",
+   "note": "⁧نفس البوابة؛ 200 يحفظ النص⁩"
+  },
+  {
+   "id": "draft-saved",
+   "from": "api",
+   "to": "pwa",
+   "y": 286,
+   "label": "⁧200 حُفظت⁩",
+   "variant": "return"
+  },
+  {
+   "id": "post-submit",
+   "from": "pwa",
+   "to": "api",
+   "y": 316,
+   "label": "POST /submit",
+   "variant": "emphasis"
+  },
+  {
+   "id": "authenticate",
+   "from": "api",
+   "to": "auth",
+   "y": 346,
+   "label": "auth(\"st\")",
+   "variant": "security"
+  },
+  {
+   "id": "load-session",
+   "from": "auth",
+   "to": "db",
+   "y": 376,
+   "label": "الجلسة والمستخدم",
+   "variant": "security"
+  },
+  {
+   "id": "session-rows",
+   "from": "db",
+   "to": "auth",
+   "y": 406,
+   "label": "الصفوف",
+   "variant": "return"
+  },
+  {
+   "id": "actor",
+   "from": "auth",
+   "to": "api",
+   "y": 434,
+   "label": "Actor",
+   "variant": "return",
+   "note": "⁧وإلا 401 / 403⁩"
+  },
+  {
+   "id": "call-submit",
+   "from": "api",
+   "to": "svc",
+   "y": 488,
+   "label": "submit()"
+  },
+  {
+   "id": "read-draft",
+   "from": "svc",
+   "to": "db",
+   "y": 518,
+   "label": "المسودة والإعدادات"
+  },
+  {
+   "id": "draft-rows",
+   "from": "db",
+   "to": "svc",
+   "y": 548,
+   "label": "الصفوف",
+   "variant": "return"
+  },
+  {
+   "id": "write-state",
+   "from": "svc",
+   "to": "db",
+   "y": 578,
+   "label": "⁧مُسلَّم + تدقيق + outbox⁩",
+   "variant": "emphasis",
+   "note": "⁧صف الـ outbox هو حدث report.submitted⁩"
+  },
+  {
+   "id": "version",
+   "from": "svc",
+   "to": "api",
+   "y": 638,
+   "label": "النسخة",
+   "variant": "return",
+   "note": "⁧409 / 422: بلا حفظ⁩"
+  },
+  {
+   "id": "commit",
+   "from": "api",
+   "to": "db",
+   "y": 684,
+   "label": "⁧فحص معلّق، COMMIT⁩",
+   "variant": "emphasis"
+  },
+  {
+   "id": "committed",
+   "from": "db",
+   "to": "api",
+   "y": 714,
+   "label": "تم",
+   "variant": "return"
+  },
+  {
+   "id": "response",
+   "from": "api",
+   "to": "pwa",
+   "y": 750,
+   "label": "200 SlotOut",
+   "variant": "return"
+  },
+  {
+   "id": "clear-draft",
+   "from": "pwa",
+   "to": "device",
+   "y": 782,
+   "label": "حذف المسودة",
+   "variant": "dashed"
+  },
+  {
+   "id": "start-check",
+   "from": "api",
+   "to": "bg",
+   "y": 826,
+   "label": "تشغيل الفحص",
+   "variant": "dashed",
+   "note": "يبدأ بعد الرد"
+  },
+  {
+   "id": "get-model",
+   "from": "bg",
+   "to": "model",
+   "y": 872,
+   "label": "get_embedder()",
+   "note": "⁧hit: النموذج محمّل؛ miss: يُحمَّل مرة⁩"
+  },
+  {
+   "id": "vectors",
+   "from": "model",
+   "to": "bg",
+   "y": 930,
+   "label": "⁧المتجهات أو None⁩",
+   "variant": "return"
+  },
+  {
+   "id": "save-check",
+   "from": "bg",
+   "to": "db",
+   "y": 960,
+   "label": "⁧kNN، المقاطع، COMMIT⁩",
+   "variant": "emphasis"
+  },
+  {
+   "id": "mark-failed",
+   "from": "bg",
+   "to": "db",
+   "y": 992,
+   "label": "⁧عند الخطأ: failed⁩",
+   "variant": "dashed",
+   "note": "⁧مهمة الإعادة تعيده، 3 مرات كحد أقصى⁩"
+  }
+ ],
+ "activations": [
+  {
+   "participant": "pwa",
+   "from": 166,
+   "to": 788,
+   "type": "frontend"
+  },
+  {
+   "participant": "api",
+   "from": 222,
+   "to": 292,
+   "type": "backend"
+  },
+  {
+   "participant": "api",
+   "from": 310,
+   "to": 832,
+   "type": "backend"
+  },
+  {
+   "participant": "auth",
+   "from": 340,
+   "to": 440,
+   "type": "security"
+  },
+  {
+   "participant": "svc",
+   "from": 482,
+   "to": 644,
+   "type": "backend"
+  },
+  {
+   "participant": "bg",
+   "from": 820,
+   "to": 998,
+   "type": "messagebus"
+  },
+  {
+   "participant": "model",
+   "from": 866,
+   "to": 936,
+   "type": "backend"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "مسار الطلب",
+   "items": [
+    "⁧زر الإرسال يحفظ المسودة أولاً (PUT)، ثم يستدعي POST /api/v1/report-slots/{id}/submit⁩",
+    "⁧أخطاء البوابة تتوقف عند 401/403، وفحوص الإرسال تتوقف عند 409/422 قبل db.commit()، فلا يُحفظ شيء⁩",
+    "⁧حفظ واحد يخزّن الحالة الجديدة وسجل التدقيق وصف report.submitted في الـ outbox وفحص تشابه معلّق⁩"
+   ]
+  },
+  {
+   "dot": "amber",
+   "title": "⁧الـ cache والبدائل⁩",
+   "items": [
+    "⁧لا يوجد cache لـ HTTP ولا Redis؛ إعدادات النظام تُقرأ من قاعدة البيانات في كل طلب⁩",
+    "⁧الـ hit/miss الوحيد هو نموذج التضمين المحفوظ في ذاكرة العملية، ويكون None إذا كان الذكاء الاصطناعي متوقفاً أو فشل تحميله⁩",
+    "⁧نص المسودة يبقى في localStorage حتى يصل للخادم، ويُحذف بعد حفظ أو إرسال ناجح⁩",
+    "⁧الفحص الفاشل أو الذي بلا نموذج يُحفظ failed، وsimilarity_retry يعيده كل 5 دقائق حتى 3 محاولات⁩"
+   ]
+  },
+  {
+   "dot": "violet",
+   "title": "العمل غير المتزامن",
+   "items": [
+    "⁧فحص التشابه يعمل في background task من Starlette بعد إرسال الـ 200، في جلسة خاصة به⁩",
+    "⁧صف الـ outbox هو الحدث: مهمة deliver_notifications ترسله للمشرف بالبريد والإشعار الفوري خلال دقيقة تقريباً⁩",
+    "⁧لا يوجد distributed tracing؛ الأخطاء تذهب لسجل Python، ونتائج المهام إلى job_runs⁩"
+   ]
+  }
+ ]
+}
