@@ -1,8 +1,9 @@
 """Bundle the Archify diagrams into one bilingual HTML file: a tab per diagram, Arabic first, with an English switch.
 
-Archify writes one standalone page per diagram and language. This script stores every page in a single file and shows
-it in a full-height frame when its tab is chosen, so each diagram keeps its own viewer controls. Pages are split at
-their <script> and <style> blocks and identical pieces are stored once, since every page carries the same viewer.
+Archify writes one standalone page per diagram and language. This script stores every page in docs/diagrams.html
+and shows it in a full-height frame when its tab is chosen, so each diagram keeps its own viewer controls. Pages are
+split at their <script> and <style> blocks and identical pieces are stored once, since every page carries the same
+viewer.
 
     python .archify/build_tabs.py            # from the repository root
 """
@@ -11,7 +12,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-OUT = ROOT / "internsync-diagrams.html"
+OUT = ROOT.parent / "docs" / "diagrams.html"
 
 # key, folder, page stem (English is <stem>.html, Arabic <stem>.ar.html), tab labels and captions
 TABS = [
