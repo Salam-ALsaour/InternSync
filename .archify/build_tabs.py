@@ -1,4 +1,4 @@
-"""Bundle the Archify diagrams into one bilingual HTML file: a tab per diagram, Arabic first, with an English switch.
+"""Bundle the Archify diagrams into one bilingual HTML file: a tab per diagram, English first, with an Arabic switch.
 
 Archify writes one standalone page per diagram and language. This script stores every page in docs/diagrams.html
 and shows it in a full-height frame when its tab is chosen, so each diagram keeps its own viewer controls. Pages are
@@ -45,11 +45,11 @@ LANGS = {"ar": ".ar.html", "en": ".html"}
 SPLIT = re.compile(r"(?=<script)|(?<=</script>)|(?=<style)|(?<=</style>)")
 
 PAGE = """<!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>مخططات InternSync · InternSync diagrams</title>
+<title>InternSync diagrams · مخططات InternSync</title>
 <style>
 :root { --bg:#f6f7f9; --bar:#ffffff; --line:#d9dde3; --text:#1d2430; --muted:#5b6575; --accent:#0f766e; --chip:#eef1f4; }
 @media (prefers-color-scheme: dark) {
@@ -99,8 +99,9 @@ const UI = {
   en: { dir: 'ltr', title: 'InternSync diagrams', nav: 'Diagrams', switchTo: 'العربية', switchLabel: 'التبديل إلى العربية' },
 };
 const frames = {};
-let lang = 'ar', key = TABS[0].key;
-try { const saved = localStorage.getItem('internsync-diagrams-lang'); if (saved in UI) lang = saved; } catch (e) {}
+const CHOICE = 'internsync-diagrams-lang-choice';  // set only when the reader presses the language button
+let lang = 'en', key = TABS[0].key;
+try { const saved = localStorage.getItem(CHOICE); if (saved in UI) lang = saved; } catch (e) {}
 const m = location.hash.match(/^#(ar|en)\\/(\\w+)$/);
 if (m && TABS.some((t) => t.key === m[2])) { lang = m[1]; key = m[2]; }
 
@@ -158,9 +159,12 @@ function render() {
   const shown = frame(lang, key);
   for (const f of Object.values(frames)) f.classList.toggle('off', f !== shown);
   try { history.replaceState(null, '', '#' + lang + '/' + key); } catch (e) {}
-  try { localStorage.setItem('internsync-diagrams-lang', lang); } catch (e) {}
 }
-document.getElementById('lang').addEventListener('click', () => { lang = lang === 'ar' ? 'en' : 'ar'; render(); });
+document.getElementById('lang').addEventListener('click', () => {
+  lang = lang === 'ar' ? 'en' : 'ar';
+  try { localStorage.setItem(CHOICE, lang); } catch (e) {}
+  render();
+});
 render();
 </script>
 </body>
