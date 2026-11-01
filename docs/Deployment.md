@@ -1,6 +1,6 @@
 # InternSync – Deployment
 
-**Version 1.2 · October 28, 2026 · Increments 2 to 4 (decision RQ-8 of Increment 2)**
+**Version 1.3 · November 1, 2026 · Increments 2 to 4 (decision RQ-8 of Increment 2)**
 
 This document describes the zero-cost reference deployment of System Design Section 3 and how to switch it on. Everything in the repository is ready. The deployment is switched on once the owner has done the steps in Section 3, which need accounts only the owner can create. Until then, the deployment workflows run and report that there is nothing to do.
 
@@ -9,6 +9,7 @@ This document describes the zero-cost reference deployment of System Design Sect
 | **Part** | **Service (free tier)** | **What runs there** |
 |:---|:---|:---|
 | Web app | Vercel Hobby | The static build of `frontend/`; `VITE_API_URL` points it at the API |
+| Domain | `internsync.tech`, bought by the team | Points at the web app on Vercel (Section 4, step 6); the API keeps its Space address |
 | API | Hugging Face Space, Docker, CPU basic | The image from `backend/Dockerfile` with the embedding model inside; port 7860 |
 | Database | Supabase Free | PostgreSQL with `vector` and `pg_trgm`; the API runs the migrations at every start |
 | Uploaded files | Supabase Storage | One private bucket, `internsync-files`, created by the API at start; reached only by the API |
@@ -76,7 +77,7 @@ These steps can be done with the owner's connected Supabase, Vercel, and GitHub 
    |:---|:---|
    | `HF_SPACE` | `<username>/internsync-api` |
    | `API_URL` | `https://<username>-internsync-api.hf.space` (lower case; `_` and `.` become `-`) |
-   | `WEB_URL` | The Vercel production address, after step 5 |
+   | `WEB_URL` | The Vercel production address after step 5; `https://internsync.tech` after step 6 |
    | `VAPID_PUBLIC_KEY` | The public half of the web push key pair |
    | `VAPID_SUBJECT` | `mailto:` and the Gmail address that sends the emails |
 
@@ -89,14 +90,21 @@ These steps can be done with the owner's connected Supabase, Vercel, and GitHub 
    - Import the repository in Vercel with the root directory `frontend`.
    - Add the environment variable `VITE_API_URL` with the value of `API_URL`, then deploy.
    - Put the production address in `WEB_URL` and run Deploy API again, so that the API accepts calls from the web app (`CORS_ORIGINS`) and the email links open it (`FRONTEND_BASE_URL`).
-6. **First Platform Admin.** From `backend/` on the owner's computer, with the Session pooler string, run:
+6. **Domain `internsync.tech`.** The web app moves to the team's domain; the API keeps its Space address.
+   - In Vercel, open the project's Settings → Domains and add `internsync.tech` and `www.internsync.tech`. Keep `internsync.tech` as the address and let `www.internsync.tech` redirect to it, because the API accepts calls from one address only.
+   - At the registrar where the domain was bought, add the DNS records that Vercel shows for each domain, and wait until Vercel marks them as valid. Vercel issues the HTTPS certificate.
+   - Set the `WEB_URL` variable to `https://internsync.tech` and run Deploy API. The API then accepts calls from the domain (`CORS_ORIGINS`), and the email links and the QR codes of new certificates open it (`FRONTEND_BASE_URL`).
+   - Nothing else changes. `VITE_API_URL` and the `connect-src` of the Content-Security-Policy name the API, not the web app. The pages need no change either: `vercel.json` sends every path to the app, so `internsync.tech/login` or `internsync.tech/student/reports` opens directly.
+   - From then on, share only `https://internsync.tech`. The old `*.vercel.app` address still loads, but the API refuses its calls. A certificate keeps the address it was issued with in the QR code of its PDF, so set up the domain before issuing real certificates.
+   - Check: open `https://internsync.tech/login` directly, sign in, and ask for a password reset; the link in the email opens the domain.
+7. **First Platform Admin.** From `backend/` on the owner's computer, with the Session pooler string, run:
 
    ```bash
    DATABASE_URL="<session pooler string>" python -m app.cli create-platform-admin --email "<email>" --name-en "<name>" --name-ar "<name>"
    ```
 
    The password is asked for on the terminal.
-7. **Checks.**
+8. **Checks.**
    - Run Keep alive and Backup by hand once each.
    - Restore the backup once into a scratch database and a scratch bucket (Section 6).
    - Sign in, register a test student, and confirm the email arrives.
@@ -131,7 +139,7 @@ The settings the script sets on the Space, which are not secret, are `ENV=produc
    SUPABASE_URL="<url>" SUPABASE_SERVICE_KEY="<key>" python scripts/backup_files.py --restore files.tar
    ```
 
-The database procedure was rehearsed on October 26, 2026 with the local demo database: dump, encryption, decryption, and restore into a scratch database, with the same row counts in every table checked, embeddings included. The copy and restore of files is covered by an automated test against a stand-in of the Storage API, and is repeated against the real bucket in the switch-on checks (Section 4, step 7). Restoring into the local PostgreSQL 16 gives one harmless error for a setting that only version 17 knows (`transaction_timeout`); the hosted database runs version 17.
+The database procedure was rehearsed on October 26, 2026 with the local demo database: dump, encryption, decryption, and restore into a scratch database, with the same row counts in every table checked, embeddings included. The copy and restore of files is covered by an automated test against a stand-in of the Storage API, and is repeated against the real bucket in the switch-on checks (Section 4, step 8). Restoring into the local PostgreSQL 16 gives one harmless error for a setting that only version 17 knows (`transaction_timeout`); the hosted database runs version 17.
 
 ## 7. Limits and Fallback
 
@@ -150,3 +158,4 @@ The database procedure was rehearsed on October 26, 2026 with the local demo dat
 | 1.0 | Oct 26, 2026 | First version (Increment 2, RQ-8) |
 | 1.1 | Oct 27, 2026 | Web push keys (Increment 3, FR-PWA-02): one secret and two variables, copied to the Space by the deploy script |
 | 1.2 | Oct 28, 2026 | Increment 4: the weekly ZAP scan workflow, the Content-Security-Policy in `vercel.json`, and the Actions minutes of the browser tests and the scan |
+| 1.3 | Nov 1, 2026 | The domain `internsync.tech`: Vercel domain, DNS records, `WEB_URL`, and what changes for calls to the API, email links, and certificate QR codes |
