@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "diagram_type": "class",
+  "meta": {
+    "title": "Report Review Classes",
+    "output": ".archify/class-report-review-20261101-225053/report-review-classes.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Salam-ALsaour/InternSync",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "06626474ae5ced5bed4886c909478bcdd014a708"
+    }
+  },
+  "layout": {
+    "mode": "grid",
+    "typeMaxW": 340
+  },
+  "types": [
+    {
+      "id": "actor",
+      "label": "Actor",
+      "kind": "record",
+      "sublabel": "signed-in caller (core/deps.py)",
+      "row": 0,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "user",
+          "type": "User",
+          "visibility": "public"
+        },
+        {
+          "name": "session",
+          "type": "UserSession",
+          "visibility": "public"
+        }
+      ],
+      "methods": [
+        {
+          "name": "code",
+          "returns": "str",
+          "visibility": "public"
+        },
+        {
+          "name": "has",
+          "parameters": "*roles: str",
+          "returns": "bool",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/core/deps.py",
+          "line": 22,
+          "end_line": 40
+        }
+      ]
+    },
+    {
+      "id": "reports_service",
+      "label": "reports.service",
+      "kind": "class",
+      "sublabel": "module of functions (utility)",
+      "row": 0,
+      "col": 1,
+      "methods": [
+        {
+          "name": "next_state",
+          "parameters": "current, action",
+          "returns": "str",
+          "visibility": "public"
+        },
+        {
+          "name": "save_draft",
+          "parameters": "actor, slot, placement, data",
+          "returns": "ReportVersion",
+          "visibility": "public"
+        },
+        {
+          "name": "submit",
+          "parameters": "actor, slot, placement",
+          "returns": "ReportVersion",
+          "visibility": "public"
+        },
+        {
+          "name": "accept",
+          "parameters": "actor, slot, placement",
+          "returns": "None",
+          "visibility": "public"
+        },
+        {
+          "name": "request_revision",
+          "parameters": "actor, slot, placement, comment",
+          "returns": "None",
+          "visibility": "public"
+        },
+        {
+          "name": "close_missing",
+          "parameters": "actor, slot, placement",
+          "returns": "None",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 29,
+          "end_line": 45
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 163,
+          "end_line": 243
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 247,
+          "end_line": 288
+        }
+      ]
+    },
+    {
+      "id": "similarity_service",
+      "label": "similarity.service",
+      "kind": "class",
+      "sublabel": "module of functions (utility)",
+      "row": 0,
+      "col": 2,
+      "methods": [
+        {
+          "name": "create_check",
+          "parameters": "version",
+          "returns": "SimilarityCheck",
+          "visibility": "public"
+        },
+        {
+          "name": "check",
+          "parameters": "check_id",
+          "returns": "SimilarityCheck",
+          "visibility": "public"
+        },
+        {
+          "name": "run_in_background",
+          "parameters": "check_id",
+          "returns": "None",
+          "visibility": "public"
+        },
+        {
+          "name": "retry",
+          "returns": "int",
+          "visibility": "public"
+        },
+        {
+          "name": "decide",
+          "parameters": "actor, version, decision, comment",
+          "returns": "None",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 38,
+          "end_line": 118
+        },
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 170,
+          "end_line": 186
+        }
+      ]
+    },
+    {
+      "id": "slot_status",
+      "label": "SlotStatus",
+      "kind": "enum",
+      "sublabel": "SLOT_STATES, a CHECK constraint",
+      "row": 1,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "draft"
+        },
+        {
+          "name": "submitted"
+        },
+        {
+          "name": "revision_requested"
+        },
+        {
+          "name": "accepted"
+        },
+        {
+          "name": "closed_missing"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/models/reports.py",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "id": "report_slot",
+      "label": "ReportSlot",
+      "kind": "class",
+      "sublabel": "one weekly or final report of a placement",
+      "row": 1,
+      "col": 1,
+      "attributes": [
+        {
+          "name": "placement_id",
+          "type": "UUID",
+          "visibility": "public"
+        },
+        {
+          "name": "kind",
+          "type": "weekly | final",
+          "visibility": "public"
+        },
+        {
+          "name": "week_no",
+          "type": "int | None",
+          "visibility": "public"
+        },
+        {
+          "name": "due_at",
+          "type": "datetime",
+          "visibility": "public"
+        },
+        {
+          "name": "status",
+          "type": "SlotStatus",
+          "visibility": "public"
+        },
+        {
+          "name": "is_late",
+          "type": "bool",
+          "visibility": "public"
+        },
+        {
+          "name": "is_missing",
+          "type": "bool",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/models/reports.py",
+          "line": 14,
+          "end_line": 35
+        }
+      ]
+    },
+    {
+      "id": "report_comment",
+      "label": "ReportComment",
+      "kind": "class",
+      "sublabel": "comment thread on a slot",
+      "row": 2,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "author_id",
+          "type": "UUID",
+          "visibility": "public"
+        },
+        {
+          "name": "body",
+          "type": "str",
+          "visibility": "public"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/models/reports.py",
+          "line": 84,
+          "end_line": 91
+        }
+      ]
+    },
+    {
+      "id": "report_version",
+      "label": "ReportVersion",
+      "kind": "class",
+      "sublabel": "a draft or a submitted version",
+      "row": 2,
+      "col": 1,
+      "attributes": [
+        {
+          "name": "version_no",
+          "type": "int",
+          "visibility": "public"
+        },
+        {
+          "name": "tasks_performed",
+          "type": "str | None",
+          "visibility": "public"
+        },
+        {
+          "name": "summary",
+          "type": "str | None",
+          "visibility": "public"
+        },
+        {
+          "name": "body_text",
+          "type": "str | None",
+          "visibility": "public"
+        },
+        {
+          "name": "submitted_at",
+          "type": "datetime | None",
+          "visibility": "public"
+        },
+        {
+          "name": "is_late",
+          "type": "bool | None",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/models/reports.py",
+          "line": 38,
+          "end_line": 56
+        }
+      ]
+    },
+    {
+      "id": "similarity_check",
+      "label": "SimilarityCheck",
+      "kind": "class",
+      "sublabel": "one check per submitted version",
+      "row": 2,
+      "col": 2,
+      "attributes": [
+        {
+          "name": "status",
+          "type": "pending | done | failed",
+          "visibility": "public"
+        },
+        {
+          "name": "max_score",
+          "type": "Decimal | None",
+          "visibility": "public"
+        },
+        {
+          "name": "is_flagged",
+          "type": "bool",
+          "visibility": "public"
+        },
+        {
+          "name": "attempts",
+          "type": "int",
+          "visibility": "public"
+        },
+        {
+          "name": "decision",
+          "type": "str | None",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/models/notices.py",
+          "line": 84,
+          "end_line": 107
+        }
+      ]
+    },
+    {
+      "id": "report_attachment",
+      "label": "ReportAttachment",
+      "kind": "class",
+      "sublabel": "file of a version",
+      "row": 3,
+      "col": 0,
+      "attributes": [
+        {
+          "name": "file_id",
+          "type": "UUID",
+          "visibility": "public"
+        },
+        {
+          "name": "role",
+          "type": "main | attachment",
+          "visibility": "public"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/models/reports.py",
+          "line": 59,
+          "end_line": 66
+        }
+      ]
+    },
+    {
+      "id": "report_review",
+      "label": "ReportReview",
+      "kind": "class",
+      "sublabel": "supervisor decision on a version",
+      "row": 3,
+      "col": 1,
+      "attributes": [
+        {
+          "name": "reviewer_id",
+          "type": "UUID",
+          "visibility": "public"
+        },
+        {
+          "name": "decision",
+          "type": "accepted | revision_requested",
+          "visibility": "public"
+        },
+        {
+          "name": "comment",
+          "type": "str | None",
+          "visibility": "public"
+        }
+      ],
+      "sources": [
+        {
+          "path": "backend/app/models/reports.py",
+          "line": 69,
+          "end_line": 81
+        }
+      ],
+      "width": 330
+    }
+  ],
+  "relationships": [
+    {
+      "id": "service-uses-actor",
+      "from": "reports_service",
+      "to": "actor",
+      "kind": "dependency",
+      "label": "checks"
+    },
+    {
+      "id": "service-changes-slot",
+      "from": "reports_service",
+      "to": "report_slot",
+      "kind": "dependency",
+      "label": "changes state"
+    },
+    {
+      "id": "slot-has-status",
+      "from": "report_slot",
+      "to": "slot_status",
+      "kind": "association",
+      "label": "status"
+    },
+    {
+      "id": "slot-versions",
+      "from": "report_slot",
+      "to": "report_version",
+      "kind": "composition",
+      "label": "versions"
+    },
+    {
+      "id": "slot-comments",
+      "from": "report_slot",
+      "to": "report_comment",
+      "kind": "composition",
+      "label": "comments"
+    },
+    {
+      "id": "version-attachments",
+      "from": "report_version",
+      "to": "report_attachment",
+      "kind": "composition",
+      "label": "attachments"
+    },
+    {
+      "id": "version-reviews",
+      "from": "report_version",
+      "to": "report_review",
+      "kind": "composition",
+      "label": "reviews"
+    },
+    {
+      "id": "check-version",
+      "from": "similarity_check",
+      "to": "report_version",
+      "kind": "association",
+      "label": "checks"
+    },
+    {
+      "id": "similarity-runs-check",
+      "from": "similarity_service",
+      "to": "similarity_check",
+      "kind": "dependency",
+      "label": "runs"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "How to read it",
+      "items": [
+        "The model classes are SQLAlchemy tables; each extends the declarative Base",
+        "reports.service and similarity.service are Python modules of functions, drawn as utility classes",
+        "A slot owns its versions and comments; a version owns its attachments and reviews"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Rules the classes carry",
+      "items": [
+        "next_state only allows the transitions of design Table 5.3; anything else is 409 INVALID_TRANSITION",
+        "One draft version per slot (partial unique index); a resubmission copies the last submitted version",
+        "A similarity check is advisory: decide() records the supervisor's decision and changes nothing else"
+      ]
+    }
+  ]
+}

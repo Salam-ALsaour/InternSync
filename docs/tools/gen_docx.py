@@ -1,5 +1,7 @@
-"""Generate the SRS Word file from InternSync_SRS.md on the CSC 305 SRS template (IEEE 830 adapted).
-Usage: python gen_docx.py <template.docx> <srs.md> <out.docx>"""
+"""Generate a Word file from a Markdown document on a CSC 305 course template (SRS, SDD, or STS: IEEE 830, 1016,
+or 829 adapted for student projects). The templates share the cover lines, the "Table of Contents" and "Evaluation"
+headings, and the header and footer, so one generator fills all of them.
+Usage: python gen_docx.py <template.docx> <document.md> <out.docx>"""
 import copy
 import re
 import sys
@@ -125,20 +127,40 @@ def widths_for(header, rows):
     n = len(h)
     if h[:4] == ["ID", "Requirement", "Priority", "Acceptance criterion"]:
         return [0.95, 2.6, 0.6, 1.85]
+    if h == ["Version", "Date", "Description", "Author"]:
+        return [0.75, 1.05, 3.2, 1.0]
+    if h == ["Test Case ID", "Feature", "Input", "Expected Output", "Actual Result", "Pass/Fail"]:  # STS template
+        return [0.62, 0.98, 1.38, 1.42, 1.08, 0.52]
     if n == 2 and (h[0] in ("Use case", "Term", "Item", "Attribute", "Priority")):
         return {"Use case": [1.35, 4.65], "Term": [1.5, 4.5], "Item": [1.6, 4.4], "Attribute": [1.2, 4.8],
                 "Priority": [1.3, 4.7]}[h[0]]
     if h[0] == "Action" and n == 7:
         return [2.1] + [0.65] * 6
-    # generic: share by content length
-    lens = []
+    # generic: share by content length, but give each column at least its longest unbreakable word (code names
+    # such as `certificates` cannot wrap)
+    lens, floors = [], []
     for j in range(n):
-        col = [len(re.sub(r"\*|`", "", r[j])) if j < len(r) else 0 for r in [header] + rows]
+        cells = [re.sub(r"\*|`|<br>", " ", r[j]) if j < len(r) else "" for r in [header] + rows]
+        col = [len(c) for c in cells]
         lens.append(max(4, min(60, sum(col) / len(col) + 0.3 * max(col))))
-    tot = sum(lens)
-    w = [max(0.55, TEXT_W * x / tot) for x in lens]
-    s = sum(w)
-    return [x * TEXT_W / s for x in w]
+        word = max((len(t) for c in cells for t in c.split()), default=0)
+        floors.append(max(0.55, min(2.2, 0.075 * word + 0.2)))
+    if sum(floors) > TEXT_W:
+        floors = [f * TEXT_W / sum(floors) for f in floors]
+    fixed = {}
+    while True:
+        free = [j for j in range(n) if j not in fixed]
+        if not free:
+            break
+        rest = TEXT_W - sum(fixed.values())
+        share = {j: rest * lens[j] / sum(lens[k] for k in free) for j in free}
+        short = [j for j in free if share[j] < floors[j]]
+        if not short:
+            fixed.update(share)
+            break
+        for j in short:
+            fixed[j] = floors[j]
+    return [fixed[j] for j in range(n)]
 
 
 def add_table(anchor, header, rows, small=False):
@@ -282,8 +304,8 @@ para(EVAL, "Table of Contents", style="TOC Heading")
 toc_field(EVAL)
 page_break(EVAL)
 
-# ------------------------------------------------------------------ body from the Markdown (from "## 1. Introduction")
-start = lines.index("## 1. Introduction")
+# ------------------------------------------------------------------ body from the Markdown (from the first "## 1. " heading)
+start = next(i for i, ln in enumerate(lines) if ln.startswith("## 1. "))
 k = start
 first_h1 = True
 last_par = None
@@ -331,7 +353,7 @@ while k < len(lines):
         para(EVAL, "").paragraph_format.space_after = Pt(2)
         last_par = None
         continue
-    if ln.startswith("> "):
+    if ln.startswith("> ") or ln.startswith("<!--"):  # block quotes and HTML comments stay out of the Word file
         k += 1
         continue
     m = re.match(r"^- (.+)$", ln)
@@ -380,16 +402,19 @@ for typ, txt in (("begin", None), (None, "PAGE"), ("separate", None), (None, Non
         t = OxmlElement("w:t"); t.text = "1"; run._r.append(t)
 run.font.size = Pt(9)
 
-# template footer: shorten the run of spaces so the line fits on one row
+# template footer: shorten the runs of spaces so the line fits on one row (they may sit inside a text run)
 for r in doc.sections[0].footer.paragraphs[0].runs:
-    if r.text.strip() == "" and len(r.text) > 5:
-        r.text = "   "
+    if re.search(r" {4,}", r.text):
+        r.text = re.sub(r" {4,}", "   ", r.text)
 
-# core properties
+# core properties, from the template's title ("Software Design Description (SDD)") and basis line ("Based on IEEE 1016")
+kind = P[0].text.strip()
+abbr = re.search(r"\(([^)]+)\)", kind)
+ieee = re.search(r"IEEE \d+", P[1].text)
 cp = doc.core_properties
-cp.title = "InternSync – Software Requirements Specification"
-cp.subject = "CSC 305 SRS (IEEE 830 adapted)"
+cp.title = "InternSync – " + re.sub(r"\s*\([^)]*\)\s*$", "", kind)
+cp.subject = f"CSC 305 {abbr.group(1) if abbr else kind} ({ieee.group(0) + ' adapted' if ieee else 'course template'})"
 cp.author = "Group 3"
-cp.revision = 13
+cp.revision = max(1, len(rev))
 doc.save(OUT)
 print("saved", OUT)
