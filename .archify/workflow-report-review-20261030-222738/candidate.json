@@ -1,0 +1,578 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Weekly Report Submit and Review Loop",
+    "output": ".archify/workflow-report-review-20261030-222738/report-review.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Salam-ALsaour/InternSync",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+    },
+    "legend": {
+      "entries": {
+        "frontend": {
+          "label": "PWA screen"
+        },
+        "backend": {
+          "label": "API / background code"
+        },
+        "security": {
+          "label": "Gate or decision"
+        },
+        "messagebus": {
+          "label": "Job / retry"
+        },
+        "database": {
+          "label": "Evidence table"
+        },
+        "external": {
+          "label": "Person"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "ui",
+      "label": "User surface (PWA)"
+    },
+    {
+      "id": "policy",
+      "label": "Policy boundary"
+    },
+    {
+      "id": "api",
+      "label": "API runtime"
+    },
+    {
+      "id": "exec",
+      "label": "Background execution"
+    },
+    {
+      "id": "errors",
+      "label": "Exception handling",
+      "variant": "exception"
+    },
+    {
+      "id": "obs",
+      "label": "Observability & evidence"
+    }
+  ],
+  "phases": [
+    {
+      "id": "request",
+      "label": "Request + gates",
+      "fromCol": 0,
+      "toCol": 1,
+      "variant": "security"
+    },
+    {
+      "id": "commit_phase",
+      "label": "Validate + commit",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "review_phase",
+      "label": "Notify + approve",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "student",
+    "gate",
+    "submit",
+    "commit",
+    "deliver",
+    "review",
+    "accepted"
+  ],
+  "nodes": [
+    {
+      "id": "student",
+      "lane": "ui",
+      "col": 0,
+      "type": "external",
+      "icon": "person",
+      "label": "Student",
+      "sublabel": "presses Submit",
+      "sources": [
+        {
+          "path": "frontend/src/pages/shared/ReportSlot.tsx",
+          "line": 87,
+          "end_line": 90,
+          "label": "submit mutation"
+        },
+        {
+          "path": "frontend/src/pages/shared/ReportSlot.tsx",
+          "line": 154,
+          "label": "Submit button"
+        }
+      ]
+    },
+    {
+      "id": "revise",
+      "lane": "ui",
+      "col": 4,
+      "type": "frontend",
+      "label": "Revision requested",
+      "sublabel": "student edits draft",
+      "sources": [
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 29,
+          "end_line": 36,
+          "label": "revision_requested → submit"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 251,
+          "end_line": 252,
+          "label": "comment required"
+        }
+      ]
+    },
+    {
+      "id": "accepted",
+      "lane": "ui",
+      "col": 5,
+      "type": "frontend",
+      "icon": "success",
+      "label": "Report accepted",
+      "sublabel": "student notified",
+      "sources": [
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 259,
+          "end_line": 264,
+          "label": "accepted_at + event"
+        },
+        {
+          "path": "backend/app/notifications/events.py",
+          "line": 104,
+          "end_line": 109,
+          "label": "report.accepted → student"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "lane": "policy",
+      "col": 1,
+      "type": "security",
+      "label": "Auth gate",
+      "sublabel": "token · consent · role st",
+      "sources": [
+        {
+          "path": "backend/app/core/deps.py",
+          "line": 43,
+          "end_line": 72,
+          "label": "authenticate"
+        },
+        {
+          "path": "backend/app/core/deps.py",
+          "line": 75,
+          "end_line": 88,
+          "label": "consent / verify / role"
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "lane": "policy",
+      "col": 5,
+      "type": "security",
+      "label": "Supervisor review",
+      "sublabel": "assigned AS approves",
+      "sources": [
+        {
+          "path": "backend/app/reports/router.py",
+          "line": 183,
+          "end_line": 197,
+          "label": "accept / request-revision"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 247,
+          "end_line": 266,
+          "label": "_review"
+        },
+        {
+          "path": "backend/app/reports/router.py",
+          "line": 138,
+          "end_line": 142,
+          "label": "relation must be as"
+        }
+      ]
+    },
+    {
+      "id": "submit",
+      "lane": "api",
+      "col": 2,
+      "type": "backend",
+      "label": "Submit service",
+      "sublabel": "scope · state · fields",
+      "sources": [
+        {
+          "path": "backend/app/core/scope.py",
+          "line": 33,
+          "end_line": 47,
+          "label": "placement_access"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 63,
+          "end_line": 67,
+          "label": "ensure_writable"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 211,
+          "end_line": 243,
+          "label": "submit"
+        }
+      ]
+    },
+    {
+      "id": "commit",
+      "lane": "api",
+      "col": 3,
+      "type": "backend",
+      "label": "Commit + 200",
+      "sublabel": "slot, outbox, check row",
+      "sources": [
+        {
+          "path": "backend/app/reports/router.py",
+          "line": 172,
+          "end_line": 180,
+          "label": "commit, then background"
+        },
+        {
+          "path": "backend/app/notifications/service.py",
+          "line": 20,
+          "end_line": 33,
+          "label": "outbox insert"
+        }
+      ]
+    },
+    {
+      "id": "check",
+      "lane": "exec",
+      "col": 3,
+      "type": "backend",
+      "label": "Similarity check",
+      "sublabel": "after the response",
+      "sources": [
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 91,
+          "end_line": 105,
+          "label": "run_in_background"
+        },
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 52,
+          "end_line": 88,
+          "label": "check"
+        }
+      ]
+    },
+    {
+      "id": "deliver",
+      "lane": "exec",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Deliver job",
+      "sublabel": "every minute",
+      "sources": [
+        {
+          "path": "backend/app/jobs/scheduler.py",
+          "line": 20,
+          "end_line": 23,
+          "label": "deliver_notifications 1 min"
+        },
+        {
+          "path": "backend/app/notifications/delivery.py",
+          "line": 81,
+          "end_line": 110,
+          "label": "deliver"
+        }
+      ]
+    },
+    {
+      "id": "blocked",
+      "lane": "errors",
+      "col": 1,
+      "type": "security",
+      "icon": "stop",
+      "label": "Blocked",
+      "sublabel": "nothing saved",
+      "sources": [
+        {
+          "path": "backend/app/core/errors.py",
+          "line": 57,
+          "end_line": 60,
+          "label": "ApiError → problem+json"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 39,
+          "end_line": 45,
+          "label": "409 transitions"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 215,
+          "end_line": 232,
+          "label": "409 / 422 checks"
+        }
+      ]
+    },
+    {
+      "id": "failed",
+      "lane": "errors",
+      "col": 3,
+      "type": "messagebus",
+      "icon": "failure",
+      "label": "Check failed",
+      "sublabel": "retry job, max 3",
+      "sources": [
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 99,
+          "end_line": 105,
+          "label": "mark failed"
+        },
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 108,
+          "end_line": 118,
+          "label": "retry"
+        },
+        {
+          "path": "backend/app/jobs/scheduler.py",
+          "line": 20,
+          "end_line": 23,
+          "label": "similarity_retry 5 min"
+        }
+      ]
+    },
+    {
+      "id": "audit",
+      "lane": "obs",
+      "col": 2,
+      "type": "database",
+      "label": "Audit log",
+      "sublabel": "same transaction",
+      "sources": [
+        {
+          "path": "backend/app/core/audit.py",
+          "line": 21,
+          "end_line": 30,
+          "label": "record"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 240,
+          "end_line": 241,
+          "label": "submit audited"
+        }
+      ]
+    },
+    {
+      "id": "jobruns",
+      "lane": "obs",
+      "col": 4,
+      "type": "database",
+      "label": "job_runs",
+      "sublabel": "ok / error per run",
+      "sources": [
+        {
+          "path": "backend/app/jobs/jobs.py",
+          "line": 85,
+          "end_line": 106,
+          "label": "advisory lock + job_runs"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "post-submit",
+      "from": "student",
+      "to": "gate",
+      "label": "POST submit",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "gate-pass",
+      "from": "gate",
+      "to": "submit",
+      "label": "student ok",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "valid-draft",
+      "from": "submit",
+      "to": "commit",
+      "label": "valid",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "outbox-row",
+      "from": "commit",
+      "to": "deliver",
+      "label": "outbox row",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "notify-as",
+      "from": "deliver",
+      "to": "review",
+      "label": "email + push",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "approve",
+      "from": "review",
+      "to": "accepted",
+      "label": "accept",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "ask-revision",
+      "from": "review",
+      "to": "revise",
+      "label": "revise",
+      "variant": "security",
+      "role": "branch"
+    },
+    {
+      "id": "resubmit",
+      "from": "revise",
+      "to": "student",
+      "label": "resubmit",
+      "variant": "dashed",
+      "role": "return"
+    },
+    {
+      "id": "gate-deny",
+      "from": "gate",
+      "to": "blocked",
+      "label": "401 / 403",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "submit-deny",
+      "from": "submit",
+      "to": "blocked",
+      "label": "403 / 409 / 422",
+      "variant": "security",
+      "role": "error",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "audit-row",
+      "from": "submit",
+      "to": "audit",
+      "label": "audit row",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "after-response",
+      "from": "commit",
+      "to": "check",
+      "label": "background",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "check-error",
+      "from": "check",
+      "to": "failed",
+      "label": "error",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "check-retry",
+      "from": "failed",
+      "to": "check",
+      "label": "re-run",
+      "variant": "dashed",
+      "role": "return"
+    },
+    {
+      "id": "run-record",
+      "from": "deliver",
+      "to": "jobruns",
+      "label": "run row",
+      "variant": "dashed",
+      "role": "async"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Successful path",
+      "items": [
+        "The student submits; auth(\"st\") and placement_access pass",
+        "service.submit moves draft → submitted and the router commits slot, audit row, outbox row and a pending similarity check together",
+        "The deliver job sends report.submitted to the academic supervisor by email and web push",
+        "The assigned supervisor accepts; the student is told by the same outbox"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Approval and blocked paths",
+      "items": [
+        "Only the placement's academic supervisor can accept or request a revision; a revision needs a comment (422 COMMENT_REQUIRED)",
+        "Gate: 401 UNAUTHENTICATED / SESSION_EXPIRED, 403 CONSENT_REQUIRED, VERIFICATION_REQUIRED, FORBIDDEN",
+        "Submit: 403 not your placement, 409 INVALID_TRANSITION, SLOT_CLOSED, CYCLE_CLOSED, NOTHING_TO_SUBMIT, TOO_MANY_ATTACHMENTS, 422 REQUIRED_FIELDS_MISSING, MAIN_DOCUMENT_REQUIRED",
+        "A blocked request raises before db.commit(), so nothing is saved"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Retry paths",
+      "items": [
+        "Revision: revision_requested → submit is an allowed transition, creating a new version",
+        "Similarity: similarity_retry (every 5 min) re-runs checks pending over 5 minutes, and failed ones with fewer than 3 attempts",
+        "Email: retried by the deliver job up to 5 attempts; push is tried once and is skipped without VAPID keys or a subscription"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Evidence",
+      "items": [
+        "Audit entries are written in the same transaction as the change (submit, accept, revision)",
+        "similarity_checks keeps status, attempts, error, score and model version; a flag is advisory only",
+        "Every job run records a job_runs row; /health?deep=true reports the last scheduler run and the model"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "How the lanes map",
+      "items": [
+        "InternSync has no AI agent tool-call loop; this is the closest real loop in the code",
+        "\"Agent runtime\" is the API request handling and \"tool execution\" the in-process background work"
+      ]
+    }
+  ]
+}

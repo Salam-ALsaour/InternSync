@@ -1,0 +1,556 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "⁧معمارية InternSync أثناء التشغيل⁩",
+  "output": ".archify/architecture-internsync-overview-20261030-221930/internsync-overview.ar.html",
+  "locale": "ar",
+  "quality_profile": "showcase",
+  "repository": {
+   "url": "https://github.com/Salam-ALsaour/InternSync",
+   "provider": "github",
+   "link_mode": "web",
+   "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+  }
+ },
+ "components": [
+  {
+   "id": "student",
+   "type": "external",
+   "icon": "person",
+   "label": "الطالب",
+   "sublabel": "متصفح / جوال",
+   "pos": [
+    40,
+    140
+   ],
+   "size": [
+    110,
+    60
+   ],
+   "sources": [
+    {
+     "path": "frontend/src/pages/shared/ReportSlot.tsx",
+     "line": 154,
+     "label": "زر الإرسال"
+    }
+   ]
+  },
+  {
+   "id": "pwa",
+   "type": "frontend",
+   "label": "⁧تطبيق الويب (PWA)⁩",
+   "sublabel": "React · TS · Vite",
+   "tag": "Vercel",
+   "pos": [
+    260,
+    136
+   ],
+   "size": [
+    130,
+    68
+   ],
+   "sources": [
+    {
+     "path": "frontend/src/pages/shared/ReportSlot.tsx",
+     "line": 87,
+     "end_line": 90,
+     "label": "طلب الإرسال"
+    },
+    {
+     "path": "frontend/src/api/client.ts",
+     "line": 32,
+     "end_line": 64,
+     "label": "⁧الرمز + ترويسة Bearer⁩"
+    },
+    {
+     "path": "frontend/public/sw.js",
+     "line": 1,
+     "end_line": 27,
+     "label": "⁧service worker بلا cache لـ /api⁩"
+    }
+   ]
+  },
+  {
+   "id": "auth",
+   "type": "security",
+   "label": "بوابة التحقق والصلاحية",
+   "sublabel": "⁧JWT · الجلسة · الدور⁩",
+   "pos": [
+    485,
+    136
+   ],
+   "size": [
+    140,
+    68
+   ],
+   "sources": [
+    {
+     "path": "backend/app/core/deps.py",
+     "line": 43,
+     "end_line": 72,
+     "label": "authenticate"
+    },
+    {
+     "path": "backend/app/core/deps.py",
+     "line": 75,
+     "end_line": 88,
+     "label": "بوابات الموافقة والتحقق والدور"
+    },
+    {
+     "path": "backend/app/core/scope.py",
+     "line": 33,
+     "end_line": 47,
+     "label": "placement_access"
+    }
+   ]
+  },
+  {
+   "id": "reports",
+   "type": "backend",
+   "label": "واجهة التقارير",
+   "sublabel": "POST …/submit",
+   "pos": [
+    750,
+    136
+   ],
+   "size": [
+    150,
+    68
+   ],
+   "sources": [
+    {
+     "path": "backend/app/reports/router.py",
+     "line": 172,
+     "end_line": 180,
+     "label": "مسار الإرسال"
+    },
+    {
+     "path": "backend/app/reports/service.py",
+     "line": 211,
+     "end_line": 243,
+     "label": "انتقال الإرسال"
+    },
+    {
+     "path": "backend/app/core/files.py",
+     "line": 96,
+     "end_line": 109,
+     "label": "حفظ المرفق"
+    }
+   ]
+  },
+  {
+   "id": "files",
+   "type": "database",
+   "label": "تخزين الملفات",
+   "sublabel": "⁧مجلد أو bucket خاص⁩",
+   "tag": "Supabase Storage",
+   "pos": [
+    1020,
+    40
+   ],
+   "size": [
+    140,
+    60
+   ],
+   "sources": [
+    {
+     "path": "backend/app/core/files.py",
+     "line": 88,
+     "end_line": 93,
+     "label": "local | supabase"
+    },
+    {
+     "path": "backend/app/core/storage_supabase.py",
+     "line": 1,
+     "end_line": 4,
+     "label": "⁧bucket خاص⁩"
+    }
+   ]
+  },
+  {
+   "id": "postgres",
+   "type": "database",
+   "label": "PostgreSQL 16",
+   "sublabel": "pgvector · outbox",
+   "tag": "Supabase",
+   "pos": [
+    1020,
+    128
+   ],
+   "size": [
+    140,
+    444
+   ],
+   "sources": [
+    {
+     "path": "docker-compose.yml",
+     "line": 4,
+     "end_line": 9,
+     "label": "pgvector/pg16"
+    },
+    {
+     "path": "backend/app/core/db.py",
+     "line": 22,
+     "end_line": 31,
+     "label": "المحرك والجلسات"
+    },
+    {
+     "path": "backend/app/notifications/service.py",
+     "line": 20,
+     "end_line": 33,
+     "label": "⁧إدراج في الـ outbox⁩"
+    }
+   ]
+  },
+  {
+   "id": "embedder",
+   "type": "backend",
+   "label": "نموذج التضمين",
+   "sublabel": "⁧e5-small داخل العملية⁩",
+   "pos": [
+    485,
+    316
+   ],
+   "size": [
+    140,
+    68
+   ],
+   "sources": [
+    {
+     "path": "backend/app/ai/embeddings.py",
+     "line": 1,
+     "end_line": 5,
+     "label": "⁧يعمل داخل الـ API⁩"
+    },
+    {
+     "path": "backend/app/ai/embeddings.py",
+     "line": 62,
+     "end_line": 76,
+     "label": "تحميل عند الحاجة / بديل"
+    }
+   ]
+  },
+  {
+   "id": "similarity",
+   "type": "backend",
+   "label": "فحص التشابه",
+   "sublabel": "مهمة بالخلفية",
+   "pos": [
+    750,
+    316
+   ],
+   "size": [
+    150,
+    68
+   ],
+   "sources": [
+    {
+     "path": "backend/app/similarity/service.py",
+     "line": 52,
+     "end_line": 88,
+     "label": "⁧ترميز + kNN + حفظ⁩"
+    },
+    {
+     "path": "backend/app/similarity/service.py",
+     "line": 91,
+     "end_line": 105,
+     "label": "جلسة خاصة"
+    }
+   ]
+  },
+  {
+   "id": "scheduler",
+   "type": "backend",
+   "label": "⁧مهام APScheduler⁩",
+   "sublabel": "توصيل · إعادة · تذكير",
+   "pos": [
+    750,
+    496
+   ],
+   "size": [
+    150,
+    68
+   ],
+   "sources": [
+    {
+     "path": "backend/app/jobs/scheduler.py",
+     "line": 14,
+     "end_line": 29,
+     "label": "فترات المهام"
+    },
+    {
+     "path": "backend/app/jobs/jobs.py",
+     "line": 85,
+     "end_line": 106,
+     "label": "⁧قفل advisory + job_runs⁩"
+    },
+    {
+     "path": "backend/app/notifications/delivery.py",
+     "line": 81,
+     "end_line": 110,
+     "label": "⁧توصيل الـ outbox⁩"
+    }
+   ]
+  },
+  {
+   "id": "push",
+   "type": "external",
+   "label": "⁧خدمة Web Push⁩",
+   "sublabel": "⁧VAPID، من مزوّد المتصفح⁩",
+   "pos": [
+    250,
+    496
+   ],
+   "size": [
+    140,
+    68
+   ],
+   "sources": [
+    {
+     "path": "backend/app/notifications/delivery.py",
+     "line": 28,
+     "end_line": 38,
+     "label": "pywebpush"
+    },
+    {
+     "path": "frontend/public/sw.js",
+     "line": 42,
+     "end_line": 52,
+     "label": "showNotification"
+    }
+   ]
+  },
+  {
+   "id": "smtp",
+   "type": "external",
+   "label": "⁧خادم SMTP⁩",
+   "sublabel": "Mailpit / Gmail",
+   "pos": [
+    750,
+    676
+   ],
+   "size": [
+    150,
+    64
+   ],
+   "sources": [
+    {
+     "path": "backend/app/core/mail.py",
+     "line": 53,
+     "end_line": 77,
+     "label": "⁧إرسال smtplib⁩"
+    },
+    {
+     "path": "docker-compose.yml",
+     "line": 20,
+     "end_line": 24,
+     "label": "⁧Mailpit محلياً⁩"
+    }
+   ]
+  },
+  {
+   "id": "supervisor",
+   "type": "external",
+   "icon": "person",
+   "label": "المشرف",
+   "sublabel": "المشرف الأكاديمي",
+   "pos": [
+    485,
+    676
+   ],
+   "size": [
+    140,
+    64
+   ],
+   "sources": [
+    {
+     "path": "backend/app/notifications/events.py",
+     "line": 104,
+     "end_line": 109,
+     "label": "⁧مستلم report.submitted⁩"
+    }
+   ]
+  }
+ ],
+ "boundaries": [
+  {
+   "kind": "region",
+   "label": "المتصفح · غير موثوق",
+   "wraps": [
+    "pwa"
+   ]
+  },
+  {
+   "kind": "region",
+   "label": "⁧عملية FastAPI (Docker)⁩",
+   "wraps": [
+    "auth",
+    "reports",
+    "embedder",
+    "similarity",
+    "scheduler"
+   ]
+  },
+  {
+   "kind": "security-group",
+   "label": "⁧للـ API فقط⁩",
+   "wraps": [
+    "files",
+    "postgres"
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "submit-click",
+   "from": "student",
+   "to": "pwa",
+   "label": "إرسال التقرير",
+   "variant": "emphasis"
+  },
+  {
+   "id": "api-call",
+   "from": "pwa",
+   "to": "auth",
+   "label": "HTTPS + JWT",
+   "variant": "emphasis"
+  },
+  {
+   "id": "gated-call",
+   "from": "auth",
+   "to": "reports",
+   "label": "نطاق الطالب",
+   "variant": "emphasis"
+  },
+  {
+   "id": "commit",
+   "from": "reports",
+   "to": "postgres",
+   "label": "معاملة واحدة",
+   "variant": "emphasis"
+  },
+  {
+   "id": "attachments",
+   "from": "reports",
+   "to": "files",
+   "label": "المرفقات",
+   "fromSide": "top",
+   "toSide": "left"
+  },
+  {
+   "id": "after-commit",
+   "from": "reports",
+   "to": "similarity",
+   "label": "بعد الحفظ",
+   "variant": "dashed"
+  },
+  {
+   "id": "encode",
+   "from": "similarity",
+   "to": "embedder",
+   "label": "ترميز المقاطع"
+  },
+  {
+   "id": "knn",
+   "from": "similarity",
+   "to": "postgres",
+   "label": "pgvector kNN"
+  },
+  {
+   "id": "poll-outbox",
+   "from": "scheduler",
+   "to": "postgres",
+   "label": "⁧قراءة outbox⁩",
+   "variant": "dashed"
+  },
+  {
+   "id": "send-push",
+   "from": "scheduler",
+   "to": "push",
+   "label": "⁧إشعار VAPID⁩",
+   "variant": "dashed"
+  },
+  {
+   "id": "show-push",
+   "from": "push",
+   "to": "pwa",
+   "label": "إشعار",
+   "variant": "dashed"
+  },
+  {
+   "id": "send-email",
+   "from": "scheduler",
+   "to": "smtp",
+   "label": "بريد",
+   "variant": "dashed"
+  },
+  {
+   "id": "inbox",
+   "from": "smtp",
+   "to": "supervisor",
+   "label": "صندوق الوارد",
+   "variant": "dashed"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "المسار الرئيسي: إرسال تقرير أسبوعي",
+   "items": [
+    "⁧صفحة ReportSlot تستدعي POST /api/v1/report-slots/{id}/submit مع رمز Bearer⁩",
+    "⁧auth(\"st\") يتحقق من الرمز وصف الجلسة والموافقة والتحقق، وplacement_access يتأكد أن التوزيع يخص الطالب نفسه⁩",
+    "⁧service.submit يتحقق من الحقول النصية الأربعة، وينقل الحالة من مسودة إلى مُسلَّم، ويكتب صف التدقيق وصف report.submitted في الـ outbox⁩",
+    "يُضاف فحص تشابه معلّق في نفس الحفظ، ويعمل بعد إرسال الرد",
+    "⁧مهمة التوصيل ترسل report.submitted للمشرف الأكاديمي بالبريد والإشعار الفوري⁩"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "حدود الثقة",
+   "items": [
+    "⁧المتصفح يحمل رمز الدخول فقط (sessionStorage)، والـ service worker لا يخزّن ردود /api/ أبداً⁩",
+    "⁧أخطاء الدور والبوابة ترجع 401/403 قبل التحقق من جسم الطلب⁩",
+    "⁧الملفات تصل للمتصفح فقط عبر GET /files/{id} بعد فحص صلاحية السجل الذي يملكها، والـ bucket يبقى خاصاً⁩",
+    "⁧عملية الـ API وحدها تملك عنوان قاعدة البيانات ومفتاح خدمة التخزين⁩"
+   ]
+  },
+  {
+   "dot": "amber",
+   "title": "⁧العمل بالخلفية داخل عملية الـ API⁩",
+   "items": [
+    "⁧APScheduler يبدأ مع الـ API عندما SCHEDULER_ENABLED=true⁩",
+    "⁧deliver_notifications كل دقيقة، وsimilarity_retry كل 5 دقائق، والتذكير والتصعيد وعلامات عدم التسليم كل 15 دقيقة⁩",
+    "⁧كل تشغيل يأخذ قفل advisory في PostgreSQL ويسجّل صفاً في job_runs⁩",
+    "⁧البريد يُعاد حتى 5 محاولات، والإشعار الفوري يُتجاوز بلا مفاتيح VAPID أو اشتراك⁩"
+   ]
+  },
+  {
+   "dot": "violet",
+   "title": "⁧الذكاء الاصطناعي يبقى داخل الـ API⁩",
+   "items": [
+    "⁧intfloat/multilingual-e5-small (384 بُعداً) مدمج في الصورة، فلا يخرج أي نص من العملية⁩",
+    "بدون النموذج تستخدم المطابقة قواعد أساسية، وتُسجَّل فحوص التشابه فاشلة لتعيدها مهمة الإعادة",
+    "علامة التشابه استشارية: لا تغيّر حالة التقرير ولا الدرجة"
+   ]
+  },
+  {
+   "dot": "cyan",
+   "title": "أين يعمل",
+   "items": [
+    "⁧محلياً: docker compose مع pgvector/pg16 وMailpit، والـ API على :8000 وتطبيق الويب على :5173⁩",
+    "⁧النشر المرجعي: Vercel للويب، وHugging Face Space للـ API، وSupabase لقاعدة البيانات والـ bucket، وGmail SMTP⁩",
+    "⁧GitHub Actions ينشر الـ API، ويستدعي /health كل 6 ساعات، ويأخذ نسخاً احتياطية مشفّرة كل ليلة⁩"
+   ]
+  },
+  {
+   "dot": "slate",
+   "title": "ما لم يُرسم",
+   "items": [
+    "⁧حوالي 20 router آخر (الفرص، المطابقة، الدرجات، الشهادات، التصدير…) تشترك في نفس البوابة وقاعدة البيانات⁩",
+    "⁧قراءة البوابة لجدول user_sessions في PostgreSQL⁩",
+    "⁧المسودات المحفوظة على الجهاز في localStorage حتى تُحفظ؛ والإرسال يحتاج الاتصال دائماً⁩"
+   ]
+  }
+ ]
+}

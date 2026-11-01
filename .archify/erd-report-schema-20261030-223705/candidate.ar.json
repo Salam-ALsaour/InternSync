@@ -1,0 +1,1083 @@
+{
+ "schema_version": 1,
+ "diagram_type": "erd",
+ "meta": {
+  "title": "مخطط قاعدة البيانات لجانب التقارير",
+  "output": ".archify/erd-report-schema-20261030-223705/report-schema.ar.html",
+  "locale": "ar",
+  "quality_profile": "standard",
+  "repository": {
+   "url": "https://github.com/Salam-ALsaour/InternSync",
+   "provider": "github",
+   "link_mode": "web",
+   "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+  }
+ },
+ "layout": {
+  "mode": "grid"
+ },
+ "entities": [
+  {
+   "id": "notifications",
+   "label": "notifications",
+   "tag": "الإشعارات",
+   "row": 0,
+   "col": 0,
+   "sources": [
+    {
+     "path": "backend/app/models/notices.py",
+     "line": 29,
+     "end_line": 51
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "user_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "event",
+     "type": "text"
+    },
+    {
+     "name": "params",
+     "type": "jsonb"
+    },
+    {
+     "name": "link",
+     "type": "text"
+    },
+    {
+     "name": "idempotency_key",
+     "type": "text",
+     "key": "uk"
+    },
+    {
+     "name": "read_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "email_status",
+     "type": "text"
+    },
+    {
+     "name": "push_status",
+     "type": "text"
+    },
+    {
+     "name": "emailed_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "pushed_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "email_attempts",
+     "type": "smallint"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    }
+   ]
+  },
+  {
+   "id": "push_subscriptions",
+   "label": "push_subscriptions",
+   "tag": "الإشعارات",
+   "row": 1,
+   "col": 0,
+   "sources": [
+    {
+     "path": "backend/app/models/notices.py",
+     "line": 54,
+     "end_line": 63
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "user_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "endpoint",
+     "type": "text",
+     "key": "uk"
+    },
+    {
+     "name": "p256dh",
+     "type": "text"
+    },
+    {
+     "name": "auth",
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "last_success_at",
+     "type": "timestamptz"
+    }
+   ]
+  },
+  {
+   "id": "users",
+   "label": "users",
+   "tag": "الهوية",
+   "row": 0,
+   "col": 1,
+   "sources": [
+    {
+     "path": "backend/app/models/orgs.py",
+     "line": 63,
+     "end_line": 99
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "email",
+     "type": "text · unique lower()",
+     "key": "uk"
+    },
+    {
+     "name": "password_hash",
+     "type": "text"
+    },
+    {
+     "name": "role",
+     "type": "text"
+    },
+    {
+     "name": "name_en",
+     "type": "text"
+    },
+    {
+     "name": "name_ar",
+     "type": "text"
+    },
+    {
+     "name": "language",
+     "type": "varchar(2)"
+    },
+    {
+     "name": "college_id",
+     "type": "uuid · FK colleges"
+    },
+    {
+     "name": "company_id",
+     "type": "uuid · FK companies"
+    },
+    {
+     "name": "is_company_admin",
+     "type": "boolean"
+    },
+    {
+     "name": "email_confirmed_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "verification_status",
+     "type": "text"
+    },
+    {
+     "name": "is_active",
+     "type": "boolean"
+    },
+    {
+     "name": "failed_logins",
+     "type": "smallint"
+    },
+    {
+     "name": "locked_until",
+     "type": "timestamptz"
+    },
+    {
+     "name": "consent_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "last_login_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "anonymized_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamptz"
+    }
+   ],
+   "width": 256
+  },
+  {
+   "id": "files",
+   "label": "files",
+   "tag": "الملفات",
+   "row": 1,
+   "col": 1,
+   "sources": [
+    {
+     "path": "backend/app/models/platform.py",
+     "line": 16,
+     "end_line": 28
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "storage_key",
+     "type": "text",
+     "key": "uk"
+    },
+    {
+     "name": "original_name",
+     "type": "text"
+    },
+    {
+     "name": "mime_type",
+     "type": "text"
+    },
+    {
+     "name": "size_bytes",
+     "type": "integer"
+    },
+    {
+     "name": "sha256",
+     "type": "varchar(64)"
+    },
+    {
+     "name": "purpose",
+     "type": "text"
+    },
+    {
+     "name": "uploaded_by",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "purged_at",
+     "type": "timestamptz"
+    }
+   ]
+  },
+  {
+   "id": "placements",
+   "label": "placements",
+   "tag": "التوزيع",
+   "row": 0,
+   "col": 2,
+   "sources": [
+    {
+     "path": "backend/app/models/vacancies.py",
+     "line": 93,
+     "end_line": 112
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "application_id",
+     "type": "uuid · FK applications",
+     "key": "uk"
+    },
+    {
+     "name": "student_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "cycle_id",
+     "type": "uuid · FK training_cycles"
+    },
+    {
+     "name": "vacancy_id",
+     "type": "uuid · FK vacancies"
+    },
+    {
+     "name": "company_supervisor_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "academic_supervisor_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "status",
+     "type": "text"
+    },
+    {
+     "name": "confirmed_by",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "confirmed_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "cancelled_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "cancel_reason",
+     "type": "text"
+    }
+   ],
+   "width": 296
+  },
+  {
+   "id": "report_slots",
+   "label": "report_slots",
+   "tag": "التقارير",
+   "row": 0,
+   "col": 3,
+   "sources": [
+    {
+     "path": "backend/app/models/reports.py",
+     "line": 11,
+     "end_line": 35
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "placement_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "placements.id"
+    },
+    {
+     "name": "kind",
+     "type": "text"
+    },
+    {
+     "name": "week_no",
+     "type": "smallint"
+    },
+    {
+     "name": "due_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "status",
+     "type": "text"
+    },
+    {
+     "name": "is_late",
+     "type": "boolean"
+    },
+    {
+     "name": "is_missing",
+     "type": "boolean"
+    },
+    {
+     "name": "missing_flagged_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "accepted_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "closed_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "closed_by",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamptz"
+    }
+   ],
+   "width": 256
+  },
+  {
+   "id": "report_versions",
+   "label": "report_versions",
+   "tag": "التقارير",
+   "row": 1,
+   "col": 3,
+   "sources": [
+    {
+     "path": "backend/app/models/reports.py",
+     "line": 38,
+     "end_line": 56
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "slot_id",
+     "type": "uuid · UQ pair",
+     "key": "fk",
+     "references": "report_slots.id"
+    },
+    {
+     "name": "version_no",
+     "type": "smallint · UQ pair"
+    },
+    {
+     "name": "tasks_performed",
+     "type": "text"
+    },
+    {
+     "name": "learning",
+     "type": "text"
+    },
+    {
+     "name": "challenges",
+     "type": "text"
+    },
+    {
+     "name": "next_week_plan",
+     "type": "text"
+    },
+    {
+     "name": "summary",
+     "type": "text"
+    },
+    {
+     "name": "body_text",
+     "type": "text"
+    },
+    {
+     "name": "submitted_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "is_late",
+     "type": "boolean"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamptz"
+    }
+   ],
+   "width": 256
+  },
+  {
+   "id": "report_attachments",
+   "label": "report_attachments",
+   "tag": "التقارير",
+   "row": 2,
+   "col": 3,
+   "sources": [
+    {
+     "path": "backend/app/models/reports.py",
+     "line": 59,
+     "end_line": 66
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "version_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "report_versions.id"
+    },
+    {
+     "name": "file_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "files.id"
+    },
+    {
+     "name": "role",
+     "type": "text"
+    },
+    {
+     "name": "position",
+     "type": "smallint"
+    }
+   ],
+   "width": 256
+  },
+  {
+   "id": "report_reviews",
+   "label": "report_reviews",
+   "tag": "التقارير",
+   "row": 3,
+   "col": 3,
+   "sources": [
+    {
+     "path": "backend/app/models/reports.py",
+     "line": 69,
+     "end_line": 81
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "version_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "report_versions.id"
+    },
+    {
+     "name": "reviewer_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "decision",
+     "type": "text"
+    },
+    {
+     "name": "comment",
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    }
+   ],
+   "width": 256
+  },
+  {
+   "id": "report_comments",
+   "label": "report_comments",
+   "tag": "التقارير",
+   "row": 4,
+   "col": 3,
+   "sources": [
+    {
+     "path": "backend/app/models/reports.py",
+     "line": 84,
+     "end_line": 91
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "slot_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "report_slots.id"
+    },
+    {
+     "name": "author_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "body",
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    }
+   ],
+   "width": 256
+  },
+  {
+   "id": "similarity_checks",
+   "label": "similarity_checks",
+   "tag": "التشابه",
+   "row": 0,
+   "col": 4,
+   "sources": [
+    {
+     "path": "backend/app/models/notices.py",
+     "line": 84,
+     "end_line": 107
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "version_id",
+     "type": "uuid",
+     "key": [
+      "fk",
+      "uk"
+     ],
+     "references": "report_versions.id"
+    },
+    {
+     "name": "status",
+     "type": "text"
+    },
+    {
+     "name": "max_score",
+     "type": "numeric(5,4)"
+    },
+    {
+     "name": "is_flagged",
+     "type": "boolean"
+    },
+    {
+     "name": "threshold",
+     "type": "numeric(4,3)"
+    },
+    {
+     "name": "model_version",
+     "type": "text"
+    },
+    {
+     "name": "attempts",
+     "type": "smallint"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "started_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "finished_at",
+     "type": "timestamptz"
+    },
+    {
+     "name": "error",
+     "type": "text"
+    },
+    {
+     "name": "decision",
+     "type": "text"
+    },
+    {
+     "name": "decision_comment",
+     "type": "text"
+    },
+    {
+     "name": "decided_by",
+     "type": "uuid",
+     "key": "fk",
+     "references": "users.id"
+    },
+    {
+     "name": "decided_at",
+     "type": "timestamptz"
+    }
+   ],
+   "width": 288
+  },
+  {
+   "id": "similarity_matches",
+   "label": "similarity_matches",
+   "tag": "التشابه",
+   "row": 1,
+   "col": 4,
+   "sources": [
+    {
+     "path": "backend/app/models/notices.py",
+     "line": 110,
+     "end_line": 118
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "key": "pk"
+    },
+    {
+     "name": "check_id",
+     "type": "uuid · UQ pair",
+     "key": "fk",
+     "references": "similarity_checks.id"
+    },
+    {
+     "name": "source_version_id",
+     "type": "uuid · UQ pair",
+     "key": "fk",
+     "references": "report_versions.id"
+    },
+    {
+     "name": "score",
+     "type": "numeric(5,4)"
+    },
+    {
+     "name": "passages",
+     "type": "jsonb"
+    }
+   ],
+   "width": 288
+  },
+  {
+   "id": "report_passages",
+   "label": "report_passages",
+   "tag": "التشابه",
+   "row": 2,
+   "col": 4,
+   "sources": [
+    {
+     "path": "backend/app/models/notices.py",
+     "line": 66,
+     "end_line": 81
+    }
+   ],
+   "attributes": [
+    {
+     "name": "id",
+     "type": "bigint identity",
+     "key": "pk"
+    },
+    {
+     "name": "version_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "report_versions.id"
+    },
+    {
+     "name": "slot_id",
+     "type": "uuid",
+     "key": "fk",
+     "references": "report_slots.id"
+    },
+    {
+     "name": "university_id",
+     "type": "uuid · FK universities"
+    },
+    {
+     "name": "idx",
+     "type": "smallint"
+    },
+    {
+     "name": "char_start",
+     "type": "integer"
+    },
+    {
+     "name": "char_end",
+     "type": "integer"
+    },
+    {
+     "name": "text",
+     "type": "text"
+    },
+    {
+     "name": "embedding",
+     "type": "halfvec(384)"
+    }
+   ],
+   "width": 288
+  }
+ ],
+ "relationships": [
+  {
+   "id": "notifications-user-id",
+   "from": "notifications",
+   "to": "users",
+   "label": "user_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "push-subscriptions-user-id",
+   "from": "push_subscriptions",
+   "to": "users",
+   "label": "user_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "files-uploaded-by",
+   "from": "files",
+   "to": "users",
+   "label": "uploaded_by",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true,
+   "toOptional": true
+  },
+  {
+   "id": "placements-student-id",
+   "from": "placements",
+   "to": "users",
+   "label": "student_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "placements-company-supervisor-id",
+   "from": "placements",
+   "to": "users",
+   "label": "company_supervisor_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "placements-academic-supervisor-id",
+   "from": "placements",
+   "to": "users",
+   "label": "academic_supervisor_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "placements-confirmed-by",
+   "from": "placements",
+   "to": "users",
+   "label": "confirmed_by",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-slots-placement-id",
+   "from": "report_slots",
+   "to": "placements",
+   "label": "placement_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-slots-closed-by",
+   "from": "report_slots",
+   "to": "users",
+   "label": "closed_by",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true,
+   "toOptional": true
+  },
+  {
+   "id": "report-versions-slot-id",
+   "from": "report_versions",
+   "to": "report_slots",
+   "label": "slot_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-attachments-version-id",
+   "from": "report_attachments",
+   "to": "report_versions",
+   "label": "version_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-attachments-file-id",
+   "from": "report_attachments",
+   "to": "files",
+   "label": "file_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-reviews-version-id",
+   "from": "report_reviews",
+   "to": "report_versions",
+   "label": "version_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-reviews-reviewer-id",
+   "from": "report_reviews",
+   "to": "users",
+   "label": "reviewer_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-comments-slot-id",
+   "from": "report_comments",
+   "to": "report_slots",
+   "label": "slot_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-comments-author-id",
+   "from": "report_comments",
+   "to": "users",
+   "label": "author_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "similarity-checks-version-id",
+   "from": "similarity_checks",
+   "to": "report_versions",
+   "label": "version_id",
+   "fromCardinality": "one",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "similarity-checks-decided-by",
+   "from": "similarity_checks",
+   "to": "users",
+   "label": "decided_by",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true,
+   "toOptional": true
+  },
+  {
+   "id": "similarity-matches-check-id",
+   "from": "similarity_matches",
+   "to": "similarity_checks",
+   "label": "check_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "similarity-matches-source-version-id",
+   "from": "similarity_matches",
+   "to": "report_versions",
+   "label": "source_version_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-passages-version-id",
+   "from": "report_passages",
+   "to": "report_versions",
+   "label": "version_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  },
+  {
+   "id": "report-passages-slot-id",
+   "from": "report_passages",
+   "to": "report_slots",
+   "label": "slot_id",
+   "fromCardinality": "many",
+   "toCardinality": "one",
+   "fromOptional": true
+  }
+ ],
+ "cards": [
+  {
+   "dot": "slate",
+   "title": "النطاق",
+   "items": [
+    "⁧13 جدولاً من أصل 49: التقارير والتشابه والإشعارات، وجداول users وplacements وfiles التي تشير إليها⁩",
+    "⁧الأعمدة التي في نوعها «· FK x» تشير إلى جداول خارج هذا الجزء: colleges وcompanies وapplications وtraining_cycles وvacancies وuniversities⁩",
+    "⁧كل عمود مأخوذ من backend/app/models عند الـ commit المثبّت، ومنها الأعمدة التي أضافتها migrations لاحقة⁩"
+   ]
+  },
+  {
+   "dot": "violet",
+   "title": "المفاتيح الفريدة المركّبة والجزئية",
+   "items": [
+    "⁧report_versions: (slot_id, version_no) فريد؛ ومسودة واحدة لكل خانة: slot_id فريد حيث submitted_at IS NULL⁩",
+    "⁧similarity_matches: (check_id, source_version_id) فريد، وcheck_id يُحذف بالتتابع (cascade)⁩",
+    "⁧placements: توزيع واحد غير ملغى لكل (student_id, cycle_id)⁩",
+    "⁧users: lower(email) فريد؛ مسؤول جهة واحد لكل جهة؛ منسق واحد معتمد ونشط لكل كلية⁩"
+   ]
+  },
+  {
+   "dot": "amber",
+   "title": "⁧قيود CHECK⁩",
+   "items": [
+    "⁧report_slots.status: draft وsubmitted وrevision_requested وaccepted وclosed_missing؛ وweek_no للخانات الأسبوعية فقط⁩",
+    "⁧report_reviews: قرار revision_requested يحتاج تعليقاً غير فارغ⁩",
+    "⁧notifications: email_status وpush_status هي pending أو sent أو failed أو skipped⁩",
+    "⁧similarity_checks.status: pending أو done أو failed؛ وdecision وdecision_comment يُضبطان معاً⁩"
+   ]
+  },
+  {
+   "dot": "cyan",
+   "title": "فهارس مهمة",
+   "items": [
+    "⁧report_passages.embedding: فهرس HNSW بـ halfvec_cosine_ops لبحث kNN⁩",
+    "⁧notifications: فهرس outbox جزئي على created_at حيث البريد أو الإشعار معلّق⁩",
+    "⁧report_slots (status, due_at) لمهام عدم التسليم والتذكير⁩"
+   ]
+  }
+ ]
+}

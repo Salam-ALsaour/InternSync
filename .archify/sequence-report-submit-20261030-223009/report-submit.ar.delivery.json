@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "e2cdf0cd-d8ce-4b24-ac79-9f2ece75efe3",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/home/user/InternSync/.archify/sequence-report-submit-20261030-223009/candidate.ar.json",
+  "output": "/home/user/InternSync/.archify/sequence-report-submit-20261030-223009/report-submit.ar.html",
+  "specification": {
+    "sha256": "c81eb1f0c17304bc3636a0518958cba4a6671f6b0d92aaacd73e2c179109447a",
+    "bytes": 9884
+  },
+  "artifact": {
+    "sha256": "0825f5e08d9a6f6a1b8f54047ba81f8ec66a00fdc095e13b28470bbd26671363",
+    "bytes": 865136
+  }
+}

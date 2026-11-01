@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "8e558c6f-8743-4c96-8e94-5810e3adaa8b",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/candidate.ar.json",
+  "output": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.ar.html",
+  "specification": {
+    "sha256": "3293b680e1ac5b8799982ae846ee2f4f61d0470ff5e83bd9eda9b0cf081c4744",
+    "bytes": 13022
+  },
+  "artifact": {
+    "sha256": "003fed13a092e851e23b072a770f521855ec65d95141f0c00951c2a53c2244a2",
+    "bytes": 876057
+  }
+}

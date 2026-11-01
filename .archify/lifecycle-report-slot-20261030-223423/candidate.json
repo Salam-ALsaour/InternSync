@@ -1,0 +1,104 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Report Slot Lifecycle",
+    "output": ".archify/lifecycle-report-slot-20261030-223423/report-slot.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Salam-ALsaour/InternSync",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+    }
+  },
+  "mainPath": ["draft", "submitted", "accepted"],
+  "states": [
+    {
+      "id": "draft", "type": "start", "label": "Draft", "sublabel": "created with the placement", "tag": "student writes", "step": "01",
+      "sources": [
+        { "path": "backend/app/vacancies/service.py", "line": 404, "end_line": 406, "label": "slots created" },
+        { "path": "backend/app/models/reports.py", "line": 11, "end_line": 32, "label": "status column" }
+      ]
+    },
+    {
+      "id": "submitted", "type": "decision", "label": "Submitted", "sublabel": "awaiting supervisor", "tag": "review", "step": "02",
+      "sources": [
+        { "path": "backend/app/reports/service.py", "line": 29, "end_line": 45, "label": "allowed transitions" },
+        { "path": "backend/app/reports/service.py", "line": 211, "end_line": 243, "label": "submit" }
+      ]
+    },
+    {
+      "id": "accepted", "type": "success", "label": "Accepted", "sublabel": "accepted_at set", "tag": "terminal", "step": "03",
+      "sources": [{ "path": "backend/app/reports/service.py", "line": 247, "end_line": 270, "label": "accept" }]
+    },
+    {
+      "id": "revision", "type": "waiting", "label": "Revision requested", "sublabel": "student edits a new version", "tag": "waits on student",
+      "sources": [
+        { "path": "backend/app/reports/service.py", "line": 251, "end_line": 266, "label": "request_revision" },
+        { "path": "backend/app/reports/service.py", "line": 81, "end_line": 97, "label": "copy into new draft" }
+      ]
+    },
+    {
+      "id": "missing", "type": "waiting", "label": "Missing", "sublabel": "draft past due, flagged", "tag": "status stays draft",
+      "sources": [
+        { "path": "backend/app/jobs/jobs.py", "line": 33, "end_line": 49, "label": "flag_missing" },
+        { "path": "backend/app/jobs/scheduler.py", "line": 16, "end_line": 17, "label": "every 15 min" }
+      ]
+    },
+    {
+      "id": "closed", "type": "failure", "label": "Closed missing", "sublabel": "never submitted", "tag": "terminal",
+      "sources": [{ "path": "backend/app/reports/service.py", "line": 277, "end_line": 288, "label": "close_missing" }]
+    },
+    {
+      "id": "frozen", "type": "neutral", "label": "Frozen", "sublabel": "placement or cycle not open", "tag": "ending",
+      "sources": [
+        { "path": "backend/app/reports/service.py", "line": 63, "end_line": 67, "label": "ensure_writable" },
+        { "path": "backend/app/vacancies/service.py", "line": 486, "end_line": 496, "label": "placement cancel" },
+        { "path": "backend/app/grades/service.py", "line": 184, "end_line": 221, "label": "complete / reopen" }
+      ]
+    }
+  ],
+  "transitions": [
+    { "id": "submit", "from": "draft", "to": "submitted", "label": "submit", "variant": "emphasis" },
+    { "id": "accept", "from": "submitted", "to": "accepted", "label": "accept", "variant": "emphasis", "note": "assigned supervisor" },
+    { "id": "ask-revision", "from": "submitted", "to": "revision", "label": "request revision", "variant": "security", "note": "comment required" },
+    { "id": "resubmit", "from": "revision", "to": "submitted", "label": "resubmit" },
+    { "id": "deadline", "from": "draft", "to": "missing", "label": "deadline passes", "variant": "dashed", "note": "flag_missing job" },
+    { "id": "late-submit", "from": "missing", "to": "submitted", "label": "late submit", "note": "marked late" },
+    { "id": "close-missing", "from": "missing", "to": "closed", "label": "close missing", "variant": "security", "note": "supervisor, after due" },
+    { "id": "freeze-draft", "from": "draft", "to": "frozen", "label": "placement or cycle ends", "variant": "dashed" },
+    { "id": "freeze-submitted", "from": "submitted", "to": "frozen", "label": "placement or cycle ends", "variant": "dashed" },
+    { "id": "freeze-revision", "from": "revision", "to": "frozen", "label": "placement or cycle ends", "variant": "dashed" },
+    { "id": "freeze-missing", "from": "missing", "to": "frozen", "label": "placement or cycle ends", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald", "title": "Main progress",
+      "items": [
+        "Every weekly and final slot is created as draft when the placement is confirmed",
+        "Submit moves draft or revision_requested to submitted; the first late submission marks the slot late",
+        "Only the placement's academic supervisor can accept, which sets accepted_at"
+      ]
+    },
+    {
+      "dot": "amber", "title": "Waiting and interruptions",
+      "items": [
+        "Submitted waits on the supervisor; revision_requested waits on the student, with no limit on rounds",
+        "Missing is a flag on a never-submitted draft past its due time; slot.status stays draft",
+        "Reminders go out before the due time and escalations to the coordinator after it; neither changes the status",
+        "Any other action is refused with 409 INVALID_TRANSITION or SLOT_CLOSED"
+      ]
+    },
+    {
+      "dot": "rose", "title": "Endings",
+      "items": [
+        "Accepted and Closed missing have no outgoing transitions",
+        "Close missing works on a draft with no submitted version once the due time has passed, and sets the flag if the job has not yet",
+        "Frozen is not a stored status: while the placement is not active or the cycle is closed, every change is refused",
+        "A cancelled placement never returns to active; grade reopen and cycle reopen restore the slot's previous status"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "dataflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/candidate.json",
+    "sha256": "98250c4b5672f498fccf88b3274db68da1d8bc82d6eba58b1510a5639ca53df5",
+    "bytes": 7007
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.html",
+    "sha256": "e74155d44b6ee19d4b82e5e4a705bb8c1a87f350fd633cc84a7cd0c173b9ca68",
+    "bytes": 847555
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2714,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "resolvedCrossovers": 1,
+      "routesOverSuggestedBends": 2,
+      "routesOverSuggestedStretch": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [
+        {
+          "left": {
+            "id": "read-endpoints",
+            "from": "subs",
+            "to": "deliver",
+            "label": "endpoints",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "right": {
+            "id": "read-list",
+            "from": "outbox",
+            "to": "inapp",
+            "label": "unread list",
+            "collectionIndex": 8,
+            "artifactIndex": 9
+          },
+          "point": [
+            745,
+            455
+          ]
+        }
+      ],
+      "detours": [
+        {
+          "relationship": {
+            "id": "claim-rows",
+            "from": "outbox",
+            "to": "deliver",
+            "label": "oldest pending",
+            "collectionIndex": 3,
+            "artifactIndex": 4
+          },
+          "bends": 4,
+          "stretch": 1.286
+        },
+        {
+          "relationship": {
+            "id": "write-status",
+            "from": "deliver",
+            "to": "outbox",
+            "label": "status, attempts",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "bends": 2,
+          "stretch": 2.029
+        },
+        {
+          "relationship": {
+            "id": "read-list",
+            "from": "outbox",
+            "to": "inapp",
+            "label": "unread list",
+            "collectionIndex": 8,
+            "artifactIndex": 9
+          },
+          "bends": 4,
+          "stretch": 1
+        }
+      ],
+      "truncated": false
+    },
+    "repair": "Advisory only: this mode places or routes these relationships itself. Report them; do not remove relationships or meaning to reduce crossings."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "eee6787a-7d22-4cde-b848-25d6c5b8adac",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "/home/user/InternSync/.archify/lifecycle-report-slot-20261030-223423/candidate.ar.json",
+  "output": "/home/user/InternSync/.archify/lifecycle-report-slot-20261030-223423/report-slot.ar.html",
+  "specification": {
+    "sha256": "60d302e9fcd1e8a7cf95a96557f47dd04cdef087bc0493a3dae70116b85c5769",
+    "bytes": 7287
+  },
+  "artifact": {
+    "sha256": "f045cbbcdbf73aebf02d06a438290ad0acb08dd702156b43e4a123861ebbb3fc",
+    "bytes": 860024
+  }
+}

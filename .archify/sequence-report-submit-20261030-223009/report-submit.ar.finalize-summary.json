@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/sequence-report-submit-20261030-223009/candidate.ar.json",
+    "sha256": "e59cca211ed7d60d3b7955efd2f928a1479b98ab9ec6911549eaec711f148497",
+    "bytes": 9722
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/sequence-report-submit-20261030-223009/report-submit.ar.html",
+    "sha256": "5438c8b4e7e0c05abed010e9450d263b3608ca0c17d7ab35891e9c8712c2aa8f",
+    "bytes": 867409
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/sequence-report-submit-20261030-223009/report-submit.ar.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/sequence-report-submit-20261030-223009/report-submit.ar.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/sequence-report-submit-20261030-223009/report-submit.ar.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2741,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

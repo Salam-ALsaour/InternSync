@@ -1,0 +1,556 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "InternSync Runtime Architecture",
+    "output": ".archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Salam-ALsaour/InternSync",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0"
+    }
+  },
+  "components": [
+    {
+      "id": "student",
+      "type": "external",
+      "icon": "person",
+      "label": "Student",
+      "sublabel": "browser / phone",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        110,
+        60
+      ],
+      "sources": [
+        {
+          "path": "frontend/src/pages/shared/ReportSlot.tsx",
+          "line": 154,
+          "label": "Submit button"
+        }
+      ]
+    },
+    {
+      "id": "pwa",
+      "type": "frontend",
+      "label": "Web app (PWA)",
+      "sublabel": "React · TS · Vite",
+      "tag": "Vercel",
+      "pos": [
+        260,
+        136
+      ],
+      "size": [
+        130,
+        68
+      ],
+      "sources": [
+        {
+          "path": "frontend/src/pages/shared/ReportSlot.tsx",
+          "line": 87,
+          "end_line": 90,
+          "label": "submit mutation"
+        },
+        {
+          "path": "frontend/src/api/client.ts",
+          "line": 32,
+          "end_line": 64,
+          "label": "token + Bearer header"
+        },
+        {
+          "path": "frontend/public/sw.js",
+          "line": 1,
+          "end_line": 27,
+          "label": "service worker, no /api cache"
+        }
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "Auth & scope gate",
+      "sublabel": "JWT → session → role",
+      "pos": [
+        485,
+        136
+      ],
+      "size": [
+        140,
+        68
+      ],
+      "sources": [
+        {
+          "path": "backend/app/core/deps.py",
+          "line": 43,
+          "end_line": 72,
+          "label": "authenticate"
+        },
+        {
+          "path": "backend/app/core/deps.py",
+          "line": 75,
+          "end_line": 88,
+          "label": "consent/verify/role gates"
+        },
+        {
+          "path": "backend/app/core/scope.py",
+          "line": 33,
+          "end_line": 47,
+          "label": "placement_access"
+        }
+      ]
+    },
+    {
+      "id": "reports",
+      "type": "backend",
+      "label": "Reports API",
+      "sublabel": "POST …/submit",
+      "pos": [
+        750,
+        136
+      ],
+      "size": [
+        150,
+        68
+      ],
+      "sources": [
+        {
+          "path": "backend/app/reports/router.py",
+          "line": 172,
+          "end_line": 180,
+          "label": "submit route"
+        },
+        {
+          "path": "backend/app/reports/service.py",
+          "line": 211,
+          "end_line": 243,
+          "label": "submit transition"
+        },
+        {
+          "path": "backend/app/core/files.py",
+          "line": 96,
+          "end_line": 109,
+          "label": "store attachment"
+        }
+      ]
+    },
+    {
+      "id": "files",
+      "type": "database",
+      "label": "File storage",
+      "sublabel": "private dir / bucket",
+      "tag": "Supabase Storage",
+      "pos": [
+        1020,
+        40
+      ],
+      "size": [
+        140,
+        60
+      ],
+      "sources": [
+        {
+          "path": "backend/app/core/files.py",
+          "line": 88,
+          "end_line": 93,
+          "label": "local | supabase"
+        },
+        {
+          "path": "backend/app/core/storage_supabase.py",
+          "line": 1,
+          "end_line": 4,
+          "label": "private bucket"
+        }
+      ]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL 16",
+      "sublabel": "pgvector · outbox",
+      "tag": "Supabase",
+      "pos": [
+        1020,
+        128
+      ],
+      "size": [
+        140,
+        444
+      ],
+      "sources": [
+        {
+          "path": "docker-compose.yml",
+          "line": 4,
+          "end_line": 9,
+          "label": "pgvector/pg16"
+        },
+        {
+          "path": "backend/app/core/db.py",
+          "line": 22,
+          "end_line": 31,
+          "label": "engine + sessions"
+        },
+        {
+          "path": "backend/app/notifications/service.py",
+          "line": 20,
+          "end_line": 33,
+          "label": "outbox insert"
+        }
+      ]
+    },
+    {
+      "id": "embedder",
+      "type": "backend",
+      "label": "Embedding model",
+      "sublabel": "e5-small, in-process",
+      "pos": [
+        485,
+        316
+      ],
+      "size": [
+        140,
+        68
+      ],
+      "sources": [
+        {
+          "path": "backend/app/ai/embeddings.py",
+          "line": 1,
+          "end_line": 5,
+          "label": "runs inside the API"
+        },
+        {
+          "path": "backend/app/ai/embeddings.py",
+          "line": 62,
+          "end_line": 76,
+          "label": "lazy load / fallback"
+        }
+      ]
+    },
+    {
+      "id": "similarity",
+      "type": "backend",
+      "label": "Similarity check",
+      "sublabel": "background task",
+      "pos": [
+        750,
+        316
+      ],
+      "size": [
+        150,
+        68
+      ],
+      "sources": [
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 52,
+          "end_line": 88,
+          "label": "encode + kNN + store"
+        },
+        {
+          "path": "backend/app/similarity/service.py",
+          "line": 91,
+          "end_line": 105,
+          "label": "own session"
+        }
+      ]
+    },
+    {
+      "id": "scheduler",
+      "type": "backend",
+      "label": "APScheduler jobs",
+      "sublabel": "deliver · retry · remind",
+      "pos": [
+        750,
+        496
+      ],
+      "size": [
+        150,
+        68
+      ],
+      "sources": [
+        {
+          "path": "backend/app/jobs/scheduler.py",
+          "line": 14,
+          "end_line": 29,
+          "label": "job intervals"
+        },
+        {
+          "path": "backend/app/jobs/jobs.py",
+          "line": 85,
+          "end_line": 106,
+          "label": "advisory lock + job_runs"
+        },
+        {
+          "path": "backend/app/notifications/delivery.py",
+          "line": 81,
+          "end_line": 110,
+          "label": "deliver outbox"
+        }
+      ]
+    },
+    {
+      "id": "push",
+      "type": "external",
+      "label": "Web Push service",
+      "sublabel": "VAPID, browser vendor",
+      "pos": [
+        250,
+        496
+      ],
+      "size": [
+        140,
+        68
+      ],
+      "sources": [
+        {
+          "path": "backend/app/notifications/delivery.py",
+          "line": 28,
+          "end_line": 38,
+          "label": "pywebpush"
+        },
+        {
+          "path": "frontend/public/sw.js",
+          "line": 42,
+          "end_line": 52,
+          "label": "showNotification"
+        }
+      ]
+    },
+    {
+      "id": "smtp",
+      "type": "external",
+      "label": "SMTP server",
+      "sublabel": "Mailpit / Gmail",
+      "pos": [
+        750,
+        676
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "backend/app/core/mail.py",
+          "line": 53,
+          "end_line": 77,
+          "label": "smtplib send"
+        },
+        {
+          "path": "docker-compose.yml",
+          "line": 20,
+          "end_line": 24,
+          "label": "Mailpit locally"
+        }
+      ]
+    },
+    {
+      "id": "supervisor",
+      "type": "external",
+      "icon": "person",
+      "label": "Supervisor",
+      "sublabel": "academic reviewer",
+      "pos": [
+        485,
+        676
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "backend/app/notifications/events.py",
+          "line": 104,
+          "end_line": 109,
+          "label": "report.submitted recipient"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Browser · untrusted",
+      "wraps": [
+        "pwa"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "FastAPI process (Docker)",
+      "wraps": [
+        "auth",
+        "reports",
+        "embedder",
+        "similarity",
+        "scheduler"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "API-only stores",
+      "wraps": [
+        "files",
+        "postgres"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "submit-click",
+      "from": "student",
+      "to": "pwa",
+      "label": "submit report",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-call",
+      "from": "pwa",
+      "to": "auth",
+      "label": "HTTPS + JWT",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gated-call",
+      "from": "auth",
+      "to": "reports",
+      "label": "student scope",
+      "variant": "emphasis"
+    },
+    {
+      "id": "commit",
+      "from": "reports",
+      "to": "postgres",
+      "label": "one transaction",
+      "variant": "emphasis"
+    },
+    {
+      "id": "attachments",
+      "from": "reports",
+      "to": "files",
+      "label": "attachments",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "after-commit",
+      "from": "reports",
+      "to": "similarity",
+      "label": "after commit",
+      "variant": "dashed"
+    },
+    {
+      "id": "encode",
+      "from": "similarity",
+      "to": "embedder",
+      "label": "encode passages"
+    },
+    {
+      "id": "knn",
+      "from": "similarity",
+      "to": "postgres",
+      "label": "pgvector kNN"
+    },
+    {
+      "id": "poll-outbox",
+      "from": "scheduler",
+      "to": "postgres",
+      "label": "poll outbox",
+      "variant": "dashed"
+    },
+    {
+      "id": "send-push",
+      "from": "scheduler",
+      "to": "push",
+      "label": "VAPID push",
+      "variant": "dashed"
+    },
+    {
+      "id": "show-push",
+      "from": "push",
+      "to": "pwa",
+      "label": "notification",
+      "variant": "dashed"
+    },
+    {
+      "id": "send-email",
+      "from": "scheduler",
+      "to": "smtp",
+      "label": "email",
+      "variant": "dashed"
+    },
+    {
+      "id": "inbox",
+      "from": "smtp",
+      "to": "supervisor",
+      "label": "inbox",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Primary path: submit a weekly report",
+      "items": [
+        "ReportSlot calls POST /api/v1/report-slots/{id}/submit with the Bearer token",
+        "auth(\"st\") checks token, session row, consent and verification; placement_access confirms it is the student's own placement",
+        "service.submit checks the four text fields, moves draft → submitted, and writes the audit row and a report.submitted outbox row",
+        "A pending similarity check is added in the same commit and runs after the response is sent",
+        "The deliver job emails and pushes report.submitted to the academic supervisor"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Trust boundaries",
+      "items": [
+        "The browser holds only the access token (sessionStorage); the service worker never caches /api/ answers",
+        "Role and gate failures return 401/403 before the request body is validated",
+        "Files reach a browser only through GET /files/{id} after the owning record's permission check; the bucket stays private",
+        "Only the API process holds the database URL and the storage service key"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Background work in the API process",
+      "items": [
+        "APScheduler starts with the API when SCHEDULER_ENABLED=true",
+        "deliver_notifications every minute, similarity_retry every 5 minutes; reminders, escalations and Missing flags every 15",
+        "Each run holds a PostgreSQL advisory lock and records a job_runs row",
+        "Email is retried up to 5 times; push is skipped without VAPID keys or a subscription"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "AI stays inside the API",
+      "items": [
+        "intfloat/multilingual-e5-small (384-d) is baked into the image, so no text leaves the process",
+        "Without the model, matching uses basic rules and similarity checks are marked failed for the retry job",
+        "A similarity flag is advisory: it never changes a report status or a grade"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Where it runs",
+      "items": [
+        "Local: docker compose with pgvector/pg16, Mailpit, the API on :8000 and the web app on :5173",
+        "Reference deployment: Vercel (web), Hugging Face Space (API), Supabase (database and bucket), Gmail SMTP",
+        "GitHub Actions deploys the API, pings /health every 6 hours, and takes nightly encrypted backups"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Left out of the drawing",
+      "items": [
+        "About 20 other routers (vacancies, matching, grades, certificates, exports…) share the same gate and database",
+        "The gate's own read of user_sessions in PostgreSQL",
+        "Offline drafts kept in localStorage until saved; submitting always needs the connection"
+      ]
+    }
+  ]
+}

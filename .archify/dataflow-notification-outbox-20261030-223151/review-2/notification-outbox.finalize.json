@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "dataflow",
+  "quality": "showcase",
+  "startedAt": "2026-10-30T22:32:53.894Z",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/candidate.json",
+    "sha256": "d6a3e978968b8130db491559383ff71f1796129727d51783ebc72e71d4756726",
+    "bytes": 8731
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.html",
+    "sha256": "e74155d44b6ee19d4b82e5e4a705bb8c1a87f350fd633cc84a7cd0c173b9ca68",
+    "bytes": 847555
+  },
+  "stages": {
+    "validate": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": null,
+      "command": [
+        "/opt/node22/bin/node",
+        "/root/.claude/skills/archify/bin/archify.mjs",
+        "deliver",
+        "dataflow",
+        "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/candidate.json",
+        "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "/home/user/InternSync",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "deliver",
+        "receiptId": "40a2ceb3-276d-4a80-9cf5-4bb9d66a95d3",
+        "stage": "render",
+        "type": "dataflow",
+        "input": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/candidate.json",
+        "output": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.html",
+        "error": "Data-flow layout validation failed:\n- Label \"oldest pending\" overlaps node \"outbox\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [578, 250, 120, 27]\n  node \"outbox\" rect: [474, 242, 112, 58]\n  Suggested fix: set labelAt [638, 315] or set labelDx 1 with labelDy 54 (below); or set labelAt [638, 222] or set labelDx 1 with labelDy -39 (above)\n- Label \"oldest pending\" overlaps node \"deliver\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [578, 250, 120, 27]\n  node \"deliver\" rect: [689, 242, 112, 58]\n  Suggested fix: set labelAt [638, 315] or set labelDx 1 with labelDy 54 (below); or set labelAt [638, 222] or set labelDx 1 with labelDy -39 (above)\n- [composition/label-route-clearance] showcase dataflow label \"oldest pending\" on flows[3] id \"claim-rows\" \"outbox\" -> \"deliver\" label \"oldest pending\" is 0px from flows[7] id \"write-status\" \"deliver\" -> \"outbox\" label \"status, attempts\" segment 0 [689, 271] -> [689, 218] (label rect [578, 250, 120, 27]; minimum 4px) — if the authored fromSide/toSide/route are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other flow route/via/channelX/channelY.",
+        "diagnostics": [
+          {
+            "code": "composition/label-route-clearance",
+            "severity": "error",
+            "message": "[composition/label-route-clearance] showcase dataflow label \"oldest pending\" on flows[3] id \"claim-rows\" \"outbox\" -> \"deliver\" label \"oldest pending\" is 0px from flows[7] id \"write-status\" \"deliver\" -> \"outbox\" label \"status, attempts\" segment 0 [689, 271] -> [689, 218] (label rect [578, 250, 120, 27]; minimum 4px) — if the authored fromSide/toSide/route are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other flow route/via/channelX/channelY.",
+            "subject": {
+              "diagramType": "dataflow",
+              "collection": "flows",
+              "index": 3,
+              "id": "claim-rows",
+              "from": "outbox",
+              "to": "deliver"
+            },
+            "evidence": {
+              "label": "oldest pending",
+              "otherRelationship": {
+                "diagramType": "dataflow",
+                "collection": "flows",
+                "index": 7,
+                "id": "write-status",
+                "from": "deliver",
+                "to": "outbox"
+              },
+              "segmentIndex": 0,
+              "clearancePx": 0,
+              "minimumPx": 4,
+              "labelRect": {
+                "relation": {
+                  "id": "claim-rows",
+                  "from": "outbox",
+                  "to": "deliver",
+                  "label": "oldest pending",
+                  "classification": "FOR UPDATE SKIP LOCKED",
+                  "variant": "emphasis",
+                  "fromSide": "right",
+                  "toSide": "left"
+                },
+                "relationIndex": 3,
+                "label": "oldest pending",
+                "x": 577.6,
+                "y": 250,
+                "width": 119.8,
+                "height": 27,
+                "lx": 637.5,
+                "ly": 261
+              },
+              "from": [
+                689,
+                271
+              ],
+              "to": [
+                689,
+                218
+              ]
+            },
+            "supportedFixes": [
+              "if the authored fromSide/toSide/route are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other flow route/via/channelX/channelY"
+            ]
+          },
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "Label \"oldest pending\" overlaps node \"outbox\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [578, 250, 120, 27]\n  node \"outbox\" rect: [474, 242, 112, 58]\n  Suggested fix: set labelAt [638, 315] or set labelDx 1 with labelDy 54 (below); or set labelAt [638, 222] or set labelDx 1 with labelDy -39 (above)",
+            "subject": {
+              "diagramType": "dataflow"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          },
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "Label \"oldest pending\" overlaps node \"deliver\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [578, 250, 120, 27]\n  node \"deliver\" rect: [689, 242, 112, 58]\n  Suggested fix: set labelAt [638, 315] or set labelDx 1 with labelDy 54 (below); or set labelAt [638, 222] or set labelDx 1 with labelDy -39 (above)",
+            "subject": {
+              "diagramType": "dataflow"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          }
+        ],
+        "provenance": "failed",
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      },
+      "execution": "embedded-in-deliver"
+    },
+    "deliver": {
+      "status": "not-run",
+      "execution": "blocked-by-validate"
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "composition/label-route-clearance",
+      "severity": "error",
+      "message": "[composition/label-route-clearance] showcase dataflow label \"oldest pending\" on flows[3] id \"claim-rows\" \"outbox\" -> \"deliver\" label \"oldest pending\" is 0px from flows[7] id \"write-status\" \"deliver\" -> \"outbox\" label \"status, attempts\" segment 0 [689, 271] -> [689, 218] (label rect [578, 250, 120, 27]; minimum 4px) — if the authored fromSide/toSide/route are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other flow route/via/channelX/channelY.",
+      "subject": {
+        "diagramType": "dataflow",
+        "collection": "flows",
+        "index": 3,
+        "id": "claim-rows",
+        "from": "outbox",
+        "to": "deliver"
+      },
+      "evidence": {
+        "label": "oldest pending",
+        "otherRelationship": {
+          "diagramType": "dataflow",
+          "collection": "flows",
+          "index": 7,
+          "id": "write-status",
+          "from": "deliver",
+          "to": "outbox"
+        },
+        "segmentIndex": 0,
+        "clearancePx": 0,
+        "minimumPx": 4,
+        "labelRect": {
+          "relation": {
+            "id": "claim-rows",
+            "from": "outbox",
+            "to": "deliver",
+            "label": "oldest pending",
+            "classification": "FOR UPDATE SKIP LOCKED",
+            "variant": "emphasis",
+            "fromSide": "right",
+            "toSide": "left"
+          },
+          "relationIndex": 3,
+          "label": "oldest pending",
+          "x": 577.6,
+          "y": 250,
+          "width": 119.8,
+          "height": 27,
+          "lx": 637.5,
+          "ly": 261
+        },
+        "from": [
+          689,
+          271
+        ],
+        "to": [
+          689,
+          218
+        ]
+      },
+      "supportedFixes": [
+        "if the authored fromSide/toSide/route are not required by the user, remove them so the renderer can re-plan; otherwise preserve that intent and adjust labelAt, labelDx, labelDy, or labelSegment; otherwise adjust the other flow route/via/channelX/channelY"
+      ]
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"oldest pending\" overlaps node \"outbox\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [578, 250, 120, 27]\n  node \"outbox\" rect: [474, 242, 112, 58]\n  Suggested fix: set labelAt [638, 315] or set labelDx 1 with labelDy 54 (below); or set labelAt [638, 222] or set labelDx 1 with labelDy -39 (above)",
+      "subject": {
+        "diagramType": "dataflow"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "Label \"oldest pending\" overlaps node \"deliver\" — adjust labelDx/labelDy/labelSegment or set labelAt.\n  label rect: [578, 250, 120, 27]\n  node \"deliver\" rect: [689, 242, 112, 58]\n  Suggested fix: set labelAt [638, 315] or set labelDx 1 with labelDy 54 (below); or set labelAt [638, 222] or set labelDx 1 with labelDy -39 (above)",
+      "subject": {
+        "diagramType": "dataflow"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/review-2/notification-outbox.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/review-2/notification-outbox.finalize-summary.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "validate",
+  "finishedAt": "2026-10-30T22:32:54.140Z",
+  "durationMs": 245,
+  "update": {
+    "status": "unavailable",
+    "installedVersion": null,
+    "availableVersion": null,
+    "releaseNotes": null,
+    "checkedAt": null,
+    "source": null,
+    "noticeRequired": false,
+    "noticeText": null,
+    "reason": "cache-valid"
+  }
+}

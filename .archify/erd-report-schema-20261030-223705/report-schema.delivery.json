@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c8c058da-f9de-4917-b5d1-5cdd46f10661",
+  "status": "current",
+  "command": "deliver",
+  "type": "erd",
+  "input": "/home/user/InternSync/.archify/erd-report-schema-20261030-223705/candidate.json",
+  "output": "/home/user/InternSync/.archify/erd-report-schema-20261030-223705/report-schema.html",
+  "specification": {
+    "sha256": "1646c18949505515c655c7c9ec90791798b6eff635ef0b4cabe6074d4785b0d6",
+    "bytes": 20220
+  },
+  "artifact": {
+    "sha256": "92c5e185b90c5ea52038fc78ad89611a49826bc03548f9a6345015c72248db69",
+    "bytes": 943999
+  }
+}

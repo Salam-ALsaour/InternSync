@@ -1,0 +1,382 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "skipped",
+  "type": "architecture",
+  "quality": "showcase",
+  "startedAt": "2026-10-30T22:20:24.454Z",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/candidate.json",
+    "sha256": "f057d52aad4e5d5f7d3dae3ecb728806db7a2f8bc6c81b4000f7120dad5baec6",
+    "bytes": 13183
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+    "sha256": "2d7754ba3b087c7b2d8221be63729c4795f493c2723ce078eac6be1dde32a115",
+    "bytes": 864712
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "/opt/node22/bin/node",
+        "/root/.claude/skills/archify/bin/archify.mjs",
+        "deliver",
+        "architecture",
+        "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/candidate.json",
+        "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "/home/user/InternSync",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "f057d52aad4e5d5f7d3dae3ecb728806db7a2f8bc6c81b4000f7120dad5baec6",
+          "bytes": 13183
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 407,
+      "command": [
+        "/opt/node22/bin/node",
+        "/root/.claude/skills/archify/bin/archify.mjs",
+        "deliver",
+        "architecture",
+        "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/candidate.json",
+        "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "/home/user/InternSync",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "46040011-5a8b-434d-b47f-b3cf8604b59c",
+        "ok": true,
+        "command": "deliver",
+        "type": "architecture",
+        "input": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/candidate.json",
+        "output": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+        "specification": {
+          "sha256": "f057d52aad4e5d5f7d3dae3ecb728806db7a2f8bc6c81b4000f7120dad5baec6",
+          "bytes": 13183
+        },
+        "artifact": {
+          "sha256": "2d7754ba3b087c7b2d8221be63729c4795f493c2723ce078eac6be1dde32a115",
+          "bytes": 864712
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "evidence": {
+          "verified": true,
+          "repository": "https://github.com/Salam-ALsaour/InternSync",
+          "revision": "1a3901947a007001eeff746ec4544cfa09fb79b0",
+          "references": 27
+        },
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      }
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 141,
+      "command": [
+        "/opt/node22/bin/node",
+        "/root/.claude/skills/archify/bin/archify.mjs",
+        "check",
+        "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+        "artifact": {
+          "sha256": "2d7754ba3b087c7b2d8221be63729c4795f493c2723ce078eac6be1dde32a115",
+          "bytes": 864712
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 0,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 53.9,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 6.048780487804878,
+            "maxBends": 1,
+            "routesOverSuggestedBends": 0,
+            "maxStretch": 1,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 66,
+            "minInteriorSegmentPx": null,
+            "shortSegmentCount": 0,
+            "shortEndpointSegmentCount": 0,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [],
+            "detours": []
+          },
+          "leadingSpace": {
+            "measured": true,
+            "emptyTopPx": 10,
+            "emptyTopRatio": 0.012,
+            "occupiedTop": 10,
+            "viewBoxTop": 0,
+            "canvasHeight": 808,
+            "typicalNodeHeight": 68,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "legacy-930",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 930,
+            "actualBudgetPx": 930,
+            "limit": "legacy",
+            "requestedTargetPx": 7.5,
+            "requestedTargetMet": false,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "edge",
+              "id": "submit-click",
+              "from": "student",
+              "to": "pwa"
+            },
+            "minimumSourceTextPx": 8,
+            "minimumProjectedTextPx": 6.048780487804878,
+            "semanticTextCount": 40
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "46040011-5a8b-434d-b47f-b3cf8604b59c"
+      }
+    },
+    "browser-check": {
+      "status": "skipped",
+      "exitCode": 2,
+      "durationMs": 22,
+      "command": [
+        "/opt/node22/bin/node",
+        "/root/.claude/skills/archify/bin/archify.mjs",
+        "browser-check",
+        "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+        "--json",
+        "--require-provenance"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "skipped",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "46040011-5a8b-434d-b47f-b3cf8604b59c",
+        "artifact": {
+          "path": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html",
+          "sha256": "2d7754ba3b087c7b2d8221be63729c4795f493c2723ce078eac6be1dde32a115",
+          "bytes": 864712
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "unavailable",
+          "executable": null
+        },
+        "diagnostics": [
+          {
+            "code": "viewer/chrome-unavailable",
+            "severity": "warning",
+            "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+            "subject": {
+              "artifact": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html"
+            },
+            "evidence": {
+              "executable": null
+            },
+            "supportedFixes": [
+              "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+            ]
+          }
+        ],
+        "containment": {
+          "status": "skipped",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": []
+        },
+        "themeStates": {
+          "status": "skipped",
+          "viewports": []
+        },
+        "readability": {
+          "status": "skipped",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": []
+        },
+        "viewerChrome": {
+          "status": "skipped",
+          "viewports": []
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "receipt": "internsync-overview.browser-check.json",
+          "files": []
+        },
+        "error": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path."
+      }
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "viewer/chrome-unavailable",
+      "severity": "warning",
+      "message": "No supported browser found. Install Chrome/Chromium (or Microsoft Edge), or set ARCHIFY_CHROME to its executable path.",
+      "subject": {
+        "artifact": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.html"
+      },
+      "evidence": {
+        "executable": null
+      },
+      "supportedFixes": [
+        "set ARCHIFY_CHROME to a Chrome/Chromium executable (or Microsoft Edge) and rerun browser-check"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/architecture-internsync-overview-20261030-221930/internsync-overview.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "browser-check",
+  "finishedAt": "2026-10-30T22:20:25.104Z",
+  "durationMs": 650,
+  "update": {
+    "status": "unavailable",
+    "installedVersion": null,
+    "availableVersion": null,
+    "releaseNotes": null,
+    "checkedAt": null,
+    "source": null,
+    "noticeRequired": false,
+    "noticeText": null,
+    "reason": "cache-valid"
+  }
+}

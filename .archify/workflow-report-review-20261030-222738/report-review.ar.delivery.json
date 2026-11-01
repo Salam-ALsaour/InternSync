@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "d6b71347-2f4f-4174-8cd7-18090c98b915",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/home/user/InternSync/.archify/workflow-report-review-20261030-222738/candidate.ar.json",
+  "output": "/home/user/InternSync/.archify/workflow-report-review-20261030-222738/report-review.ar.html",
+  "specification": {
+    "sha256": "24857f9531bda4e69ad9977312827b411f0639f365345e09f7756a18ecbd5fb1",
+    "bytes": 13789
+  },
+  "artifact": {
+    "sha256": "2d77909aed4455d0d5c9ee0d3c0259594bf113fce90ea8c59e5fc05e147826a5",
+    "bytes": 877605
+  }
+}

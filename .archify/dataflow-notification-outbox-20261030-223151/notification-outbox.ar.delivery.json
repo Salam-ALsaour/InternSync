@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "fb32e0a7-b7ff-492a-a38b-84c2d7c44267",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/candidate.ar.json",
+  "output": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.ar.html",
+  "specification": {
+    "sha256": "ef5b8cca2164f38b65bd2fd6116e63f35589f1433f51d189ad6071bbbd06c4a8",
+    "bytes": 8638
+  },
+  "artifact": {
+    "sha256": "8d8b53c60df4f302ab4e8a8bacd113c2317b32331e67de138d487c309f4fe11c",
+    "bytes": 857408
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "dataflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/candidate.json",
+    "sha256": "b929eba80db33af9b6b0b7d5b7552400610d9e3298b9b60f774cdc40e89f11fd",
+    "bytes": 8669
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/notification-outbox.html",
+    "sha256": "db68d29e03e19318039cfa5e59800d653b8f15eaa94d2efbba944bbfa912c873",
+    "bytes": 846723
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/review-3/notification-outbox.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/review-3/notification-outbox.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/dataflow-notification-outbox-20261030-223151/review-3/notification-outbox.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2755,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedStretch": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "write-status",
+            "from": "deliver",
+            "to": "outbox",
+            "label": "status, attempts",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "bends": 2,
+          "stretch": 2.029
+        }
+      ],
+      "truncated": false
+    },
+    "repair": "Advisory only: this mode places or routes these relationships itself. Report them; do not remove relationships or meaning to reduce crossings."
+  }
+}
