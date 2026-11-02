@@ -3,6 +3,8 @@ entries, build the table of contents, and save the Word file and its PDF. word_f
 
     python3 docs/tools/lo_finish.py <in.docx> <out.docx> <out.pdf>
 
+With `-` for <out.docx>, only the PDF is written (for a document whose Word file is final as generated).
+
 Needs LibreOffice (soffice) and its Python bridge (python3-uno). The fonts of the course templates (Calibri, Cambria)
 are replaced by their metric-compatible stand-ins (Carlito, Caladea), so line breaks and page numbers match Word."""
 import os
@@ -81,7 +83,8 @@ def main(src, out_docx, out_pdf):
                 indexes.getByIndex(i).update()
             doc.getTextFields().refresh()
             doc.refresh()
-        doc.storeToURL(url(out_docx), (prop("FilterName", "MS Word 2007 XML"),))
+        if out_docx != "-":
+            doc.storeToURL(url(out_docx), (prop("FilterName", "MS Word 2007 XML"),))
         doc.storeToURL(url(out_pdf), (prop("FilterName", "writer_pdf_Export"),))
         print("pages:", doc.getCurrentController().getPropertyValue("PageCount"))
         doc.close(True)
