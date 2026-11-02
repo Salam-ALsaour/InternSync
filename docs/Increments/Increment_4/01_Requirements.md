@@ -1,7 +1,7 @@
 # Increment 4 – Requirements (Scope and Acceptance)
 
 **Status:** Approved Oct 28, 2026 – the project owner delegated the decisions of Section 5, and the recommendations were adopted · Author: Salam Alsaour  
-**Baseline:** [SRS 1.5](../../RSR/InternSync_SRS.md), [Design 1.5](../../Design/InternSync_Design.md), [API 1.4](../../Design/InternSync_API_Spec.md), [SPMP 1.5](../../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md), [Increment 3](../Increment_3/04_Test_Report.md)  
+**Baseline:** [SRS 1.5](../../Project_4_SRS/InternSync_SRS.md), [Design 1.5](../../Design/InternSync_Design.md), [API 1.4](../../Design/InternSync_API_Spec.md), [SPMP 1.5](../../Project_3_SPMP/InternSync_SPMP.md), [Increment 3](../Increment_3/04_Test_Report.md)  
 **Milestone:** M6 – Testing complete, **Dec 10, 2026**: test report; user acceptance testing with at least 8 participants, 80% or more of the scenarios completed without help.
 
 ## 1. Purpose

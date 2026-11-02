@@ -68,8 +68,8 @@ This document covers the whole system as built in Increments 1 to 5: the React w
 
 | **Document** | **Content** |
 |:---|:---|
-| [SRS 1.6](../RSR/InternSync_SRS.md) | The requirements this design implements; FR-… and NFR-… IDs refer to it |
-| [SPMP 1.7](../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md) | Process, schedule, roles, and risks |
+| [SRS 1.6](../Project_4_SRS/InternSync_SRS.md) | The requirements this design implements; FR-… and NFR-… IDs refer to it |
+| [SPMP 1.7](../Project_3_SPMP/InternSync_SPMP.md) | Process, schedule, roles, and risks |
 | [System Design Document 1.7](../Design/InternSync_Design.md) | The maintained design, including the full data dictionary of all 49 tables |
 | [API Specification 1.5](../Design/InternSync_API_Spec.md) | Every endpoint, its roles, payloads, and error codes |
 | [Diagram pack 1.2](../InternSync_Diagrams/README.md) | The figures used in this document, with their sources |

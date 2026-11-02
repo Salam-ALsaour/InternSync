@@ -1339,7 +1339,7 @@ Table 6.8 traces each function of the Proposal to its requirements, objectives, 
 
 ### 6.6 Related Design Documents
 
-- InternSync – Software Project Management Plan (SPMP), version 1.2: [`docs/Software Project Management Plan (SPMP)/InternSync_SPMP.md`](../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md).
+- InternSync – Software Project Management Plan (SPMP), version 1.2: [`docs/Project_3_SPMP/InternSync_SPMP.md`](../Project_3_SPMP/InternSync_SPMP.md).
 
 - InternSync – System Design Document, version 1.2 (architecture, data dictionary, behaviour, AI services, security, user interface): [`docs/Design/InternSync_Design.md`](../Design/InternSync_Design.md).
 

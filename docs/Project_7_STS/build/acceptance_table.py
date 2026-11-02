@@ -2,13 +2,13 @@
 Increment_N/01_Requirements.md with its latest result from Section 3 of Increment_N/04_Test_Report.md. A test
 specified in two increments (AT-AI-03, AT-PWA-03) keeps its latest scenario and result.
 
-    python docs/STS/build/acceptance_table.py           # from the repository root, or with --check in CI"""
+    python docs/Project_7_STS/build/acceptance_table.py           # from the repository root, or with --check in CI"""
 import re
 import sys
 from pathlib import Path
 
 DOCS = Path(__file__).resolve().parents[2]
-STS = DOCS / "STS" / "InternSync_STS.md"
+STS = DOCS / "Project_7_STS" / "InternSync_STS.md"
 START, END = "<!-- acceptance-table -->", "<!-- /acceptance-table -->"
 
 
@@ -52,7 +52,7 @@ def main():
     new = f"{head}{START}\n\n{table()}\n\n{END}{tail}"
     if "--check" in sys.argv:
         if new != text:
-            raise SystemExit("Appendix 11.2 of the STS is out of date: run docs/STS/build/acceptance_table.py")
+            raise SystemExit("Appendix 11.2 of the STS is out of date: run docs/Project_7_STS/build/acceptance_table.py")
         print("Appendix 11.2 is up to date")
         return
     STS.write_text(new, encoding="utf-8")

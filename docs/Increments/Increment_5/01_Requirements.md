@@ -1,7 +1,7 @@
 # Increment 5 – Requirements (Final Delivery)
 
 **Status:** Approved Oct 29, 2026 – the project owner delegated the decisions of Section 4, and the recommendations were adopted · Author: Salam Alsaour  
-**Baseline:** [SRS 1.6](../../RSR/InternSync_SRS.md), [Design 1.6](../../Design/InternSync_Design.md), [API 1.5](../../Design/InternSync_API_Spec.md), [SPMP 1.6](../../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md), [Increment 4](../Increment_4/04_Test_Report.md)  
+**Baseline:** [SRS 1.6](../../Project_4_SRS/InternSync_SRS.md), [Design 1.6](../../Design/InternSync_Design.md), [API 1.5](../../Design/InternSync_API_Spec.md), [SPMP 1.6](../../Project_3_SPMP/InternSync_SPMP.md), [Increment 4](../Increment_4/04_Test_Report.md)  
 **Milestone:** M7 – Final delivery, **Dec 15, 2026**: final system, documentation, and presentation (SPMP task T8).
 
 ## 1. Purpose

@@ -67,9 +67,9 @@ Every requirement of the SRS has an acceptance test or a recorded check. The tes
 
 | **Document** | **Use in this STS** |
 |:---|:---|
-| [SRS 1.6](../RSR/InternSync_SRS.md) | Requirements and their acceptance criteria |
-| [SDD 1.0](../SDD/InternSync_SDD.md) and the [System Design Document 1.7](../Design/InternSync_Design.md) | State machines, algorithms, thresholds, and the test design |
-| [SPMP 1.7](../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md) | Roles, schedule, and milestones M3 – M7 |
+| [SRS 1.6](../Project_4_SRS/InternSync_SRS.md) | Requirements and their acceptance criteria |
+| [SDD 1.0](../Project_6_SDD/InternSync_SDD.md) and the [System Design Document 1.7](../Design/InternSync_Design.md) | State machines, algorithms, thresholds, and the test design |
+| [SPMP 1.7](../Project_3_SPMP/InternSync_SPMP.md) | Roles, schedule, and milestones M3 – M7 |
 | Increment documents ([1](../Increments/Increment_1/01_Requirements.md), [2](../Increments/Increment_2/01_Requirements.md), [3](../Increments/Increment_3/01_Requirements.md), [4](../Increments/Increment_4/01_Requirements.md)) | Acceptance tests of each increment (Section 6 of each) |
 | Test reports ([1](../Increments/Increment_1/04_Test_Report.md), [2](../Increments/Increment_2/04_Test_Report.md), [3](../Increments/Increment_3/04_Test_Report.md), [4](../Increments/Increment_4/04_Test_Report.md), [5](../Increments/Increment_5/04_Test_Report.md)) | Execution results and defect logs |
 | [UAT plan](../Increments/Increment_4/05_UAT_Plan.md) | Participants, scenario cards, and the result sheet |

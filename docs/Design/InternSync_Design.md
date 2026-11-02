@@ -16,7 +16,7 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.7 · Oc
 
 **Related documents**
 
-- [SRS v1.2](../RSR/InternSync_SRS.md): the requirements this design implements. Requirement IDs (FR-…, NFR-…) refer to it.
+- [SRS v1.2](../Project_4_SRS/InternSync_SRS.md): the requirements this design implements. Requirement IDs (FR-…, NFR-…) refer to it.
 - [API Specification](InternSync_API_Spec.md): every endpoint, its roles, payloads, and error codes.
 - [Diagram pack](../InternSync_Diagrams/README.md): figures referenced below. The ERD figures are generated from `source/06_erd.py`, which must match Section 4.
 - [Change requests](../Change_Requests.md): decisions that changed the SRS or SPMP.

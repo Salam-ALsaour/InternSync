@@ -1,7 +1,7 @@
 # Increment 3 – Requirements (Scope and Acceptance)
 
 **Status:** Approved Oct 27, 2026 – the project owner delegated the decisions of Section 5, and the recommendations were adopted · Author: Salam Alsaour  
-**Baseline:** [SRS 1.5](../../RSR/InternSync_SRS.md), [Design 1.4](../../Design/InternSync_Design.md), [API 1.3](../../Design/InternSync_API_Spec.md), [SPMP 1.4](../../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md), [Increment 2](../Increment_2/04_Test_Report.md)  
+**Baseline:** [SRS 1.5](../../Project_4_SRS/InternSync_SRS.md), [Design 1.4](../../Design/InternSync_Design.md), [API 1.3](../../Design/InternSync_API_Spec.md), [SPMP 1.4](../../Project_3_SPMP/InternSync_SPMP.md), [Increment 2](../Increment_2/04_Test_Report.md)  
 **Milestone:** M5 – Increment 3 delivered, **Nov 25, 2026**: demo of F11–F15; the Should functions pass their tests.
 
 ## 1. Purpose

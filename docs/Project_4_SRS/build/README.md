@@ -1,6 +1,6 @@
 # SRS – Word and PDF Build
 
-`../InternSync_SRS_v1.3.docx` and `../InternSync_SRS_v1.3.pdf` are generated from [`../InternSync_SRS.md`](../InternSync_SRS.md) on the CSC 305 SRS template (`SRS_Template_IEEE830.docx`, IEEE 830 adapted for student projects). Edit the Markdown, then rebuild; do not edit the Word file by hand.
+`../InternSync_SRS_v1.3.docx` and `../InternSync_SRS_v1.3.pdf` are generated from [`../InternSync_SRS.md`](../InternSync_SRS.md) on the CSC 305 SRS template ([`../SRS_Template_IEEE830.docx`](../SRS_Template_IEEE830.docx), IEEE 830 adapted for student projects). Edit the Markdown, then rebuild; do not edit the Word file by hand.
 
 The build tools are shared with the SDD and STS and live in [`../../tools`](../../tools/):
 
@@ -13,7 +13,7 @@ The build tools are shared with the SDD and STS and live in [`../../tools`](../.
 From this folder, in PowerShell:
 
 ```powershell
-python ..\..\tools\gen_docx.py SRS_Template_IEEE830.docx ..\InternSync_SRS.md "$PWD\out.docx"
+python ..\..\tools\gen_docx.py ..\SRS_Template_IEEE830.docx ..\InternSync_SRS.md "$PWD\out.docx"
 ```
 
 ```powershell
