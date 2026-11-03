@@ -26,7 +26,7 @@ A number appears in a new document only if it is in one of these sources, so the
 | `docs/tools/check_links.py` | Every relative link and image in the maintained Markdown documents must point to an existing file; anchors are not checked |
 | `docs/tools/export_pdf.mjs` | Renders each maintained document from Markdown to HTML (`marked`) with a print stylesheet, sets the document's folder as the base so its diagrams load, and prints A4 PDFs with page numbers. It uses the Chromium installed for the browser tests. Output: `docs/Final_Submission/` |
 | `frontend/e2e/guide.capture.ts` | A Playwright script, not part of the test run, that signs in as each demo role and saves the screenshots of the user guide in `docs/User_Guide/` |
-| SRS build | Unchanged ([RSR/build](../../RSR/build/README.md)): the course template filled by `gen_docx.py`, then Word builds the contents and the PDF |
+| SRS build | Unchanged ([Project_4_SRS/build](../../Project_4_SRS/build/README.md)): the course template filled by `gen_docx.py`, then Word builds the contents and the PDF |
 
 ## 3. Final Report (D1)
 

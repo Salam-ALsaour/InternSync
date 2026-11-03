@@ -1,6 +1,6 @@
 # InternSync – Diagram Pack (v1.2)
 
-Requirements and design diagrams, consistent with [SRS v1.3](../RSR/InternSync_SRS.md), [SPMP v1.2](../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md), and the [design document](../Design/InternSync_Design.md).
+Requirements and design diagrams, consistent with [SRS v1.3](../Project_4_SRS/InternSync_SRS.md), [SPMP v1.2](../Project_3_SPMP/InternSync_SPMP.md), and the [design document](../Design/InternSync_Design.md).
 
 - `png/` and `svg/` hold the figures; `source/` holds their editable sources.
 - `InternSync_Diagrams.pdf` is the printable pack, built by `source/build_pack.py`.

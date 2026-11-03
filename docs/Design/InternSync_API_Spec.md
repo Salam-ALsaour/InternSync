@@ -14,7 +14,7 @@ Task T2 (System design) · Milestone M2 · Version 1.5 · October 28, 2026
 
 This document is the API contract agreed before implementation (SPMP risk "integration problems"). During development, FastAPI generates the OpenAPI 3.1 document from the code at `/api/v1/openapi.json` (NFR-MNT-02), and the frontend client is generated from it. The generated document must match this specification; any difference is either a bug or a change that is recorded here first.
 
-Related: [System Design Document](InternSync_Design.md) (data model, state machines, security) and [SRS 1.5](../RSR/InternSync_SRS.md).
+Related: [System Design Document](InternSync_Design.md) (data model, state machines, security) and [SRS 1.5](../Project_4_SRS/InternSync_SRS.md).
 
 ## Table of Contents
 

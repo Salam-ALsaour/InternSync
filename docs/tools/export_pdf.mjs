@@ -4,7 +4,7 @@
 //
 // Each Markdown document is rendered to HTML with `marked`, its images resolved from the document's own folder, and
 // printed to A4 by the Chromium of the browser tests. The SRS is built separately on the course template
-// (docs/RSR/build).
+// (docs/Project_4_SRS/build).
 import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,7 +18,7 @@ const markedModule = await import(pathToFileURL(require.resolve("marked")).href)
 const Marked = markedModule.Marked ?? markedModule.default.Marked;
 const { chromium } = require("@playwright/test");
 
-const SPMP = "Software Project Management Plan (SPMP)/InternSync_SPMP.md";
+const SPMP = "Project_3_SPMP/InternSync_SPMP.md";
 const FILES = [
   ["InternSync_Final_Report.pdf", "Final Report", ["Final_Report.md"]],
   ["InternSync_SPMP_v1.7.pdf", "Software Project Management Plan", [SPMP]],

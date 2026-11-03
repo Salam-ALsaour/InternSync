@@ -22,7 +22,7 @@ CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Group 3 · Imam 
 
 ## 3. How It Was Built
 
-- **Process:** plan-driven development with incremental delivery ([SPMP](Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md), Section 1.1). Must functions came first (Increments 1 and 2), then Should (Increment 3), then the Could functions with the testing phase (Increment 4), then the final delivery (Increment 5).
+- **Process:** plan-driven development with incremental delivery ([SPMP](Project_3_SPMP/InternSync_SPMP.md), Section 1.1). Must functions came first (Increments 1 and 2), then Should (Increment 3), then the Could functions with the testing phase (Increment 4), then the final delivery (Increment 5).
 - **Each increment** went through four phases, each with its document in `docs/Increments`:
   1. requirements, with the open decisions and the acceptance tests;
   2. design;
@@ -144,8 +144,8 @@ The three open requirements need people or the hosted system:
 
 | **Document** | **Purpose** |
 |:---|:---|
-| [SRS](RSR/InternSync_SRS.md) | What the system must do (version 1.6) |
-| [SPMP](Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md) | How the project was planned and run |
+| [SRS](Project_4_SRS/InternSync_SRS.md) | What the system must do (version 1.6) |
+| [SPMP](Project_3_SPMP/InternSync_SPMP.md) | How the project was planned and run |
 | [System design](Design/InternSync_Design.md) and [API specification](Design/InternSync_API_Spec.md) | How the system is built |
 | [Increment documents](README.md) | Requirements, design, and test report of each increment |
 | [Change requests](Change_Requests.md) | Every change and its effect |

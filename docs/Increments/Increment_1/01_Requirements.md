@@ -1,7 +1,7 @@
 # Increment 1 – Requirements (Scope and Acceptance)
 
 **Status:** Approved Oct 23, 2026 – the decisions of Section 5 were adopted as recommended ([02_Design.md](02_Design.md), Section 1) · Author: Salam Alsaour  
-**Baseline:** [SRS 1.3](../../RSR/InternSync_SRS.md), [Design 1.2](../../Design/InternSync_Design.md), [API 1.1](../../Design/InternSync_API_Spec.md), [SPMP 1.2](../../Software%20Project%20Management%20Plan%20%28SPMP%29/InternSync_SPMP.md)  
+**Baseline:** [SRS 1.3](../../Project_4_SRS/InternSync_SRS.md), [Design 1.2](../../Design/InternSync_Design.md), [API 1.1](../../Design/InternSync_API_Spec.md), [SPMP 1.2](../../Project_3_SPMP/InternSync_SPMP.md)  
 **Milestone:** M3 – Increment 1 delivered, **Nov 1, 2026**: demo of the F1, F2, F3, F5, and F10 foundation; automated tests pass.
 
 ## 1. Purpose

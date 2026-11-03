@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "class",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/user/InternSync/.archify/class-report-review-20261101-225053/candidate.json",
+    "sha256": "a7cbcbbb4ef228d4252c3a215a26c0ea3ff642a6fe1e3dff3fe00174c31fab0d",
+    "bytes": 9366
+  },
+  "artifact": {
+    "path": "/home/user/InternSync/.archify/class-report-review-20261101-225053/report-review-classes.html",
+    "sha256": "c540422cb4b2fa48d911bc4db348a4b270dcf47aeb00c9066f6fd47900ec4bf8",
+    "bytes": 877009
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/user/InternSync/.archify/class-report-review-20261101-225053/report-review-classes.finalize.json",
+    "summaryReceipt": "/home/user/InternSync/.archify/class-report-review-20261101-225053/report-review-classes.finalize-summary.json",
+    "browserCheckReceipt": "/home/user/InternSync/.archify/class-report-review-20261101-225053/report-review-classes.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 12349,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}
