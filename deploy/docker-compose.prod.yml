@@ -1,0 +1,72 @@
+# InternSync on one server (AWS Lightsail): PostgreSQL, the API, and Caddy (web app + HTTPS + /api proxy).
+# From the repository root:
+#   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env up -d --build
+# See deploy/README.md.
+name: internsync
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: internsync
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+      POSTGRES_DB: internsync
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U internsync"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  api:
+    build:
+      context: ../backend
+      args:
+        WITH_AI: ${WITH_AI:-1}
+    restart: unless-stopped
+    environment:
+      ENV: production
+      PORT: "8000"
+      DATABASE_URL: postgresql+psycopg://internsync:${POSTGRES_PASSWORD}@db:5432/internsync
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in deploy/.env}
+      FRONTEND_BASE_URL: https://${DOMAIN}
+      CORS_ORIGINS: https://${DOMAIN}
+      STORAGE_BACKEND: local
+      LOCAL_STORAGE_DIR: /data/storage
+      SCHEDULER_ENABLED: "true"
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:no-reply@internsync.tech}
+      # Only Caddy can reach the API (no published port), so trust its X-Forwarded-For for the registration limit.
+      FORWARDED_ALLOW_IPS: "*"
+    volumes:
+      - file-data:/data/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ../frontend
+      dockerfile: ../deploy/web.Dockerfile
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+
+volumes:
+  db-data:
+  file-data:
+  caddy-data:
+  caddy-config:
