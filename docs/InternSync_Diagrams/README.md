@@ -49,3 +49,5 @@ Run these from `source/`:
 | Printable pack | `python build_pack.py` | `pymupdf` |
 
 The ERD must match the data dictionary in Section 4.3 of the design document, which is authoritative.
+
+Figures 12, 13a, 13b, and 14 also have a tab with zoom in the bilingual [diagrams.html](../diagrams.html). After regenerating them, rebuild that file from the repository root with `python .archify/build_tabs.py`.

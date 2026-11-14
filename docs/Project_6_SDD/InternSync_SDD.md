@@ -87,7 +87,7 @@ The full glossary is in Appendix A. The role abbreviations are used throughout: 
 | [Change requests](../Change_Requests.md) | CR-01 – CR-12 | Approved changes to requirements and design |
 | [Increment documents](../README.md) | 1 – 5 | Requirements, design notes, and test reports of each increment |
 | [Key results](../Key_Results.md) | Oct 29, 2026 | Measured results quoted in Section 3.3 |
-| [Interactive code diagrams](../diagrams.html) | Nov 3, 2026 | Architecture, workflow, sequence, data flow, lifecycle, and database diagrams traced from the code, in English and Arabic |
+| [Interactive code diagrams](../diagrams.html) | Nov 14, 2026 | One tab per diagram, in English and Arabic: architecture, workflow, sequence, data flow, lifecycle, and database diagrams traced from the code, the report review classes (Figure 5.3), and Figures 2.2, 5.1, 5.2, and 5.4 of this SDD with zoom |
 
 Standards and books are listed in Appendix D.
 
