@@ -15,6 +15,7 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
 | CR-09 | Oct 27, 2026 | Increment 3 implementation adjustments: PDF library, similarity passages, API details | Approved |
 | CR-10 | Oct 28, 2026 | Offline mode: a saved copy of the pages opened in the session, and drafts kept on the device until saved | Approved |
 | CR-11 | Oct 28, 2026 | Increment 4 implementation adjustments: retention and anonymization endpoints, certificate details, idle limit on the device | Approved |
+| CR-12 | Nov 14, 2026 | Software Design Description on the official 2026 template; design documents aligned with the built system | Approved |
 
 ## CR-01 – Zero-cost reference deployment
 
@@ -219,3 +220,26 @@ Change log required by SRS Section 10.6 and SPMP Section 8. Each approved change
   - Increment 4 design, Section 12.
 - **Effect on schedule:** none.
 - **Decision:** approved. Design 1.6, API specification 1.5.
+
+## CR-12 – SDD on the course template and design documents aligned with the build
+
+- **Requested by:** Salam Alsaour, Nov 14, 2026 (the course published the official 2026 SDD template and rubric for Project 6; SDD 1.0 had been made on an earlier template).
+- **Change:** no requirement changes.
+  - **SDD 1.1:** the [Software Design Description](Project_6_SDD/InternSync_SDD.md) (IEEE 1016) moves to the official 2026 template (university cover with the team table) and is expanded for the 2026 rubric, which gives Design Considerations the largest weight: assumptions and constraints with their effect on the design, design goals with measured results, fifteen design decisions with the options considered (SDD 3.5), a description of every module with its inputs, outputs, and algorithm, and traceability of every requirement area to SRS 1.6. The Word and PDF files are generated on the new template ([build](Project_6_SDD/build/README.md)); version 1.0 is kept in `Project_6_SDD/old/`.
+  - **New figures** in the diagram pack: the layered architecture (12), two UML class diagrams of the whole domain model (13a, 13b), and the sign-in sequence (14).
+  - **Corrections found while writing the SDD**, so that every document describes the system as built:
+    - the backend runs on Python 3.11, as in Docker and CI (design 1.3 said 3.12);
+    - the PWA uses a hand-written service worker (`frontend/public/sw.js`) and the web app manifest, not `vite-plugin-pwa` (design 1.3);
+    - the SQLAlchemy models of all modules are kept together in `app/models/`, and the record scope rules in `core/scope.py` and the services, not in a `models.py` and `policy.py` per module (design 2.2);
+    - skill extraction scans the normalized tokens with a dictionary of phrases of 1 to 4 tokens, the longest phrase winning, as recorded in the Increment 1 design, not with an Aho–Corasick automaton (design 6.1);
+    - the `embed_missing` job (every 15 minutes) embeds profiles and vacancies that have no vector yet (design 5.3);
+    - files are streamed by the API, so the API conventions no longer mention a redirect to a short-lived link or the `302` status (API 1, as decided in CR-08);
+    - the architecture figure says that files are streamed after the permission check, and the AI pipelines figure shows the training type in the eligibility filter (CR-06), passages of about one sentence (CR-09), and the measured top-5 result.
+- **Reason:** the course requires the SDD on its 2026 template; rewriting it compared every design statement with the code.
+- **Affected:**
+  - SDD version 1.1.
+  - Design document 1.3, 2.2, 5.3, and 6.1 (version 1.8).
+  - API specification 1 (version 1.6).
+  - Diagram pack figures 5, 8, 12, 13a, 13b, and 14 (version 1.3).
+- **Effect on schedule:** none.
+- **Decision:** approved. SDD 1.1, design 1.8, API specification 1.6, diagram pack 1.3.

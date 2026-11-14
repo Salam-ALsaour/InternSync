@@ -1,10 +1,11 @@
 // PDF files of the maintained documents for the final submission (Increment 5, D6 and RQ-3).
 //
 //   node docs/tools/export_pdf.mjs        (after `npm ci` and `npx playwright install chromium` in frontend/)
+//   node docs/tools/export_pdf.mjs Design Change   (only the files whose name contains one of the words)
 //
 // Each Markdown document is rendered to HTML with `marked`, its images resolved from the document's own folder, and
-// printed to A4 by the Chromium of the browser tests. The SRS is built separately on the course template
-// (docs/Project_4_SRS/build).
+// printed to A4 by the Chromium of the browser tests. The SRS and the SDD are built separately on the course
+// templates (docs/Project_4_SRS/build, docs/Project_6_SDD/build).
 import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -22,8 +23,8 @@ const SPMP = "Project_3_SPMP/InternSync_SPMP.md";
 const FILES = [
   ["InternSync_Final_Report.pdf", "Final Report", ["Final_Report.md"]],
   ["InternSync_SPMP_v1.7.pdf", "Software Project Management Plan", [SPMP]],
-  ["InternSync_Design_v1.7.pdf", "System Design Document", ["Design/InternSync_Design.md"]],
-  ["InternSync_API_Spec_v1.5.pdf", "API Specification", ["Design/InternSync_API_Spec.md"]],
+  ["InternSync_Design_v1.8.pdf", "System Design Document", ["Design/InternSync_Design.md"]],
+  ["InternSync_API_Spec_v1.6.pdf", "API Specification", ["Design/InternSync_API_Spec.md"]],
   ["InternSync_Test_Reports.pdf", "Test Reports", [1, 2, 3, 4, 5].map((n) => `Increments/Increment_${n}/04_Test_Report.md`)],
   ["InternSync_UAT_Plan.pdf", "User Acceptance Testing Plan", ["Increments/Increment_4/05_UAT_Plan.md"]],
   ["InternSync_User_Guide.pdf", "User Guide", ["User_Guide.md"]],
@@ -70,7 +71,8 @@ const work = join(tmpdir(), `internsync-export-${process.pid}`);
 mkdirSync(work, { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage();
-for (const [name, title, sources] of FILES) {
+const only = process.argv.slice(2);
+for (const [name, title, sources] of FILES.filter(([n]) => !only.length || only.some((w) => n.includes(w)))) {
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>InternSync – ${title}</title>
     <style>${STYLE}</style></head><body>${sources.map(render).join("\n")}</body></html>`;
   const file = join(work, `${name}.html`);

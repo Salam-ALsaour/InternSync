@@ -22,7 +22,7 @@ for i, (k, t) in enumerate([("UI", "Role dashboards\nand forms"), ("I18N", "i18n
 c.arrow([(W / 2, 0.94), (W / 2, 1.22)], "HTTPS", lpos=(W / 2 + 0.06, 1.08))
 
 # ---------------------------------------------------------------- server
-c.frame(0.15, 2.62, 7.0, 3.88, "Server — Python 3 / FastAPI, one Docker image (single instance)")
+c.frame(0.15, 2.62, 7.0, 3.88, "Server — Python 3.11 / FastAPI, one Docker image (single instance)")
 c.frame(0.3, 2.95, 6.7, 1.55, "REST API  /api/v1  —  JWT authentication, role check on every request", fill="white",
         fs=7.8)
 mods = [("AUTH", "Auth, registration,\nRBAC, org scoping"), ("USR", "Organizations,\nverification, cycles"),
@@ -54,7 +54,7 @@ for src, f in (("MAT", 0.3), ("SIM", 0.6)):
 c.text(c.at("SIM", "bottom")[0] + 0.62, yb + 0.015, "both use the shared model", fontsize=6.4, color=AI_EDGE, ha="left", va="top")
 
 c.box("SCH", 0.3, 5.85, 6.7, 0.45,
-      "Scheduler (APScheduler, every 15 min, idempotent jobs):  reminders  ·  Late / Missing flags  ·  escalations  ·  proof purge",
+      "Scheduler (APScheduler, every 1–15 min, idempotent jobs):  reminders  ·  Missing flags  ·  escalations  ·  email and push delivery  ·  proof purge",
       kind="white")
 nt = c.at("NTF", "right")
 c.arrow([c.at("SCH", "right", 0.5), (6.93, c.at("SCH", "right", 0.5)[1]), (6.93, nt[1]), nt])
@@ -68,7 +68,7 @@ c.box("MAIL", 4.7, 7.13, 1.15, 0.82, "Email provider\n(SMTP, TLS)", kind="ext")
 c.box("PUSH", 5.95, 7.13, 1.05, 0.82, "Browser push\nservices", kind="ext")
 
 c.arrow([(1.37, 6.5), c.at("DB", "top")], "SQL (ORM) +\nvector search", lpos=(1.43, 6.64))
-c.arrow([(3.4, 6.5), c.at("FS", "top")], "signed URLs after\npermission check", lpos=(3.46, 6.64))
+c.arrow([(3.4, 6.5), c.at("FS", "top")], "streamed by the API\nafter permission check", lpos=(3.46, 6.64))
 mx = c.at("MAIL", "top", 0.62)[0]
 c.arrow([(mx, 6.5), (mx, 7.13)], "email", lpos=(mx + 0.05, 6.64))
 c.arrow([(c.at("PUSH", "top")[0], 6.5), c.at("PUSH", "top")], "web push", lpos=(c.at("PUSH", "top")[0] + 0.05, 6.64))
