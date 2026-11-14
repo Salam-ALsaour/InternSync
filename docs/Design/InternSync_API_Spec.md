@@ -1,7 +1,7 @@
 # InternSync – API Specification
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Task T2 (System design) · Milestone M2 · Version 1.5 · October 28, 2026
+Task T2 (System design) · Milestone M2 · Version 1.6 · November 14, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -11,6 +11,7 @@ Task T2 (System design) · Milestone M2 · Version 1.5 · October 28, 2026
 | 1.3 | Oct 26, 2026 | CR-08 (Increment 2 implementation): files are always streamed by the API; `can_*` flags on attendance and grades; reopening a final evaluation needs a `draft` grade; `/version` and the deep health check name the loaded model; dashboard links open the grades page; payloads of Sections 4.5, 4.6, 4.9, and 4.10 as built. Sections 3.7, 3.11, 3.12, 3.19, 3.20, and 4 updated. | Salam Alsaour |
 | 1.4 | Oct 27, 2026 | CR-09 (Increment 3 implementation): transfer rules and answers; similarity result as built (`status` `none`, `sources` with `author`, `can_decide`); notification items with their text in the caller's language; push answers `204`; history entries; exports in the caller's language and audited; error codes `TRANSFER_TARGET_INVALID` and `SUPERVISOR_HAS_STUDENTS`. Sections 3.2, 3.10, 3.15, 3.17, 3.18, 4.8, and 5 updated. | Salam Alsaour |
 | 1.5 | Oct 28, 2026 | CR-11 (Increment 4 implementation): retention and anonymization endpoints; `GET /placements/{id}/feedback` and `/certificate`; the evaluation of the company, survey, outcomes, and leniency answers as built; the public certificate answer with university, college, and `name_removed`; `idle_timeout_minutes` on `/me`; seven new error codes. Sections 3.1, 3.3, 3.12, 3.14, 3.16, 4.11, and 5 updated. | Salam Alsaour |
+| 1.6 | Nov 14, 2026 | CR-12: Section 1 says that downloads are streamed by the API (as decided in CR-08) and no longer lists the `302` status. | Salam Alsaour |
 
 This document is the API contract agreed before implementation (SPMP risk "integration problems"). During development, FastAPI generates the OpenAPI 3.1 document from the code at `/api/v1/openapi.json` (NFR-MNT-02), and the frontend client is generated from it. The generated document must match this specification; any difference is either a bug or a change that is recorded here first.
 
@@ -40,9 +41,9 @@ Related: [System Design Document](InternSync_Design.md) (data model, state machi
 | Lists | Paginated with `?page=1&page_size=20` (maximum 100). Response: `{"items": [...], "page": 1, "page_size": 20, "total": 134}`. Sorting with `?sort=field` or `?sort=-field`. |
 | State changes | Each transition of a state machine is its own `POST /<resource>/{id}/<action>` endpoint, so each maps to one row of the transition tables in the design document (Section 5.1). Every successful change writes one audit entry (FR-AUD-01). |
 | Errors | `application/problem+json` (RFC 9457) with a stable `code` (Section 5). |
-| Downloads | Files are never served from a public URL. `GET /files/{id}` checks permission and redirects to a short-lived link (NFR-SEC-04). Export endpoints return the file directly. |
+| Downloads | Files are never served from a public URL. `GET /files/{id}` checks permission and streams the file itself (NFR-SEC-04, CR-08). Export endpoints return the file directly. |
 
-**Status codes used:** `200` OK, `201` created, `202` accepted, `204` no content, `302` redirect to a file, `400` malformed request, `401` not logged in or session ended, `403` role, scope, or consent not allowed, `404` not found, `409` conflict with the current state or a limit, `410` link already used or expired, `413` file too large, `415` file type not allowed, `422` validation failed, `423` account locked, `429` too many requests.
+**Status codes used:** `200` OK, `201` created, `202` accepted, `204` no content, `400` malformed request, `401` not logged in or session ended, `403` role, scope, or consent not allowed, `404` not found, `409` conflict with the current state or a limit, `410` link already used or expired, `413` file too large, `415` file type not allowed, `422` validation failed, `423` account locked, `429` too many requests.
 
 **Error body**
 

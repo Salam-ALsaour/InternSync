@@ -18,12 +18,13 @@ for a, b in (("cv", "ext"), ("ext", "conf"), ("conf", "emb")):
 
 y2 = 1.62
 c.box("vac", 0.3, y2, bw, bh, "Published vacancies\n(embedded when\npublished)", kind="white")
-c.box("elig", 2.05, y2, bw, bh, "Eligibility filter\ncycle, open, university,\nmajor, min GPA\n(FR-MAT-03)")
+c.box("elig", 2.05, y2, bw, bh, "Eligibility filter\ncycle, open, university,\nmajor, min GPA,\ntraining type (FR-MAT-03)")
 c.box("score", 3.8, y2, 3.3, bh, "", kind="ai")
 c.ax.text(3.8 + 1.65, y2 + 0.17, "fit = 100 × (0.5·semantic + 0.4·required + 0.1·preferred)", ha="center",
           va="center", fontsize=7.4, fontweight="bold", color="#1A1A1A", zorder=3)
-c.ax.text(3.8 + 1.65, y2 + 0.43, "semantic = cosine(profile, vacancy)   required / preferred =\n"
-          "share of the vacancy's required / preferred skills the student has", ha="center", va="center",
+c.ax.text(3.8 + 1.65, y2 + 0.43, "semantic = cosine(profile, vacancy) spread over 0–1 (floor 0.70, ceiling 0.95)\n"
+          "required / preferred = share of the vacancy's required / preferred skills held",
+          ha="center", va="center",
           fontsize=6.6, color="#333333", zorder=3, linespacing=1.2)
 c.arrow([c.at("vac", "right"), c.at("elig", "left")], color=AI_EDGE)
 c.arrow([c.at("elig", "right"), c.at("score", "left")], color=AI_EDGE)
@@ -39,8 +40,8 @@ c.arrow([sc, (sc[0], 2.45), (c.at("rank", "top")[0], 2.45), c.at("rank", "top")]
 c.arrow([c.at("rank", "right"), c.at("expl", "left")], color=AI_EDGE)
 c.arrow([c.at("expl", "right"), c.at("plan", "left")], color=AI_EDGE)
 c.arrow([c.at("fb", "top"), c.at("score", "bottom", 0.78)], dashed=True, color=AI_EDGE)
-c.text(0.3, 3.42, "Weights are a proposed starting point, stored as configuration and tuned on the labelled set "
-       "(target: a relevant vacancy in the top 5 for ≥ 80 % of 20 profiles, O2).", fontsize=6.6, va="center",
+c.text(0.3, 3.42, "Weights are settings, tuned on the labelled set; result: a relevant vacancy in the top 5 for 100 % "
+       "of profiles on the tuning and held-out sets (target 80 %, O2).", fontsize=6.6, va="center",
        color="#595959")
 
 # ======================================================= similarity
@@ -48,7 +49,7 @@ c.frame(0.12, 3.92, 7.06, 2.5, "B. Similarity detection (F12) — runs after eac
         fill="#FFFBF5", fs=8.6)
 y4 = 4.35
 c.box("sub", 0.3, y4, 1.2, bh, "Report\nsubmitted", kind="white")
-c.box("chunk", 1.68, y4, 1.2, bh, "Split into\npassages\n(~2–3 sentences)", kind="ai")
+c.box("chunk", 1.68, y4, 1.2, bh, "Split into\npassages\n(about one sentence)", kind="ai")
 c.box("emb2", 3.06, y4, 1.2, bh, "Embed each\npassage", kind="ai")
 c.box("knn", 4.44, y4, 1.2, bh, "Nearest passages,\nsame university\n(pgvector)", kind="ai")
 c.box("conf2", 5.82, y4, 1.28, bh, "Confirm overlap:\ncosine ≥ 0.90 and\nword 5-gram match", kind="ai")

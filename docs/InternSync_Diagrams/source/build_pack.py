@@ -3,7 +3,7 @@ import html
 
 import pymupdf
 
-VERSION = "v1.2"
+VERSION = "v1.3"
 NAVY, GREY = "#1F3864", "#595959"
 
 # (number, title, what it shows, where to use it, [png files])
@@ -47,6 +47,15 @@ FIGURES = [
      ["10_gantt_schedule"]),
     ("11", "Requirements by area and priority", "125 requirements by area: Must / Should / Could", "SRS 6.3.2",
      ["11_requirements_priority"]),
+    ("12", "Layered architecture", "Client and server layers as built, with the calls between them", "SDD 2.4",
+     ["12_layers"]),
+    ("13a", "Class diagram — organizations, accounts, profiles, vacancies, placement",
+     "Domain classes with attributes, operations, and multiplicities", "SDD 5.2", ["13a_class_organizations_placement"]),
+    ("13b", "Class diagram — training records and grading",
+     "Report slots, similarity, attendance, evaluations, grades, certificates", "SDD 5.2",
+     ["13b_class_training_grading"]),
+    ("14", "Sequence — sign-in and an authorized request", "Lockout, session, and the request pipeline gates",
+     "SDD 5.3.1", ["14_seq_login"]),
 ]
 
 CSS = f"""
@@ -80,11 +89,14 @@ def main():
                     f"<td>{html.escape(where)}</td></tr>")
         pno += 1
     body = (f"<h1>InternSync — Diagram pack</h1><div class='sub'>Requirements and design diagrams · {VERSION} · "
-            "consistent with SRS v1.3, the SPMP v1.2 and the design document v1.2</div>"
+            "consistent with SRS v1.6, the SPMP v1.7, the design document v1.8, and the SDD v1.1</div>"
             "<table><tr><th>No.</th><th>Diagram</th><th>What it shows</th><th>Where to use it</th></tr>"
             + "".join(rows) + "</table>"
             "<div class='note'>Colour key: blue = system behaviour or people; orange = AI-supported (advisory) behaviour; "
             "green = an approved / final state or the chosen option; grey dashed = external service.<br/>"
+            "v1.3 (Nov 14, 2026, CR-12): figures 12 (layered architecture), 13a and 13b (class diagrams), and 14 "
+            "(sign-in sequence) for the SDD; figure 5 says that files are streamed after the permission check; figure 8 "
+            "shows the training type in the eligibility filter, passages of about one sentence, and the measured result.<br/>"
             "v1.2 (Oct 20, 2026, CR-05): one platform for many universities and companies; Platform Admin role; "
             "registration with verification (UC-16 to UC-20); companies publish vacancies without review; CSV import "
             "removed; the ERD is redrawn in four parts (49 tables).<br/>"

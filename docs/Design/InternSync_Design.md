@@ -1,7 +1,7 @@
 # InternSync – System Design Document
 
 CSC 305 – Software Engineering · Semester 1 – 2026/2027 · Section 5MA1 · Group 3  
-Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.7 · October 29, 2026
+Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.8 · November 14, 2026
 
 | **Version** | **Date** | **Description** | **Author** |
 |:--:|:--:|:---|:--:|
@@ -13,6 +13,7 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.7 · Oc
 | 1.5 | Oct 27, 2026 | CR-09 (Increment 3 implementation): PDF exports with fpdf2 and HarfBuzz shaping instead of WeasyPrint; similarity passages of about one sentence, and a passage compared with the source report's nearby passages taken together; `slot_id` on passages and `attempts` on checks. Sections 1.3, 4.3.5, 5.6, and 6.3 updated. | Salam Alsaour |
 | 1.6 | Oct 28, 2026 | CR-10: offline mode with a saved copy of the session and drafts kept on the device (Sections 7.3 and 8.3). CR-11 (Increment 4 implementation): retention period per college, anonymization as built, `anonymized_at` on cycles and users, `purged_at` on files, the certificate page and public answer as built, the idle limit applied on the device. Sections 4.3.1, 4.3.2, 4.3.8, 4.5, 5.6, 5.7, 7.1, 7.3, and 8.3 updated. | Salam Alsaour |
 | 1.7 | Oct 29, 2026 | Increment 5: on phones the menu folds behind a button (Section 8.2), found while taking the user guide's screenshots. | Salam Alsaour |
+| 1.8 | Nov 14, 2026 | CR-12: aligned with the build while writing the SDD: Python 3.11 and the hand-written service worker (1.3), the module layout (2.2), the `embed_missing` job (5.3), and the skill extraction scan (6.1). SDD 1.1 ([Project 6](../Project_6_SDD/InternSync_SDD.md)) presents this design on the official 2026 course template. | Salam Alsaour |
 
 **Related documents**
 
@@ -20,6 +21,7 @@ Tasks T2 (System design) and T3 (UI design) · Milestone M2 · Version 1.7 · Oc
 - [API Specification](InternSync_API_Spec.md): every endpoint, its roles, payloads, and error codes.
 - [Diagram pack](../InternSync_Diagrams/README.md): figures referenced below. The ERD figures are generated from `source/06_erd.py`, which must match Section 4.
 - [Change requests](../Change_Requests.md): decisions that changed the SRS or SPMP.
+- [Software Design Description](../Project_6_SDD/InternSync_SDD.md): this design in the sections of the course SDD template (IEEE 1016), with the design decisions and the traceability to the SRS.
 
 ## Table of Contents
 
@@ -59,7 +61,7 @@ Since version 1.2 (CR-05), InternSync is one platform for many organizations: a 
 
 | **Layer** | **Choice** | **Reason** |
 |:---|:---|:---|
-| Backend language and framework | Python 3.12, FastAPI, Pydantic v2 | Required by C-03; generates the OpenAPI document (NFR-MNT-02). |
+| Backend language and framework | Python 3.11, FastAPI, Pydantic v2 | Required by C-03; generates the OpenAPI document (NFR-MNT-02). |
 | Database access | SQLAlchemy 2.0 (synchronous), psycopg 3, Alembic migrations | Mature and simple; FastAPI runs synchronous endpoints in a thread pool, which is enough for the expected load (NFR-PER-01). |
 | Database | PostgreSQL 16 or later with `pgvector` (`halfvec`) and `pg_trgm` | Relational data and embeddings in one place (C-03). `halfvec` halves vector storage to fit the free database size. |
 | Passwords | Argon2id (`argon2-cffi`) | NFR-SEC-02. |
@@ -75,7 +77,7 @@ Since version 1.2 (CR-05), InternSync is one platform for many organizations: a 
 | Web push | `pywebpush` with VAPID keys | FR-PWA-02. |
 | Frontend | React 18, Vite, TypeScript, React Router, TanStack Query, react-i18next, Tailwind CSS (logical properties for RTL) | C-03, FR-LOC-01. |
 | API client | `openapi-typescript` and `openapi-fetch`, generated from the server's OpenAPI document | NFR-MNT-02. |
-| PWA | `vite-plugin-pwa` (Workbox) | FR-PWA-01 – 03. |
+| PWA | Web app manifest and a hand-written service worker (`frontend/public/sw.js`): app shell cached, API answers never cached | FR-PWA-01 – 03. |
 | Tests | pytest, pytest-cov, httpx test client; Vitest; Playwright smoke tests; Locust load tests | NFR-MNT-01, NFR-PER-01. |
 
 ## 2. Architecture
@@ -94,7 +96,7 @@ PostgreSQL stores all records and embeddings. A private object store keeps CVs, 
 
 ### 2.2 Backend Modules
 
-Each module is a Python package under `backend/app/` with the same files: `router.py` (endpoints), `schemas.py` (Pydantic models), `service.py` (business rules and transitions), `models.py` (SQLAlchemy tables), and `policy.py` (who may do what).
+Each module is a Python package under `backend/app/` with the same files: `router.py` (endpoints and their roles), `schemas.py` (Pydantic models, where the module has its own), and `service.py` (business rules, scope checks, and transitions). The SQLAlchemy tables of all modules are kept together in `app/models/` (one file per area), because many transitions touch several areas in one transaction; the scope rules shared by several modules are in `core/scope.py`.
 
 | **Module** | **Responsibility** | **Main tables** | **SRS** |
 |:---|:---|:---|:---|
@@ -1014,6 +1016,7 @@ All jobs run inside the API process under APScheduler. Each job runs in one tran
 | `send_reminders` | 15 min | Slots in `draft` or `revision_requested`, active placement, `now < due_at ≤ now + 24 h` | Notify the student (FR-NOT-02) | `reminder:{slot_id}` |
 | `flag_missing` | 15 min, and 30 s after the API starts | Slots in `draft`, `due_at < now`, `is_missing = false` | Set `is_missing`, notify the student and the AS (FR-REP-04, FR-NOT-03) | `missing:{slot_id}:{user_id}` |
 | `escalate_overdue` | 15 min | Reports not submitted, attendance weeks not recorded, evaluations not submitted, 3 or more days after their deadline | Notify the Coordinator (FR-NOT-04) | `escalation:{type}:{id}` |
+| `embed_missing` | 15 min | Student profiles with confirmed skills and published vacancies without an embedding (for example while the model was off) | Embed them, so they leave basic matching | – |
 | `similarity_retry` | 5 min | `similarity_checks` still `pending` after 5 minutes, or `failed` fewer than 3 times | Run the check again | – |
 | `deliver_notifications` | 1 min | Notifications with email or push `pending` | Send email in the user's language and web push; retry failed email up to 5 times | – |
 | `purge_verification_documents` | Daily | Documents of requests decided more than `verification.document_retention_days` ago | Delete the file from storage, set `purged_at` (FR-ORG-08) | – |
@@ -1085,7 +1088,7 @@ The model `intfloat/multilingual-e5-small` is baked into the Docker image at bui
 
 1. **Extract text** with `pypdf` or `python-docx`. If fewer than 50 letters come out, mark the CV `no_text` (FR-PRF-05).
 2. **Normalize:** lowercase Latin letters; for Arabic, remove diacritics and tatweel, unify أ/إ/آ → ا, ى → ي, ة → ه; collapse spaces and punctuation.
-3. **Match** the normalized text against every active skill's `match_terms` (both names and all synonyms, normalized the same way) as whole words or phrases of up to four words. Matching uses a pre-built automaton (Aho–Corasick) that is rebuilt when the vocabulary changes.
+3. **Match** the normalized tokens against every active skill's `match_terms` (both names and all synonyms, normalized the same way) as whole words or phrases of up to four words: at each position the longest known phrase wins. The first token may drop an attached Arabic conjunction or preposition (و، ف، ب، ل، ك) when the rest completes a known phrase. The phrase dictionary is built once and rebuilt when the vocabulary changes.
 4. **Store** the matches in `cv_extracted_skills` with a short evidence snippet. The student then confirms, removes, or adds skills; only confirmed skills go to `student_skills`.
 
 The method is rule-based on purpose: it is fast, explainable, and the student always confirms. Its recall is measured on the 20 labelled CVs (target ≥ 70%); missing synonyms are added to the vocabulary until the target is met.
